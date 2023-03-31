@@ -1,0 +1,45 @@
+---
+title: Kafka
+description: "Connect Arroyo to a Kafka topic"
+---
+
+To consume real data, you can connect Arroyo to a Kafka cluster and create sources from topics. This tutorial will
+cover setting up a local Kafka broker and generating some sample data.
+
+## Setting up Kafka
+
+The easiest way to get a Kafka broker up and running is to use the
+[Confluent Platform](https://www.confluent.io/product/confluent-platform/). Follow the installation instructions
+[here](https://developer.confluent.io/quickstart/kafka-local/) to set up a local installation on your machine.
+
+Once you have the Confluent Platform installed, you can start the Kafka broker by running the following command in
+the confluent directory:
+
+```
+$ bin/confluent local services start
+```
+
+## Generating data
+
+The confluent platform includes Kafka connect, which can be used to generate data for testing. To create a topic, go
+to the control center UI at http://localhost:9021/clusters. Click into the cluster, then the Topics page.
+
+Click "Add Topic" and create a topic called "pageviews" with default settings. Then create a second topic with the
+name "arroyo-sink."
+
+Next we're going to create a Kafka connect source to generate data. Click the "Connect" tab in the control center and
+select the "connect-default" cluster. Click
+
+```json
+{
+    "connector.class": "io.confluent.kafka.connect.datagen.DatagenConnector",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "io.confluent.connect.json.JsonSchemaConverter",
+    "value.converter.schema.registry.url": "http://localhost:8081",
+    "quickstart": "pageviews",
+    "kafka.topic": "pageviews",
+    "tasks.max": 1
+}
+```
+
+
