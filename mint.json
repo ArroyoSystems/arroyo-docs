@@ -1,9 +1,9 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Documentation Starter Kit",
+  "name": "Arroyo Documentation",
   "logo": {
-    "dark": "/logo/dark.png",
-    "light": "/logo/light.png"
+    "dark": "/logo/arroyo_logo.png",
+    "light": "/logo/arroyo_logo.png"
   },
   "favicon": "/favicon.png",
   "colors": {
@@ -44,6 +44,13 @@
       "pages": ["introduction", "features"]
     },
     {
+      "group": "Tutorial",
+      "pages": [
+        "tutorial/first-pipeline",
+        "tutorial/kafka"
+      ]
+    },
+    {
       "group": "API Documentation",
       "pages": ["api-reference/authentication"]
     },
@@ -58,8 +65,8 @@
     }
   ],
   "footerSocials": {
-    "twitter": "https://twitter.com/mintlify",
-    "github": "https://github.com/mintlify",
-    "linkedin": "https://www.linkedin.com/company/mintsearch"
+    "twitter": "https://twitter.com/ArroyoSystems",
+    "github": "https://github.com/ArroyoSystems",
+    "linkedin": "https://www.linkedin.com/company/arroyo-systems"
   }
 }
