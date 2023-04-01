@@ -18,8 +18,8 @@
     }
   ],
   "topbarCtaButton": {
-    "name": "Get Started",
-    "url": "https://github.com/mintlify/starter"
+    "name": "Arroyo Cloud",
+    "url": "https://arroyo.dev"
   },
   "anchors": [
     {
@@ -28,20 +28,15 @@
       "url": "api-reference"
     },
     {
-      "name": "Changelog",
-      "icon": "list",
-      "url": "https://mintlify.com"
-    },
-    {
-      "name": "Community",
-      "icon": "discord",
-      "url": "https://mintlify.com/community"
+      "name": "Github",
+      "icon": "github",
+      "url": "https://github.com/ArroyoSystems/arroyo"
     }
   ],
   "navigation": [
     {
       "group": "Home",
-      "pages": ["introduction", "features"]
+      "pages": ["introduction", "getting-started"]
     },
     {
       "group": "Tutorial",

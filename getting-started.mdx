@@ -1,0 +1,53 @@
+---
+title: Getting started
+description: "Setting up Arroyo locally"
+---
+
+To try out Arroyo, you can run a single node cluster on your machine. This guide will walk you through the process.
+
+## With Docker
+
+The easiest way to get started running Arroyo is with the single-node Docker image. This contains all of the services
+you need to get a test Arroyo system up and running.
+
+```bash
+$ docker run -p 8000:8000 -p 8001:8001 ghcr.io/arroyosystems/arroyo:single
+```
+
+<Tip>
+    If you get an error like
+
+    ```
+    Error starting userland proxy: listen tcp4 0.0.0.0:8000:
+    bind: address already in use.
+    ```
+
+    Then you have another service running on that port. Either stop that service, or rebind to a different port with
+    `-p 8002:8000` for example.
+</Tip>
+
+This will run all of the core arroyo services and a temporary Postgres database. The web UI will be exposed at
+http://localhost:8000.
+
+Note that this mode should not be used for production, as it does not persist configuration state and does not support
+any distributed runtimes.
+
+## Locally
+
+Arroyo can easily be run locally as well. Currently Linux and MacOS are well supported as development environments.
+
+To run Arroyo locally first follow the dev setup instructions to get a working dev environment. Then, you can start
+the API and Controller services:
+
+```bash
+$ target/release/arroyo-controller
+# in another terminal
+$ target/release/arroyo-api
+```
+
+Then you can navigate to the web ui at http://localhost:8000.
+
+
+## Next steps
+
+Now you're ready to create your first pipeline! Continue on to the [tutorial](/tutorial) to learn how.

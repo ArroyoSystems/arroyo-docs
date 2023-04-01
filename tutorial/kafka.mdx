@@ -21,25 +21,156 @@ $ bin/confluent local services start
 
 ## Generating data
 
-The confluent platform includes Kafka connect, which can be used to generate data for testing. To create a topic, go
-to the control center UI at http://localhost:9021/clusters. Click into the cluster, then the Topics page.
+The confluent platform includes Kafka connect, which can be used to generate data for testing using the
+[datagen plugin](https://github.com/confluentinc/kafka-connect-datagen). First, we need to install the plugin. Run
+the following command in the confluent directory:
 
-Click "Add Topic" and create a topic called "pageviews" with default settings. Then create a second topic with the
-name "arroyo-sink."
+```
+$ bin/confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:latest
+$ bin/confluent local services connect stop
+$ bin/confluent local services connect start
+```
+
+To create a topic, go to the control center UI at http://localhost:9021/clusters. Click into the cluster, then the
+Topics page.
+
+Click "Add Topic" and create a topic called `orders` with default settings. Then create a second topic with the
+name `sink`.
 
 Next we're going to create a Kafka connect source to generate data. Click the "Connect" tab in the control center and
-select the "connect-default" cluster. Click
+select the "connect-default" cluster.
+
+Write this JSON to a file called `/tmp/datagen.json`:
 
 ```json
 {
+    "name": "datagen-orders",
     "connector.class": "io.confluent.kafka.connect.datagen.DatagenConnector",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter": "io.confluent.connect.json.JsonSchemaConverter",
     "value.converter.schema.registry.url": "http://localhost:8081",
-    "quickstart": "pageviews",
-    "kafka.topic": "pageviews",
+    "quickstart": "pizza_orders",
+    "kafka.topic": "orders",
     "tasks.max": 1
 }
 ```
 
+Then click "Add Connector" and select "Upload connector config file," and find the /tmp/datagen.json file you created.
+This will preload the connector with the correct settings. Click Next to create the connector.
 
+Now clicking back into the `orders` topic on the Topics page, you should see data being generated.
+
+## Creating a Kafka connection
+
+Now that we have a Kafka broker running and some data being generated, we can connect it to Arroyo. Start by opening
+the Arroyo UI at http://localhost:8000.
+
+A Connection in Arroyo is an external system that Arroyo will read or write to. To create a Kafka connection, click
+the "Connections" tab in the Arroyo UI and then click "Create Connection."
+
+Select "Kafka" as the connection type and fill in the following settings:
+
+* Name: `local-confluent`
+* Bootstrap Servers: `localhost:9092`
+
+<Tip>
+    If you're running Arroyo in Docker, you will need to do a bit more setup to enable Arroyo to talk to Kafka.
+
+    First, you will need find your bridge IP address. You can do this by running
+    `docker network inspect bridge | grep Gatway` which should return an ip address, for example `172.17.0.1`.
+
+    Then you will need to configure the Kafka broker to listen on that IP address. To do this, edit the
+    `etc/kafka/server.properties` file in the confluent installation and add the following lines:
+
+    ```
+    listeners=PLAINTEXT://localhost:9092:DOCKER://172.17.0.1:19092,
+    listener.security.protocol.map=PLAINTEXT:PLAINTEXT,DOCKER:PLAINTEXT
+    ```
+
+    Finally, you will need to restart the Kafka broker by running
+
+    ```
+    $ bin/confluent local services stop
+    $ bin/confluent local services start
+    ```
+
+    Then, use the gateway IP address with port 19092 as the bootstrap server in the connection settings, for example
+    `172.17.0.1:19092`.
+</Tip>
+
+Click "Test" and then "Create" to create the connection.
+
+If the connection is not successful, make sure that the Kafka broker is running and that the IP address is correct and
+port are correct.
+
+## Creating a Kafka source
+
+Next we will create a source that reads from the Kafka topic we created earlier. Click the "Sources" tab in the Arroyo
+UI and then click "Create Source." Select "Kafka" as the source type and click "Continue."
+
+Select the `local-confluent` connection and enter `orders` for the topic. Click the Validate button to make sure the
+topic is valid, then Continue.
+
+Arroyo sources need to have a defined schema so we know how to deserialize the data. Currently json-schema is the only
+supported format. Also supported is the Confluent Schema Registry, which can be used to store and manage schemas. Since
+the topic we generated has an associated schema in the schema registry, choose that option and click "Continue".
+
+Enter the URL for the schema registry (this will be either `http://localhost:8081` or `http://<GATEWAY IP>:8081` if
+running in docker). Click "Fetch Schema" to pull in the json-schema, and then continue.
+
+On the next screen click "Test source," which will validate the connection, topic, and schema. If everything is good,
+click "Continue." Finally, give the source a name like `orders`; this will be the name of the table that you will query.
+Finally, click "Publish" to create the source.
+
+## Creating a Kafka sink
+
+Next we're going to create a Kafka sink to write our outputs to. Go to the "Sinks" tab and click "Create Sink".
+
+Select "Kafka" as the sink type, and enter the following settings:
+
+* Name: `kafka-sink`
+* Kafka Connection: `local-confluent`
+* Topic: `sink`
+
+Click "Create" to finish.
+
+## Creating the Pipeline
+
+Now we're ready to talk to Kafka! Go to the Jobs tab, and click "Create Pipeline."
+
+We can start with a simpe query that will select all the orders from the `orders` table to see what the data looks like:
+
+```sql
+SELECT * from orders;
+```
+
+Previewing that should show a stream of data being generated by the datagen connector.
+
+Let's try something a little more interesting. We're going to count the number of orders by store over a sliding window.
+We can do that with this query:
+
+```sql
+SELECT count(*) as count, store_order_id as store
+FROM orders
+GROUP BY store_order_id, hop(interval '2 seconds', interval '10 seconds');
+```
+
+You can continue to try out queries, or start running this one for real.
+
+Click "Start Pipeline" and give the pipeline a name. Select `kafka-sink` as the sink, and click "Start."
+
+Once the pipeline starts running, we can see the oputputs by running the Kafka console consumer in the confluent
+directory:
+
+```
+$ bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic sink
+{"count":2,"store":3}
+{"count":1,"store":6}
+{"count":5,"store":8}
+{"count":4,"store":4}
+{"count":4,"store":5}
+{"count":5,"store":1}
+...
+```
+
+When you're done, hit "Stop" to stop the pipeline.
