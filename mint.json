@@ -25,7 +25,7 @@
     {
       "name": "API Reference",
       "icon": "rectangle-terminal",
-      "url": "api-reference"
+      "url": "api-reference/api"
     },
     {
       "name": "Github",
@@ -36,7 +36,7 @@
   "navigation": [
     {
       "group": "Home",
-      "pages": ["introduction", "getting-started"]
+      "pages": ["introduction", "getting-started", "concepts", "architecture"]
     },
     {
       "group": "Tutorial",
@@ -46,16 +46,15 @@
       ]
     },
     {
-      "group": "API Documentation",
-      "pages": ["api-reference/authentication"]
+      "group": "Operations",
+      "pages": [
+        "deployment/arroyo-cluster"
+      ]
     },
     {
-      "group": "Endpoint Examples",
+      "group": "Arroyo Development",
       "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/update",
-        "api-reference/endpoint/delete"
+        "developing/dev-setup"
       ]
     }
   ],

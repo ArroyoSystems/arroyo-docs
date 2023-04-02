@@ -10,6 +10,10 @@ on both bounded and unbounded sources, emitting results as soon as they are avai
 
 In short: Arroyo lets you ask complex questions of high-volume real-time data with subsecond results.
 
+![Arroyo](/images/header_image.png)
+
+Arroyo can be self-hosted, or used via the [Arroyo Cloud](https://arroyo.dev/) service managed by Arroyo Systems.
+
 ## Features
 
 * SQL and Rust pipelines
@@ -65,8 +69,8 @@ any distributed runtimes.
 
 Arroyo can easily be run locally as well. Currently Linux and MacOS are well supported as development environments.
 
-To run Arroyo locally first follow the dev setup instructions to get a working dev environment. Then, you can start
-the API and Controller services:
+To run Arroyo locally first follow the [dev setup instructions](/developing/dev-setup) to get a working dev environment.
+Then, you can start the API and Controller services:
 
 ```bash
 $ target/release/arroyo-controller
@@ -75,6 +79,30 @@ $ target/release/arroyo-api
 ```
 
 Then you can navigate to the web ui at http://localhost:8000.
+
+#### Metrics
+
+The metrics exposed in the UI rely on Prometheus and the Prometheus pushgateway. You will need to run these services
+and configure prometheus to read from the push gateway.
+
+Download prometheus and pushgateway for your platform from https://prometheus.io/download/. Then, create a prometheus.yml
+file that looks like this:
+
+```yaml
+global:
+  scrape_interval:     5s
+scrape_configs:
+  - job_name: pushgateway
+    static_configs:
+      - targets: ['localhost:9091']
+```
+
+Finally, start both prometheus and the pushgateway:
+
+```bash
+$ ./pushgateway
+$ ./prometheus --config.file=prometheus.yml
+```
 
 ### Next steps
 

@@ -1,0 +1,84 @@
+---
+title: Developer setup
+description: "Set up your environment to develop Arroyo"
+---
+
+## Dependencies
+
+To build Arroyo, you will need to install some dependencies.
+
+### Ubuntu
+
+```bash
+$ sudo apt-get install pkg-config build-essential libssl-dev openssl cmake clang postgresql postgresql-client
+$ sudo systemctl start postgresql
+$ curl https://sh.rustup.rs -sSf | sh -s -- -y
+$ cargo install wasm-pack
+$ cargo install refinery_cli
+```
+
+### MacOS
+
+Coming soon
+
+## Postgres
+
+Developing Arroyo requires running a properly configured postgres instance. By default,
+it expects a database called `arroyo`, a user `arroyo` with password `arroyo`, although that
+can be changed by setting the following environment variables:
+
+* `DATABASE_NAME`
+* `DATABASE_HOST`
+* `DATABASE_USER`
+* `DATABASE_PASSWORD`
+
+On Ubuntu, you can setup a compatible database like this:
+
+```bash
+$ sudo -u postgres psql -c "CREATE USER arroyo WITH PASSWORD 'arroyo' SUPERUSER;"
+$ sudo -u postgres createdb arroyo
+```
+
+Migrations are managed using [refinery](https://github.com/rust-db/refinery). Once Postgres is
+set up, you can initalize it with
+
+```bash
+$ refinery setup # follow the prompts
+$ mv refinery.toml ~/
+$ refinery migrate -c ~/refinery.toml -p arroyo-api/migrations
+```
+
+We use [cornucopia](https://github.com/cornucopia-rs/cornucopia) for typed-checked SQL queries. Our build is set up
+to automatically re-generate the rust code for those queries on build, so you will need a DB set up for compilation
+as well.
+
+## Building the services
+
+Arroyo is built via Cargo, the Rust build tool. To build all of the services in release mode, you can run
+
+```
+$ cargo build --release
+```
+
+## Building the frontend
+
+We use pnpm and vite for frotend development.
+
+Start by installing pnpm by following the instructions here: https://pnpm.io/installation.
+
+Then you should be able to run the console in dev mode like this:
+
+```
+$ cd arroyo-console
+$ pnpm build
+```
+
+This will launch a dev server at http://localhost:5173 (note the api must
+also be running locally for this to be functional).
+
+To build the console (necessary before deploying for the hosted version to work) you
+can run
+
+```
+$ pnpm build
+```

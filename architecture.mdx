@@ -1,0 +1,67 @@
+---
+title: Architecture
+description: "Overview of the Arroyo architecture"
+---
+
+## Architecture overview
+
+The Arroyo system architecture is composed of several services, as can be seen in the following diagram:
+
+![Arroyo Architecture](/images/arroyo_arch.png)
+
+### web ui
+
+The web ui is a single-page app written in react that interacts with the system via the gRPC API. It allows users to
+configure the system, create pipelines, and monitor their statuses.
+
+### arroyo-api
+
+The API server backs the web ui and handles all configuration operations and pipeline management. It exposes a gRPC APIs
+(defined in [api.proto](https://github.com/ArroyoSystems/arroyo/blob/master/arroyo-rpc/proto/api.proto)).
+
+API operations, like creating a pipeline or updating its state operate soley by updating the configuration in
+the postgres database. This is asynchronously applied to the actual state of the environment by the controller. The API
+itself is stateless and does not communicate with the rest of the system except via the database.
+
+### arroyo-controller
+
+The controller runs a control loop that continuously reconciles the desired state of the system (as defined in the database)
+with the actual state of the system, as determined by monitoring the environment. This is similar to a Kubernetes
+controller, (see [here](https://kubernetes.io/docs/concepts/architecture/controller/) for an overview of this pattern.
+
+There is a single controller instance that runs in the system, and high-availability is not yet supported in the open
+source release. If the controller instance fails, the workers will eventually stop and wait for the controller to come
+back online.
+
+The controller manages a state machine for each job, which is documented [here](#state-machine) and is also responsible
+for initiating checkpoints on the workers. Communication between the controller and workers is done via the gRPC API
+defined in [rpc.proto](https://github.com/ArroyoSystems/arroyo/blob/master/arroyo-rpc/proto/rpc.proto).
+
+### scheduler
+
+Arroyo supports multiple schedulers, which are responsible for running the workers that make up the dataflow engine.
+The scheduler can be set by setting the `SCHEDULER` environment variable for the controller.
+
+#### process
+
+The process scheduler is the default, and is most useful for local development. In this mode, the controller will spawn
+processes locally to run the workers.
+
+#### node
+
+Arroyo comes with a lightweight scheduler and node runtime for running distributed workers. In this mode, you must start
+some number of arroyo-node processes (for example, in an autoscaling group) and configure them with the controller's
+address. The controller will then schedule workers on these nodes.
+
+#### nomad
+
+Arroyo can also be configured to schedule workers on a [Nomad](https://www.nomadproject.io/) cluster. This is currently
+the recommended mode for production usage, and is what we run in production for [Arroyo Cloud](https://arroyo.dev/).
+
+#### kubernetes
+
+Support for scheduling workers on a kubernetes cluster is coming soon.
+
+### arroyo-worker
+
+The workers are responsible
