@@ -1,0 +1,33 @@
+direction:right
+u:"updating" {
+    Compiling -> Scheduling
+    Recovering -> Compiling
+    Rescaling -> Scheduling
+    Rescaling -> Stopping
+    Recovering -> Compiling
+}
+
+Created -> u.Compiling
+u.Scheduling -> r.Running
+
+r:"running" {
+    Running
+}
+
+r.Running -> s.CheckpointStopping
+r.Running -> s.Stopping
+r.Running -> s.Finishing
+r.Running -> u.Recovering
+r.Running -> u.Rescaling
+
+
+s:"stopping" {
+    Stopping -> Stopped
+    CheckpointStopping -> Stopped
+    Finishing -> Finished
+}
+
+s.Stopped -> u.Compiling
+
+Failed
+Failed.style.fill: "#f08981"

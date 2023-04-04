@@ -37,7 +37,7 @@ The controller manages a state machine for each job, which is documented [here](
 for initiating checkpoints on the workers. Communication between the controller and workers is done via the gRPC API
 defined in [rpc.proto](https://github.com/ArroyoSystems/arroyo/blob/master/arroyo-rpc/proto/rpc.proto).
 
-### scheduler
+### schedulers
 
 Arroyo supports multiple schedulers, which are responsible for running the workers that make up the dataflow engine.
 The scheduler can be set by setting the `SCHEDULER` environment variable for the controller.
@@ -60,8 +60,39 @@ the recommended mode for production usage, and is what we run in production for 
 
 #### kubernetes
 
-Support for scheduling workers on a kubernetes cluster is coming soon.
+Support for scheduling workers on a Kubernetes cluster is coming soon.
 
 ### arroyo-worker
 
-The workers are responsible
+Workers run the actual processing logic, making up the dataplane. Workers run a binary that is produced by linking
+Rust code generated from the SQL query with the arroyo-worker library. Workers within the same pipeline are connected
+via TCP connections over which dataflow occurs. Each worker is configured with a number of slots, which controls how
+many subtasks it may run. By default, each slot runs a parallel slice of the entire DAG, which generally does a good
+job of balancing the load across workers.
+
+The controller is responsible for scheduling the necessary number of workers to run a pipeline, initiating checkpoints,
+monitoring their health, and recovering from failures.
+
+### postgres
+
+Arroyo uses Postgres to store configuration (sources, connections, sinks, pipelines, etc) and the status of the system.
+This drives the API, and is also used by the controller to drive the reconciliation loop.
+
+### prometheus
+
+Arroyo uses Prometheus for metrics collection. This powers the metrics dashboard in the web ui. It also relies on the
+prometheus pushgateway to collect metrics from workers.
+
+### S3
+
+Checkpoints are stored on S3 for recovery.
+
+## Job State Machine
+
+Jobs are managed via a statemachine that is implemented in the controller:
+
+![Job State Machine](/images/diagrams/state_machine.d2.svg)
+
+Jobs are initialized in the `Created` state when they are created via the API. Once the controller loads the job, it
+will begin managing it, and is responsible for moving it to a terminal state (like Running, Stopped, Failed) within a
+bounded amount of time.
