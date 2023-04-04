@@ -1,8 +1,7 @@
 ---
 title: Introduction
-description: "Arroyo Stream Processing Engine"
+description: 'Arroyo Stream Processing Engine'
 ---
-
 
 [Arroyo](https://arroyo.dev) is a distributed stream processing engine written in Rust, designed to efficiently
 perform stateful computations on streams of data. Unlike traditional batch processors, streaming engines can operate
@@ -10,26 +9,30 @@ on both bounded and unbounded sources, emitting results as soon as they are avai
 
 In short: Arroyo lets you ask complex questions of high-volume real-time data with subsecond results.
 
-![Arroyo](/images/header_image.png)
+<img
+  src="/images/header_image.png"
+  alt="Arroyo"
+  style={{ borderRadius: '0.5rem' }}
+/>
 
 Arroyo can be self-hosted, or used via the [Arroyo Cloud](https://arroyo.dev/) service managed by Arroyo Systems.
 
 ## Features
 
-* SQL and Rust pipelines
-* Scales up to millions of events per second
-* Stateful operations like windows and joins
-* State checkpointing for fault-tolerance and recovery of pipelines
-* Timely stream processing via the [Dataflow model](https://www.oreilly.com/radar/the-world-beyond-batch-streaming-101/)
+- SQL and Rust pipelines
+- Scales up to millions of events per second
+- Stateful operations like windows and joins
+- State checkpointing for fault-tolerance and recovery of pipelines
+- Timely stream processing via the [Dataflow model](https://www.oreilly.com/radar/the-world-beyond-batch-streaming-101/)
 
 ## Use cases
 
 Some example use cases include:
 
-* Detecting fraud and security incidents
-* Real-time product and business analytics
-* Real-time ingestion into your data warehouse or data lake
-* Real-time ML feature generation
+- Detecting fraud and security incidents
+- Real-time product and business analytics
+- Real-time ingestion into your data warehouse or data lake
+- Real-time ML feature generation
 
 ## Why Arroyo
 
@@ -37,11 +40,11 @@ There are already a number of existing streaming engines out there, including [A
 [Spark Streaming](https://spark.apache.org/docs/latest/streaming-programming-guide.html), and
 [Kafka Streams](https://kafka.apache.org/documentation/streams/). Why create a new one?
 
-* **Serverless operations**: Arroyo pipelines are designed to run in modern cloud environments, supporting seamless scaling,
-    recovery, and rescheduling
-* **High performance SQL**: SQL is a first-class concern, with consistently excellent performance
-* **Designed for non-experts**: Arroyo cleanly separates the pipeline APIs from its internal implementation. You don't
-    need to be a streaming expert to build real-time data pipelines.
+- **Serverless operations**: Arroyo pipelines are designed to run in modern cloud environments, supporting seamless scaling,
+  recovery, and rescheduling
+- **High performance SQL**: SQL is a first-class concern, with consistently excellent performance
+- **Designed for non-experts**: Arroyo cleanly separates the pipeline APIs from its internal implementation. You don't
+  need to be a streaming expert to build real-time data pipelines.
 
 ## Current state
 
@@ -90,7 +93,7 @@ file that looks like this:
 
 ```yaml
 global:
-  scrape_interval:     5s
+  scrape_interval: 5s
 scrape_configs:
   - job_name: pushgateway
     static_configs:

@@ -2,14 +2,21 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "Arroyo Documentation",
   "logo": {
-    "dark": "/logo/arroyo_logo.png",
-    "light": "/logo/arroyo_logo.png"
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
   },
   "favicon": "/favicon.png",
   "colors": {
-    "primary": "#0069ED",
-    "light": "#4D9CFF",
-    "dark": "#0050B4"
+    "primary": "#3086a5",
+    "light": "#45C7FF",
+    "dark": "#3086a5",
+    "anchors": {
+      "from": "#45C7FF",
+      "to": "#3086a5"
+    },
+    "background": {
+      "dark": "#1D2028"
+    }
   },
   "topbarLinks": [
     {
