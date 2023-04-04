@@ -19,10 +19,6 @@
     }
   },
   "topbarLinks": [
-    {
-      "name": "Documentation",
-      "url": "https://mintlify.com/docs"
-    }
   ],
   "topbarCtaButton": {
     "name": "Arroyo Cloud",
@@ -30,14 +26,14 @@
   },
   "anchors": [
     {
-      "name": "API Reference",
-      "icon": "rectangle-terminal",
-      "url": "api-reference/api"
-    },
-    {
       "name": "Github",
       "icon": "github",
       "url": "https://github.com/ArroyoSystems/arroyo"
+    },
+    {
+      "name": "Discord",
+      "icon": "discord",
+      "url": "https://discord.gg/cjCr5rVmyR"
     }
   ],
   "navigation": [
