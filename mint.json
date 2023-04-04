@@ -65,5 +65,10 @@
     "twitter": "https://twitter.com/ArroyoSystems",
     "github": "https://github.com/ArroyoSystems",
     "linkedin": "https://www.linkedin.com/company/arroyo-systems"
+  },
+  "analytics": {
+    "ga4": {
+      "measurementId": "G-YV6B37JRYM"
+    }
   }
 }
