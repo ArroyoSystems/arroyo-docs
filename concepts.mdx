@@ -1,6 +1,6 @@
 ---
 title: Concepts
-description: "How Arroyo works"
+description: 'How Arroyo works'
 ---
 
 The core of Arroyo is a distributed dataflow engine.
@@ -13,12 +13,18 @@ horizontally subdivided into multiple parallel subtasks. Each subtask is respons
 
 There are two types of edges between nodes:
 
-* _forward edges_ pass data to a single downstream subtask
-* _shuffle edges_ pass data to all downstream subtasks
+- _forward edges_ pass data to a single downstream subtask
+- _shuffle edges_ pass data to all downstream subtasks
 
 For example, we can look at a logical dataflow for a basic job that looks like this:
 
-<img src="/images/dataflow.svg" alt="example of a logical dataflow" height="300"/>
+<Frame>
+  <img
+    src="/images/dataflow.svg"
+    alt="example of a logical dataflow"
+    height="300"
+  />
+</Frame>
 
 Because the join is keyed, we need to shuffle the data from the source tasks so that events with the same key are
 processed by the same join subtask. Meanwhile, the sink doesn't require any particular key structure, so we can use a
@@ -26,7 +32,13 @@ forward edge.
 
 This logical dataflow may be executed as a physical dataflow that looks like this:
 
-<img src="/images/physical_plan.svg" alt="example of a physical dataflow" style={{height: "400px", textAlign: "center"}}/>
+<Frame>
+  <img
+    src="/images/physical_plan.svg"
+    alt="example of a physical dataflow"
+    style={{ height: '400px', textAlign: 'center' }}
+  />
+</Frame>
 
 where `source [0]` and `source [1]` represents two subtasks of the source task (and similarly for the join).
 
