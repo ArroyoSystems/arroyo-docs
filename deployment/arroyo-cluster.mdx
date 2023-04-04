@@ -7,7 +7,9 @@ While the single-node Arroyo cluster is useful for testing and development, it i
 page describes how to run a production-ready distributed Arroyo cluster using either Arroyo's built-in scheduler or
 [nomad](https://www.nomadproject.io/).
 
-Before attempting to run a cluster, you should familiarize yourself with the [Arroyo architecture](/architecture).
+Before attempting to run a cluster, you should familiarize yourself with the [Arroyo architecture](/architecture). We
+are also happy to support users rolling out their own clusters, so please reach out to us at support@arroyo.systems with
+any questions.
 
 You will also need to set up a dev environment, as we do not yet distribute binaries. See the [dev setup](/dev-setup)
 instructions.
@@ -35,12 +37,59 @@ This will need to be writable by the nodes that are running the Arroyo controlle
 
 ## Running the services
 
-There are two options for running aa distributed cluster. You can either use Arroyo's built-in scheduler and ndoes, or
+There are two options for running aa distributed cluster. You can either use Arroyo's built-in scheduler and nodes, or
 you can use [nomad](https://www.nomadproject.io/). Nomad is currently the recommended option, for production usecases.
 The Arroyo services can be run via Nomad, or separately on VMs.
 
-## Arroyo Scheduler
+### Arroyo Services
 
+An Arroyo cluster consists of more or more arroyo-api process and a single arroyo-controller process. This can be run
+however you would like, and may be run on a single machine or on multiple machines.
 
+The arroyo-api server exposes a gRPC API on port 8001 by default, and serves static HTML and JS for the web UI on port
+8000. These can be put behind a load balancer (such as an ALB) for high availability. If the API and controller are not
+running on the same machine, the API needs to be configured with the endpoint of the controller's gRPC API via the
+`CONTROLLER_ADDR` environment variable. By default, the controller runs its gRPC API on port 9190. If the controller's
+hostname is `arroyo-controller.int` then the API would be configured with
+`CONTROLLER_ADDR=http://arroyo-controller.int:9190`.
 
-## Nomad
+Both arroyo-api and arroyo-controller additionally need to be configured with the database connection information via
+the following environment variables:
+
+- `DATABASE_NAME`
+- `DATABASE_HOST`
+- `DATABASE_USER`
+- `DATABASE_PASSWORD`
+
+You will also need to configure the controller with the S3 bucket name via the `S3_BUCKET` and `S3_REGION` environment
+variables to take advantage of remote checkpoint storage; otherwise checkpoints will be stored locally on the workers.
+
+### Prometheus
+
+Prometheus is required for the web UI metrics support. All arroyo services run a Prometheus exporter on their admin HTTP
+port (8002 for the API, and 9191 for the controller) at `/metrics`.
+
+The workers rely on the Prometheus pushgateway to produce metrics. You will need to run a pushgateway instance on the
+nodes that run the arroyo workers at the default endpoint of `localhost:9091`, and you will need to configure your
+prometheus instance to scrape the pushgateways.
+
+## Scheduler
+
+### arroyo-node
+
+Arroyo comes with a simple option for running clusters, via the arroyo-node binary. This can be run however you choose
+(for example on raw ec2 instances or within docker). The processes need to be configured with the controller's gRPC
+endpoint via `CONTROLLER_ADDR`, for example `CONTROLLER_ADDR=http://arroyo-controller.int:9190`.
+
+As mentioned above, you will also need to run a prometheus pushgateway on the nodes that run the workers.
+
+To use the arroyo-node scheduler, the controller should be run with `SCHEDULER=node`,
+
+### Nomad
+
+Nomad is well supported as a scheduler, and provides a number of benefits including a robust foundation, a web UI, and
+resource isolation via cgroups. It is the recommended option for production use.
+
+To use Nomad as the scheduler, start the controller with `SCHEDULER=nomad`. The controller will also need to be
+configured with the nomad API endpoint via the `NOMAD_ENDPOINT` environment variable. This can point to either a single
+nomad server, or a load balancer that points to multiple servers for high availability.
