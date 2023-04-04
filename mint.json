@@ -13,6 +13,9 @@
     "anchors": {
       "from": "#45C7FF",
       "to": "#3086a5"
+    },
+    "background": {
+      "dark": "#1D2028"
     }
   },
   "topbarLinks": [
