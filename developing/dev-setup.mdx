@@ -10,8 +10,11 @@ To build Arroyo, you will need to install some dependencies.
 ### Ubuntu
 
 ```bash
-$ sudo apt-get install pkg-config build-essential libssl-dev openssl cmake clang postgresql postgresql-client
+$ sudo apt-get install pkg-config build-essential libssl-dev openssl cmake curl postgresql postgresql-client
 $ sudo systemctl start postgresql
+$ wget https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-linux-x86_64.zip
+$ unzip protoc-21.8-linux-x86_64.zip
+$ sudo mv bin/protoc /usr/local/bin
 $ curl https://sh.rustup.rs -sSf | sh -s -- -y
 $ cargo install wasm-pack
 $ cargo install refinery_cli
