@@ -1,34 +1,18 @@
-# Mintlify Starter Kit
+# Arroyo Docs
 
-Click on `Use this template` to copy the Mintlify starter kit. The starter kit contains examples including
+This repo contains the source code to documentation website (https://doc.arroyo.dev) for [Arroyo](https://arroyo.dev).
 
-- Guide pages
-- Navigation
-- Customizations
-- API Reference pages
-- Use of popular components
+## Doc development
 
-### 👩‍💻 Development
+We use [mintlify](https://mintlify.com) for our docs. The live website is automatically rebuilt on every merge to this
+repo. To develop docs locally, you can install the mintlify dev CLI:
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the documentation changes locally. To install, use the following command
-
-```
-npm i -g mintlify
+```bash
+$ npm i -g mintlify
 ```
 
-Run the following command at the root of your documentation (where mint.json is)
+Then changes can be previewed by running this command in the root of the repository:
 
+```bash
+$ mintlify dev
 ```
-mintlify dev
-```
-
-### 😎 Publishing Changes
-
-Changes will be deployed to production automatically after pushing to the default branch.
-
-You can also preview changes using PRs, which generates a preview link of the docs.
-
-#### Troubleshooting
-
-- Mintlify dev isn't running - Run `mintlify install` it'll re-install dependencies.
-- Page loads as a 404 - Make sure you are running in a folder with `mint.json`

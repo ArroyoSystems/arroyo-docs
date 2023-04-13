@@ -32,6 +32,7 @@ can be changed by setting the following environment variables:
 
 * `DATABASE_NAME`
 * `DATABASE_HOST`
+* `DATABSE_PORT`
 * `DATABASE_USER`
 * `DATABASE_PASSWORD`
 
@@ -65,7 +66,7 @@ $ cargo build --release
 
 ## Building the frontend
 
-We use pnpm and vite for frotend development.
+We use pnpm and vite for frontend development.
 
 Start by installing pnpm by following the instructions here: https://pnpm.io/installation.
 
@@ -73,7 +74,8 @@ Then you should be able to run the console in dev mode like this:
 
 ```
 $ cd arroyo-console
-$ pnpm build
+$ pnpm install
+$ pnpm dev
 ```
 
 This will launch a dev server at http://localhost:5173 (note the api must
@@ -85,3 +87,29 @@ can run
 ```
 $ pnpm build
 ```
+
+## Running the services
+
+Arroyo requires running at least two services: arroyo-api and arroyo-controller. See [here](/architecture) for an
+overview of the services and what they do.
+
+The services can be run with cargo:
+
+```bash
+$ cargo run --bin arroyo-controller
+# in a separate terminal
+$ cargo run --bin arroyo-api
+```
+
+To get faster compilation of pipelines, you can also run the compile service:
+
+```bash
+$ cargo run --bin arroyo-compiler-service
+```
+
+then set the `REMOTE_COMPILER_ENDPOINT` environment variable when running the controller like this:
+
+```bash
+$ REMOTE_COMPILER_ENDPOINT=http://localhost:9000 cargo run --bin arroyo-controller
+```
+
