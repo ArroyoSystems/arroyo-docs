@@ -1,56 +1,47 @@
 ---
-title: Arroyo Cluster
-description: "Running a distributed Arroyo cluster"
+title: Deploying to EC2
+description: "Setting up an Arroyo cluster on EC2"
 ---
 
-While the single-node Arroyo cluster is useful for testing and development, it is not suitable for production. This
-page describes how to run a production-ready distributed Arroyo cluster using either Arroyo's built-in scheduler or
-[nomad](https://www.nomadproject.io/).
+This document will cover how to run an Arroyo cluster on raw EC2 instances. This requires a good understanding of the
+Arroyo architecture. For an easier approach to running a production-quality Arroyo cluster, see the docs for running
+on top of [nomad](/deployment/nomad). Kubernetes support is also coming soon.
 
-Before attempting to run a cluster, you should familiarize yourself with the [Arroyo architecture](/architecture). We
-are also happy to support users rolling out their own clusters, so please reach out to us at support@arroyo.systems with
-any questions.
+Before starting this guide, follow the common setup steps in the [deployment overview](/deployment/overview) guide.
 
-You will also need to set up a dev environment, as we do not yet distribute binaries. See the [dev setup](/dev-setup)
-instructions.
+We don't currently distribute binaries for Arroyo, so you will need to build the binaries yourself. Follow the
+[dev setup](/developing/dev-setup) guide to learn how.
 
-## Common Setup
+## Running the migrations
 
-### Postgres
-
-Arroyo relies on a postgres database to store configuration data and metadata. You will need to create a database
-(by default called `arroyo`, but this can be configured) and run the migrations to set it up.
+As covered in the dev setup, you will need to run the database migrations on your prod database before starting the
+services.
 
 We use [refinery](https://github.com/rust-db/refinery) to manage migrations. To run the migrations on your database,
 run these commands from your checkout of arroyo:
 
 ```bash
 $ cargo install refinery_cli
-$ refinery setup # follow the directions
+$ refinery setup # follow the directions, configuring for your prod database
 $ refinery migrate -p arroyo-api/migrations
 ```
 
-### S3
-
-You will need to create a S3 bucket (or an equivalent service that exposes an S3-compatible API) to store checkpoints.
-This will need to be writable by the nodes that are running the Arroyo controller and workers.
-
 ## Running the services
 
-There are two options for running aa distributed cluster. You can either use Arroyo's built-in scheduler and nodes, or
+There are two options for running a distributed cluster. You can either use Arroyo's built-in scheduler and nodes, or
 you can use [nomad](https://www.nomadproject.io/). Nomad is currently the recommended option, for production usecases.
 The Arroyo services can be run via Nomad, or separately on VMs.
 
 ### Arroyo Services
 
 An Arroyo cluster consists of more or more arroyo-api process and a single arroyo-controller process. This can be run
-however you would like, and may be run on a single machine or on multiple machines.
+however you like, and may be run on a single machine or on multiple machines. To achieve high-availability on the API
+layer, you will need to run multipe instances behind a load balancer (such as an ALB).
 
 The arroyo-api server exposes a gRPC API on port 8001 by default, and serves static HTML and JS for the web UI on port
-8000. These can be put behind a load balancer (such as an ALB) for high availability. If the API and controller are not
-running on the same machine, the API needs to be configured with the endpoint of the controller's gRPC API via the
-`CONTROLLER_ADDR` environment variable. By default, the controller runs its gRPC API on port 9190. If the controller's
-hostname is `arroyo-controller.int` then the API would be configured with
+8000. If the API and controller are not running on the same machine, the API needs to be configured with the endpoint of
+the controller's gRPC API via the `CONTROLLER_ADDR` environment variable. By default, the controller runs its gRPC API
+on port 9190. If the controller's hostname is `arroyo-controller.int` then the API would be configured with
 `CONTROLLER_ADDR=http://arroyo-controller.int:9190`.
 
 Both arroyo-api and arroyo-controller additionally need to be configured with the database connection information via

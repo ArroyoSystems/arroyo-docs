@@ -1,0 +1,29 @@
+---
+title: Overview
+description: "Running a distributed Arroyo cluster"
+---
+
+While the single-node Arroyo cluster is useful for testing and development, it is not suitable for production. This
+page describes how to run a production-ready distributed Arroyo cluster using either Arroyo's built-in scheduler or
+[nomad](https://www.nomadproject.io/).
+
+Before attempting to run a cluster, you should familiarize yourself with the [Arroyo architecture](/architecture). We
+are also happy to support users rolling out their own clusters, so please reach out to us at support@arroyo.systems or
+on discord with any questions.
+
+## Common Setup
+
+### Postgres
+
+Arroyo relies on a postgres database to store configuration data and metadata. You will need to create a database
+(by default called `arroyo`, but this can be configured).
+
+### S3
+
+You will need to create a S3 bucket to store checkpoints and artifacts. This will need to be writable by the nodes
+that are running the Arroyo controller and workers.
+
+### Prometheus
+
+The Arroyo Web UI can show job metrics to help monitor job progress. To enable this, you will need to set up a Prometheus
+server. See the [prometheus documentation](https://prometheus.io/docs/introduction/overview/) for more details.

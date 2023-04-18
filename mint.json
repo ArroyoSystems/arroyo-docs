@@ -51,7 +51,10 @@
     {
       "group": "Deployment",
       "pages": [
-        "deployment/arroyo-cluster"
+        "deployment/overview",
+        "deployment/ec2",
+        "deployment/nomad",
+        "deployment/kubernetes"
       ]
     },
     {
