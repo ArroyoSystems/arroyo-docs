@@ -21,8 +21,25 @@ $ cargo install refinery_cli
 ```
 
 ### MacOS
+First, install [Homebrew](https://brew.sh/). Then, run the following commands:
 
-Coming soon
+```bash
+brew install postgresql
+brew install protobuf
+brew install pnpm
+```
+Then install Rust
+```bash
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+```
+After that, install the following packages using cargo:
+```bash
+cargo install wasm-pack
+cargo install refinery_cli
+cargo install cargo-nextest
+```
+
+
 
 ## Postgres
 
@@ -63,6 +80,39 @@ Arroyo is built via Cargo, the Rust build tool. To build all of the services in 
 ```
 $ cargo build --release
 ```
+Most of the control plane services are pretty light-weight, so are fine to run in debug mode.
+You can also start services with `cargo run --bin arroyo-package`.
+
+## Running rust services locally
+Arroyo comes with a default ProcessScheduler which runs pipelines from the controller as a local process.
+The recommended development environment involves running three services:
+arroyo-api, arroyo-compiler-service, arroyo-controller.
+
+### arroyo-api
+Start this service with
+```bash
+cargo run  --bin arroyo-api
+```
+The api serves the frontend on http://localhost:8000 and provides a GRPC server for interacting through the UI.
+
+### arroyo-compiler-service
+Start this service with
+```bash
+OUTPUT_DIR=target  cargo run --bin arroyo-compiler-service start
+```
+The compiler service compiles the custom crate for each pipeline.
+Because Rust can take a while to compile, it reuses the same directory across compilations.
+By default pipelines are compiled with `--release`,
+but if you're just doing feature development you can set `DEBUG=true`.
+This can reduce compile times by a factor of 5x,
+but the resulting pipeline will be notably slower.
+
+### arroyo-controller
+Start this service with
+```bash
+REMOTE_COMPILER_ENDPOINT=http://localhost:9000 cargo run --bin arroyo-controller
+```
+This will manage the execution of pipelines.
 
 ## Building the frontend
 
