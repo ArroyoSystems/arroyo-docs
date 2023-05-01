@@ -80,8 +80,15 @@ Arroyo is built via Cargo, the Rust build tool. To build all of the services in 
 ```
 $ cargo build --release
 ```
-Most of the control plane services are pretty light-weight, so are fine to run in debug mode.
-You can also start services with `cargo run --bin arroyo-package`.
+
+The control plane services (api, controller, and compiler) are not resource-intensive, and can be run without issue in
+debug mode for development:
+
+```
+$ cargo run --bin {package}
+```
+
+where `{package}` is one of `arroyo-api`, `arroyo-controller`, or `arroyo-compiler-service`.
 
 ## Running rust services locally
 Arroyo comes with a default ProcessScheduler which runs pipelines from the controller as a local process.
