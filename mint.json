@@ -53,8 +53,8 @@
       "pages": [
         "deployment/overview",
         "deployment/ec2",
-        "deployment/nomad",
-        "deployment/kubernetes"
+        "deployment/kubernetes",
+        "deployment/nomad"
       ]
     },
     {
