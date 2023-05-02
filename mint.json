@@ -39,7 +39,7 @@
   "navigation": [
     {
       "group": "Home",
-      "pages": ["introduction", "getting-started", "concepts", "architecture"]
+      "pages": ["introduction", "getting-started", "concepts", "architecture", "releases"]
     },
     {
       "group": "Tutorial",
