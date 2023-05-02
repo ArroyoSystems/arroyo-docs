@@ -137,17 +137,17 @@ arroyo-prometheus-server-5c8d49b85d-xwl2h   2/2     Running            0        
 
 ## Accessing the Arroyo UI
 
-Once everything is running, you should be able to access the Arroyo UI. If you're running locally, you can use connect
-directly to the pod with
+Once everything is running, you should be able to access the Arroyo UI.
+If you're running locally on linux, you can use connect directly to the pod with
 
 ```sh
 $ open "http://$(kubectl get service/arroyo-api -o jsonpath='{.spec.clusterIP}')"
 ```
 
-If you're running in EKS, you can proxy the service to your local machine with
+If you're running on MacOS or in EKS, you can proxy the service to your local machine with
 
 ```sh
-$ kuebctl port-forward service/arroyo-api 8000:80 8001:8001
+$ kubectl port-forward service/arroyo-api 8000:80 8001:8001
 ```
 
 Then you can access the UI at https://localhost:8000.
