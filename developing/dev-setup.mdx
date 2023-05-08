@@ -170,3 +170,18 @@ then set the `REMOTE_COMPILER_ENDPOINT` environment variable when running the co
 $ REMOTE_COMPILER_ENDPOINT=http://localhost:9000 cargo run --bin arroyo-controller
 ```
 
+## Compiling Protocol Buffers for the frontend
+
+After altering protobuf definitions in `arroyo-rpc` you need to regenerate the Typescript code used by the frontend.
+
+First, install these dependencies:
+
+```bash
+$ npm install -g @bufbuild/protobuf @bufbuild/protoc-gen-es @bufbuild/buf
+```
+
+Then generate the Typescript code:
+
+```bash
+$ protoc -I arroyo-rpc/proto/ --es_out arroyo-console/src/gen/ --es_opt target=ts api.proto
+```
