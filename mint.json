@@ -45,6 +45,7 @@
       "group": "Tutorial",
       "pages": [
         "tutorial/first-pipeline",
+        "tutorial/mastodon",
         "tutorial/kafka"
       ]
     },

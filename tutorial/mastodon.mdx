@@ -1,0 +1,212 @@
+---
+title: Mastodon trends
+description: "Real-time analytics on the Mastodon firehose"
+---
+
+[Mastodon](https://joinmastodon.org/) is a federated social network, similar to a distributed
+twitter. Conveniently, it provides a public firehose of all posts, which will let us see how
+Arroyo can be used in a real-world setting.
+
+In this tutorial we are going to build a simple dashboard that shows the most popular hashtags
+across the mastodon network.
+
+Before starting this tutorial, you will need a running Arroyo cluster. See the [getting started](/getting-started)
+guide to get that set up.
+
+## Creating the connection
+
+The first thing we need to do is create a source that will read from the Mastodon firehose. We
+will be using the EventSource API (also known as Server-Sent Events) to read from the firehose, via
+[this api](https://docs.joinmastodon.org/methods/streaming/#public).
+
+Arroyo has native support for EventSource, so we just need to configure it.
+
+We will start by creating a _connection_, which tell Arroyo how to connect to a remote system (in this
+case, an HTTP server).
+
+Navigate to the connections tab (http://localhost:8000/connections), and click "Create Connection."
+
+Select Http as the connect type, and enter the following configuration:
+
+|  |  |
+| ---- | ------- |
+| Name | `mstdn` |
+| URL | `https://mstdn.social/api` |
+
+Leave the headers field blank (if we were connecting to a server that required authentication, we would
+add it there).
+
+Click `Test` to validate that we're able to connect to the server, then `Create`.
+
+## Drinking from the firehose
+
+We could create a reusable mastodon source in the Sources tab, but for now we'll create the source
+directly in SQL.
+
+Navigate to the Jobs tab (http://localhost:8000/jobs), and click `Create Pipeline`.
+
+We'll start by just streaming in the data, to get a sense of what it looks like.
+
+First, enter this SQL to define the mastodon source:
+
+```sql
+CREATE TABLE mastodon (
+    id TEXT,
+    uri TEXT,
+    content TEXT
+)
+WITH (
+    connection = 'mstdn',
+    path = '/streaming/public',
+    events = 'update',
+    serialization_mode = 'json');
+```
+
+Then follow that with a query over it:
+
+```sql
+select * from mastodon;
+```
+
+Click `Preview` to run a preview pipeline over the data.
+
+<Tip>
+    Arroyo has several ways to define sources and sinks. We can create a re-usable source in the Sources tab,
+    which can be used in multiple pipelines. We can also define a source directly in SQL with a schema, as we
+    did here. Finally, we could use the `rawJson` serialization mode to define a source without a schema, then
+    use the JSON functions to parse the data.
+</Tip>
+
+You should see something like this:
+
+<img src="/images/mastodon_firehose.png" />
+
+## Extracting Hashtags
+
+Next we need to extract the hashtags from the content. Conveniently, the mastodon API already extracts
+hash tags for us like this:
+
+```json
+{
+  ...
+  "tags": [
+    {
+      "name": "arroyostreaming",
+      "url": "https://mstdn.social/tags/arroyostreaming"
+    }
+  ],
+}
+```
+
+The access the tags, we'll need to define our source slightly differently, use the raw json encoder. This
+will give us a single column with the raw JSON data.
+
+```sql
+CREATE TABLE mastodon (
+    value TEXT
+)
+WITH (
+    connection = 'mastodon',
+    path = '/streaming/public',
+    events = 'update',
+    serialization_mode = 'raw_json');
+```
+
+Now we can pull out the tags using the `extract_json_string` function:
+
+```sql
+SELECT tag FROM (
+    SELECT extract_json_string(value, '$.tags[*].name') AS tag
+    FROM mastodon)
+    WHERE tag IS NOT NULL;
+```
+
+## Counting Hashtags
+
+The next step is to find the count of each hashtag over a window of time.  We'll use a sliding window
+that's 15 minutes wide (in other words, that looks back that far in the data stream) with a 5 second slide
+(in other words, that updates every 5 seconds). In SQL, we can introduce a sliding window with the `hop`
+function.
+
+We'll also turn our tag query into a view to make it easier to work with:
+
+```sql
+CREATE VIEW tags AS (
+    SELECT tag FROM (
+        SELECT extract_json_string(value, '$.tags[*].name') AS tag
+        FROM mastodon)
+    WHERE tag is not null
+);
+
+SELECT tag, count(*) AS count
+FROM tags
+GROUP BY tag, hop(interval '5 seconds', interval '15 minutes');
+```
+
+## Finding the top tags
+
+Finally, we can find the top tags by using a SQL window function to rank the tags by count:
+
+<Tip>
+    SQL window functions are not the same as Arroyo windows. SQL window functions are a way to
+    perform calculations over multiple rows of data. Arroyo windows meanwhile aggregate over time.
+    See [here](https://en.wikipedia.org/wiki/Window_function_(SQL)) for more on SQL window functions.
+</Tip>
+
+```sql
+SELECT * FROM (
+    SELECT *, ROW_NUMBER() OVER (
+        PARTITION BY window
+        ORDER BY count DESC) as row_num
+    FROM (SELECT count(*) as count,
+        tag,
+        hop(interval '5 seconds', interval '15 minutes') as window
+            FROM tags
+            group by tag, window)) WHERE row_num <= 5
+```
+
+This produces the the top 5 tags over the last 15 minutes by filtering on the `row_num` column, which
+contains that tag's rank within the window.
+
+<Tip>
+    Arroyo is able to perform sophisticated optimizations over SQL queries like this. See this
+    [blog post](https://www.arroyo.dev/blog/how-arroyo-beats-flink-at-sliding-windows) for some
+    of the technical details.
+</Tip>
+
+
+## Visualizing the results
+
+Now that we have our complete query:
+
+```sql
+CREATE TABLE mastodon (
+    value TEXT
+)
+WITH (
+    connection = 'mastodon',
+    path = '/streaming/public',
+    events = 'update',
+    serialization_mode = 'raw_json');
+
+
+CREATE VIEW tags AS (
+    SELECT tag FROM (
+        SELECT extract_json_string(value, '$.tags[*].name') AS tag
+     FROM mastodon)
+    WHERE tag is not null
+);
+
+SELECT * FROM (
+    SELECT *, ROW_NUMBER() OVER (
+        PARTITION BY window
+        ORDER BY count DESC) as row_num
+    FROM (SELECT count(*) as count,
+        tag,
+        hop(interval '5 seconds', interval '15 minutes') as window
+            FROM tags
+            group by tag, window)) WHERE row_num <= 5;
+```
+
+We can run the pipeline for real by clicking `Run`. Configure it with a web sink, which will
+let us stream the results to a web browser.
