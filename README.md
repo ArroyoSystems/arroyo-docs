@@ -16,3 +16,5 @@ Then changes can be previewed by running this command in the root of the reposit
 ```bash
 $ mintlify dev
 ```
+
+**Note: Mintlify is not currently compatible with Node 20. Node 18 is recommended.**

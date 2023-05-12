@@ -24,19 +24,24 @@ $ cargo install refinery_cli
 First, install [Homebrew](https://brew.sh/). Then, run the following commands:
 
 ```bash
-brew install postgresql
-brew install protobuf
-brew install pnpm
+$ brew install postgresql
+$ brew install protobuf
+$ brew install pnpm
+$ brew install cmake
 ```
+
 Then install Rust
+
 ```bash
-curl https://sh.rustup.rs -sSf | sh -s -- -y
+$ curl https://sh.rustup.rs -sSf | sh -s -- -y
 ```
-After that, install the following packages using cargo:
+
+Finally, install the following packages using cargo:
+
 ```bash
-cargo install wasm-pack
-cargo install refinery_cli
-cargo install cargo-nextest
+$ cargo install wasm-pack
+$ cargo install refinery_cli
+$ cargo install cargo-nextest
 ```
 
 
@@ -59,6 +64,14 @@ On Ubuntu, you can setup a compatible database like this:
 $ sudo -u postgres psql -c "CREATE USER arroyo WITH PASSWORD 'arroyo' SUPERUSER;"
 $ sudo -u postgres createdb arroyo
 ```
+
+On MacOS:
+
+```bash
+$ psql postgres -c "CREATE USER arroyo WITH PASSWORD 'arroyo' SUPERUSER;"
+$ createdb arroyo
+```
+
 
 Migrations are managed using [refinery](https://github.com/rust-db/refinery). Once Postgres is
 set up, you can initalize it with
