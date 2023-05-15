@@ -1,0 +1,48 @@
+---
+title: DDL Statements
+description: 'creating tables and views in Arroyo SQL'
+---
+In addition to its SELECT capabilities Arroyo supports several Data Description Language (DDL) capabilities.
+
+## CREATE TABLE
+Arroyo's CREATE TABLE statements come in three flavors: Create Table As, Memory Table and Connection Table.
+### CREATE TABLE AS
+This comamnd creates a table from the query included in it, e.g.
+```sql
+CREATE TABLE orders AS SELECT customer_id, order_id FROM orders;
+```
+The schema is inferred from the query and other queries within the same context can select from the new table.
+### CREATE TABLE (In-Memory)
+CREATE TABLE statements without any connection info are presumed to be in memory.
+It can be written to within the same query context and then read from. 
+Currently you can only insert into a given memory table once, but multiple sources can then select from it.
+For example, you could create an `orders` with a statement like
+```sql
+CREATE TABLE orders (customer_id INT, order_id INT);
+```
+At present, `CREATE VIEW` is simply an alias for creating a memory table.
+### CREATE TABLE (Connection)
+If you want to read or write using a pre-defined connection 
+this is done by including a WITH clause in the CREATE TABLE statement. 
+This should include the connection name and any other arguments needed to instantiate the connection,
+such as the kafka topic. For example, i you have a kafka connection my_kafka and want to output to order_topic, 
+you could write
+```sql
+CREATE TABLE orders (
+  customer_id INT,
+  order_id INT)
+ WITH (
+  connection='my_kafka',
+  topic='order_topic');
+```
+## INSERT INTO
+Arroyo supports INSERT INTO statements for both memory and connection tables.
+In line with standard SQL the insertion will happen column-wise,
+ attempting coercion to the SQL types.
+For example, if you have a memory table `orders` with columns `customer_id` and `order_id`
+you could insert into it with a statement like
+```sql
+INSERT INTO orders SELECT customer, order FROM source_table;
+```
+If the table is a connection table this will result in a sink,
+otherwise it will be a memory table that can then be read from.

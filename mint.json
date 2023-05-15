@@ -59,6 +59,17 @@
       ]
     },
     {
+      "group": "SQL Reference",
+      "pages": [
+        "sql/data-types",
+        "sql/query-types",
+        "sql/ddl",
+        "sql/scalar-functions",
+        "sql/aggregate-functions"
+      ]
+      
+    },
+    {
       "group": "Arroyo Development",
       "pages": [
         "developing/dev-setup"

@@ -1,0 +1,21 @@
+---
+title: SQL Data Types
+description: 'Types for Arroyo SQL'
+---
+
+Arroyo defines its schemas using the primitive types below. 
+These are each in turn represented by in the dataflow as Rust types.
+The table also includes the Arrow types that are planned against by DataFusion 
+and the SQL types that are used in the SQL API.
+| Arroyo type | Rust Type | Arrow DataType| Sql Types  |
+| ----------- | -----------|--|-|
+| `Boolean`     |`bool`| `Boolean` | `BOOLEAN`|
+| `Int32`       | `i32`| `Int32` | `INT`, `INTEGER`|
+| `Int64`       | `i64`|`Int64` | `BIGINT`|
+|`Uint32`       | `u32`|`UInt32`| `INT UNSIGNED`, `INTEGER UNSIGNED`|
+|`Uint64`       | `u64`| `UInt64`| `BIGINT UNSIGNED`|
+|`Float32`      | `f32`|`Float32`| `FLOAT`, `REAL`      |
+|`Float64`      | `f64`|`Float64`| `DOUBLE` |
+|`String`       | `String`|`Utf8` | `VARCHAR`, `CHAR`, `TEXT`, `STRING`|
+|`Timestamp`    | `SystemTime`|`Timestamp`| `TIMESTAMP`|
+|`Bytes`        | `Vec<u8>`|`Binary`| `BYTEA`|

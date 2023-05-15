@@ -1,0 +1,83 @@
+---
+title: SELECT Statements
+description: 'Querying data in Arroyo SQL'
+---
+
+To manipulate data in Arroyo using SQL statements, you use a select statement. 
+The general form of that statement is:
+    
+```sql
+[WITH with_query [, ...]]
+SELECT select_expr [, ...]
+FROM from_item
+[JOIN join_item [, ...]]
+[WHERE condition]
+[GROUP BY grouping_element [, ...]]
+```
+
+### WITH clause
+The with clauses allow you to give names to subquery which you can then reference.
+The syntax for a with clause is:
+
+```sql
+WITH query_name AS (subquery) [,...]
+```
+For example, using the nexmark source, you can create datasets for bids and price and then join.
+```sql
+
+WITH bids as 
+(SELECT bid.auction as auction, bid.price as price 
+FROM nexmark where bid is not null),
+auctions as
+(SELECT auction.id as id
+FROM nexmark where auction is not null)
+SELECT * FROM bids bids join auctions auctions on bids.auction = auctions.id;
+```
+
+### SELECT clause
+The select cause is a comma-separated list of expressions, with an optional alias.
+Because of DataFusion limitations, column names must be unique.
+
+```sql
+SELECT select_expr [, ...]
+```
+
+### FROM clause
+The `FROM` clause specifies the primary source of data. 
+It will be either a table name or subquery. 
+The table name can be either a saved source,
+ a table created in the `WITH` clause or a table created via `CREATE TABLE` and inserted into.
+Tables can be given aliases, but will default to their name as the alias for things like joins.
+```sql
+FROM from_item
+```
+
+### JOIN clause
+The `JOIN` clause allows you to join multiple tables together. 
+By default it will be an inner join, but you can also specify `LEFT`, `RIGHT`, or `FULL` joins.
+Joins must include an `ON` clause specifying the join condition.
+```sql 
+SELECT * FROM bids join auctions on bids.auction = auctions.id;
+```
+
+### WHERE clause
+The `WHERE` clause allows you to filter the data with a boolean condition.
+This predicate is applied to the incoming rows, so cannot include conditions on the resulting columns.
+```sql
+WHERE condition
+```
+
+### GROUP BY clause
+The `GROUP BY` clause is used to compute aggregates over some set of fields.
+All GROUP BY queries will implicitly include a time window,
+and if the input doesn't already have a time window, 
+it should be specified as one of the grouping fields.
+
+For example,
+
+```sql
+SELECT 
+    count(*) as bids,
+    count(distinct auction_id) as distinct_auctions,
+    tumble(interval '1 minute') as window
+    FROM BIDS GROUP BY 3
