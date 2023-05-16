@@ -7,118 +7,327 @@ Arroyo's Scalar function support mainly mirrors that of DataFusion,
 which in turn uses the semantics of the equivalent Postgres functions.
 
 ### Math Functions
-
-<Accordion title="abs">
+All single-argument math functions return `DOUBLE` values and are cast to f64 before being called.
+#### abs
 Returns the absolute value of a number.
 ```sql
-abs(numeric_expression)
+SELECT abs(-3) FROM source;
+3
 ```
-</Accordion>
 
-
-<Accordion title="acos">
+#### acos
 Returns the arc cosine of a number.
 ```sql
-acos(numeric_expression)
+SELECT acos(0.5) FROM source;
+1.0471975511965976
 ```
-</Accordion>
 
-<Accordion title="acosh">
+#### acosh
 Returns the inverse hyperbolic cosine of a number.
 ```sql
-acosh(numeric_expression)
+SELECT acosh(1) FROM source;
+0.0
 ```
-</Accordion>
 
-<Accordion title="asin">
+#### asin
 Returns the arc sine of a number.
 ```sql
-asin(numeric_expression)
+SELECT asin(0.5) FROM source;
+0.5235987755982988
 ```
-</Accordion>
 
-<Accordion title="asinh">
+#### asinh
 Returns the inverse hyperbolic sine of a number.
 ```sql
-asinh(numeric_expression)
+SELECT asinh(0.5) FROM source;
+0.48121182505960347
 ```
-</Accordion>
 
-<Accordion title="atan">
+#### atan
 Returns the arc tangent of a number.
 ```sql
-atan(numeric_expression)
+SELECT atan(0.5) FROM source;
+0.46364760900080615
 ```
-</Accordion>
 
-<Accordion title="ceil">
+#### ceil
 Returns the smallest integer greater than, or equal to, a number.
 ```sql
-ceil(numeric_expression)
+SELECT ceil(0.5) FROM source;
+1.0
 ```
-</Accordion>
 
-<Accordion title="cos">
+#### cos
 Returns the cosine of a number.
 ```sql
-cos(numeric_expression)
+SELECT cos(0.5) FROM source;
+0.8775825618903728
 ```
-</Accordion>
 
-<Accordion title="cosh">
+#### cosh
 Returns the hyperbolic cosine of a number.
 ```sql
-cosh(numeric_expression)
-```
-</Accordion>
+SELECT cosh(0.5) FROM source;
+1.1276259652063807
 
-<Accordion title="floor">  
+```
+
+#### floor
 Returns the largest integer less than, or equal to, a number.
 ```sql
-floor(numeric_expression)
+SELECT floor(0.5) FROM source;
+0.0
 ```
-</Accordion>
 
-<Accordion title="exp">
+#### exp
 Returns e raised to the power of a number.
 ```sql
-exp(numeric_expression)
+SELECT exp(0.5) FROM source;
+1.6487212707001282
 ```
-</Accordion>
 
-<Accordion title="ln">
+#### ln
 Returns the natural logarithm of a number.
 ```sql
-ln(numeric_expression)
+SELECT ln(0.5) FROM source;
+-0.6931471805599453
 ```
-</Accordion>
 
-<Accordion title="log2">
+#### log2
 Returns the base 2 logarithm of a number.
 ```sql
-log2(numeric_expression)
+SELECT log2(0.5) FROM source;
+-1.0
 ```
-</Accordion>
 
-<Accordion title="signum">
+#### signum
 Returns the sign of a number.
 ```sql
-signum(numeric_expression)
+SELECT signum(0.5) FROM source;
+1.0
 ```
-</Accordion>
 
-<Accordion title="sin">
+#### sin
 Returns the sine of a number.
 ```sql
-sin(numeric_expression)
+SELECT sin(0.5) FROM source;
+0.479425538604203
 ```
-</Accordion>
 
-<Accordion title="sinh">
+#### sinh
 Returns the hyperbolic sine of a number.
 ```sql
-sinh(numeric_expression)
+SELECT sinh(0.5) FROM source;
+0.5210953054937474
 ```
-</Accordion>
 
-TODO: Rest of the functions
+### String Functions
+
+#### ascii
+Returns the numeric value of the first character of a string.
+```sql
+SELECT ascii('hello world') FROM source;
+104
+```
+
+#### bit_length
+Returns the number of bits in a string.
+```sql
+SELECT bit_length('hello world') FROM source;
+88
+```
+
+#### btrim
+Removes the longest string consisting only of characters 
+in the second argument (a space by default) from the start and end of string.
+```sql
+SELECT btrim(' hello world ') FROM source;
+'hello world'
+SELECT btrim('hello world', 'hed') FROM source;
+'llo worl'
+```
+
+#### char_length
+Returns the number of characters in a string.
+```sql
+SELECT char_length('hello world') FROM source;
+11
+```
+
+#### chr
+Returns the character with the given code.
+```sql
+SELECT chr(104) FROM source;
+'h'
+```
+
+#### concat
+Concatenates any number of strings.
+```sql
+SELECT concat('hello', ' ', 'world') FROM source;
+'hello world'
+```
+
+#### concat_ws
+Concatenates using the rest of the arguments using first argument as the separator.
+```sql
+SELECT concat_ws('-', 'hello', 'world') FROM source;
+'hello-world'
+```
+
+#### initcap
+Converts the first letter of each word to upper case and the rest to lower case.
+```sql
+SELECT initcap('heLLo woRld') FROM source;
+'Hello World'
+```
+
+#### left
+Returns the first n characters in the string.
+```sql
+SELECT left('hello world', 5) FROM source;
+'hello'
+```
+
+#### length
+Returns the number of characters in a string.
+```sql
+
+SELECT length('hello world') FROM source;
+11
+```
+
+#### lpad
+Pads the string to the left with the given string until the string is n characters long.
+```sql
+SELECT lpad('hello', 10, 'x') FROM source;
+'xxxxxhello'
+```
+
+#### lower
+Converts the string to lower case.
+```sql
+SELECT lower('HELLO WORLD') FROM source;
+'hello world'
+```
+
+#### ltrim
+Removes the all characters in the second string from the first string. Defaults to space.
+```sql
+SELECT ltrim('hello world', 'hed') FROM source;
+'llo world'
+SELECT ltrim(' hello world ') FROM source;
+'hello world '
+```
+
+#### Octet_length
+Returns the number of bytes in a string.
+```sql
+SELECT octet_length('hello world') FROM source;
+11
+```
+
+#### repeat
+Repeats the string n times.
+```sql
+SELECT repeat('hello', 3) FROM source;
+'hellohellohello'
+```
+
+#### replace
+Updates the first argument by replacing all instances of the second argument with the third.
+```sql
+SELECT replace('hello world', 'hello', 'goodbye') FROM source;
+'goodbye world'
+```
+
+#### reverse
+Reverses the string.
+```sql
+SELECT reverse('dlrow elloh') FROM source;
+'hello world'
+```
+
+#### right
+Returns the last n characters in the string.
+```sql
+SELECT right('hello world', 5) FROM source;
+'world'
+```
+
+#### rpad
+Pads the string to the right with the given string until the string is n characters long.
+```sql
+SELECT rpad('hello', 10, 'x') FROM source;
+'helloxxxxx'
+```
+
+#### rtrim
+Removes the all characters in the second string from the first string. Defaults to space.
+```sql
+SELECT rtrim('hello world', 'dlo') FROM source;
+'hello wor'
+SELECT rtrim(' hello world ') FROM source;
+' hello world'
+```
+
+#### split_part
+Returns the nth part of the string split by the given delimiter.
+```sql
+SELECT split_part('hello world', ' ', 2) FROM source;
+'world'
+```
+
+#### strpos
+Returns the position of the first occurrence of the second argument in the first argument.
+```sql
+SELECT strpos('hello world', 'world') FROM source;
+7
+```
+
+#### substr
+Returns the substring of the first argument starting at the second argument with the given length.
+```sql
+SELECT substr('hello world', 7, 5) FROM source;
+'world'
+```
+
+### Hash Functions
+Postgres-equivalent hash functions.
+
+#### md5
+Returns the MD5 hash of the input string as a hex string
+```sql
+SELECT md5('Hello, World') FROM source;
+82bb413746aee42f89dea2b59614f9ef
+```
+
+#### sha224
+Returns the SHA224 hash of the input string.
+```sql
+SELECT sha224('hello world') FROM source;
+'\x2f05477fc24bb4faefd86517156dafdecec45b8ad3cf2522a563582b'
+```
+
+#### sha256
+Returns the SHA256 hash of the input string.
+```sql
+SELECT sha256('hello world') FROM source;
+'\xb94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9'
+```
+
+#### sha384
+Returns the SHA384 hash of the input string.
+```sql
+SELECT sha384('hello world') FROM source;
+'\x59e1748777448c69de6b800d7a33bbfb9ff1b463e44354c3553bcdb9c666fa901b765c6b\
+  8cdcd1f6e5f39bfabec89b2d'
+```
+
+#### sha512
+Returns the SHA512 hash of the input string.
+```sql
+SELECT sha512('hello world') FROM source;
+'\x309ecc489c12d6eb4cc40f50c902f2b4d0ed77ee511a7c7a9bcd3ca86d4cd86f\
+  989dd35bc5ff499670da34255b45b0cfd830e81f605dcf7dc5542e93ae9cd76f'
+```
