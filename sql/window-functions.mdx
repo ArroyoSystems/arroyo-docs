@@ -10,7 +10,7 @@ They allow you to attach data to the record without having to perform complex ag
 In general, window functions are performed across a partition of records and return some computation about the
 record relative to the partition overall.
 
-Currently, Arroyo supports the ROW_NUMBER() window function,
+Currently, Arroyo supports the `ROW_NUMBER()` window function,
  and requires the partition include a time window so that there is a guarantee of completeness.
 
  For example, to calculate the most common auction in a dataset over the last 10 minutes every second,

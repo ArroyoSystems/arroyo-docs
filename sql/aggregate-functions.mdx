@@ -10,7 +10,7 @@ Nullity is handled in line with postgres:
 `COUNT` always returns the number of non-null entries,
  all others ignore null arguments and return null if all arguments are null.
 
-### Count
+## Count
 Count returns the number of non-null entries in the group. 
 
 The return type is always `BIGINT`.
@@ -24,7 +24,7 @@ count(id)
 -- number of distinct ids
 count(distinct id)
 ```
-### Sum
+## Sum
 Returns the sum of numeric arguments.
 
 32 bit numeric types will be promoted to 64 bit, 
@@ -33,7 +33,7 @@ e.g. `INT` to `BIGINT`, `FLOAT` to `DOUBLE`.
 sum(price * quantity)
 ```
 
-### Avg
+## Avg
 Returns the average of non-null arguments.
 
  Result is always a `DOUBLE`.
@@ -41,7 +41,7 @@ Returns the average of non-null arguments.
 ```sql
 avg(price)
 ```
-### Min
+## Min
 Returns the minimum of non-null arguments.
 
  Result type is the same as the argument type.
@@ -49,7 +49,7 @@ Returns the minimum of non-null arguments.
 ```sql
 min(price)
 ```
-### Max
+## Max
 Returns the maximum of non-null arguments.
 
 Result type is the same as the argument type.

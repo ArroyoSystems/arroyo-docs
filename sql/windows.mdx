@@ -5,8 +5,8 @@ description: 'Rolling up data by time in SQL'
 
 Because of the unbounded nature of event streams, 
 it is common to aggregate data over a time window.
-There are a number of types of windows that are used in stream processing systems 
-and currently Arroyo supports _sliding_ and _tumbling_ windows.
+There are a number of types of windows that are used in stream processing systems.
+Currently Arroyo supports _sliding_ and _tumbling_ windows.
 
 ## Tumbling Windows
 Tumbling windows are consecutive, non-overlapping windows of a fixed size.
@@ -32,9 +32,13 @@ the end of the window minus 1 nanosecond.
 
 
 ## Sliding Windows
-Sliding windows are similar to tumbling windows,
-but the width of the window is different than how far it advances.
-It is also referred to as a "hopping" window, because the window "hops" forward by some fixed slide.
+Sliding windows are an extension of tumbling windows, with the addition of a "slide".
+It is defined by two time durations,
+a width for each window and 
+a slide that designates the time between the start of consecutive windows.
+Typically the slide is less than the window. 
+A sliding window can be used to provide a view of data over some lookback time (the width), 
+updated with some frequency (the slide).
 
 In Arroyo the `HOP()` function is used to create sliding windows. 
 It takes two arguments, the first is the slide and the second is the window size.

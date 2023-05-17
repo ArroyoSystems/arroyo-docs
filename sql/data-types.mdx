@@ -2,20 +2,27 @@
 title: SQL Data Types
 description: 'Types for Arroyo SQL'
 ---
+Arroyo currently supports a limited set of primitive types, shown in the table below.
+Because every Arroyo pipeline is a compiled Rust crate, each type has a corresponding Rust type.
 
-Arroyo defines its schemas using the primitive types below. 
-These are each in turn represented by in the dataflow as Rust types.
-The table also includes the Arrow types that are planned against by DataFusion 
-and the SQL types that are used in the SQL API.
-| Arroyo type | Rust Type | Arrow DataType| Sql Types  |
-| ----------- | -----------|--|-|
-| `Boolean`     |`bool`| `Boolean` | `BOOLEAN`|
-| `Int32`       | `i32`| `Int32` | `INT`, `INTEGER`|
-| `Int64`       | `i64`|`Int64` | `BIGINT`|
-|`Uint32`       | `u32`|`UInt32`| `INT UNSIGNED`, `INTEGER UNSIGNED`|
-|`Uint64`       | `u64`| `UInt64`| `BIGINT UNSIGNED`|
-|`Float32`      | `f32`|`Float32`| `FLOAT`, `REAL`      |
-|`Float64`      | `f64`|`Float64`| `DOUBLE` |
-|`String`       | `String`|`Utf8` | `VARCHAR`, `CHAR`, `TEXT`, `STRING`|
-|`Timestamp`    | `SystemTime`|`Timestamp`| `TIMESTAMP`|
-|`Bytes`        | `Vec<u8>`|`Binary`| `BYTEA`|
+Arroyo leverages [Apache DataFusion](https://arrow.apache.org/datafusion/) for SQL support.
+DataFusion is in turn a part of the [Apache Arrow](https://arrow.apache.org/) project,
+a cross-language data format for columnar in-memory computation.
+
+Depending on which part of the system you're working with one or more of these will be relevant.
+For basic SQL users you should only need to deal with the SQL types. 
+
+These types can also be inserted as literals in sql. 
+For types like INT vs BIGINT it will infer the type based on context.
+|Arroyo type| Rust Type | Arrow DataType| Sql Types                      | Example Literals      |
+|-----------|------------|-----------|-----------------------------------|-----------------------|
+|`Boolean`  |`bool`      |`Boolean`  |`BOOLEAN`                          |`TRUE`, `FALSE`        |
+|`Int32`    |`i32`       |`Int32`    |`INT`, `INTEGER`                   |`0`, `1`, `-2`         |
+|`Int64`    |`i64`       |`Int64`    |`BIGINT`                           |`0`, `1`, `2`          |
+|`Uint32`   |`u32`       |`UInt32`   |`INT UNSIGNED`, `INTEGER UNSIGNED` |`0`, `1`, `-2`         |
+|`Uint64`   |`u64`       |`UInt64`   |`BIGINT UNSIGNED`                  |`0`, `1`, `2`          |
+|`Float32`  |`f32`       |`Float32`  |`FLOAT`, `REAL`                    |`0.0`, `-2.4`, `1E-3`  |
+|`Float64`  |`f64`       |`Float64`  |`DOUBLE`                           |`0.0`, `-2.4`, `1E-35` |
+|`String`   |`String`    |`Utf8`     |`VARCHAR`, `CHAR`, `TEXT`, `STRING`|`"hello"`, `"world"`   |
+|`Timestamp`|`SystemTime`|`Timestamp`|`TIMESTAMP`                        |`'2020-01-01'` `'2023-05-17T22:16:00.648662+00:00'`|
+|`Bytes`    |`Vec<u8>`   |`Binary`   |`BYTEA`                            |Unsupported            |

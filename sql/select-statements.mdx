@@ -25,18 +25,21 @@ WITH query_name AS (subquery) [,...]
 For example, using the nexmark source, you can create datasets for bids and price and then join.
 ```sql
 
-WITH bids as 
-(SELECT bid.auction as auction, bid.price as price 
-FROM nexmark where bid is not null),
-auctions as
-(SELECT auction.id as id
-FROM nexmark where auction is not null)
-SELECT * FROM bids bids join auctions auctions on bids.auction = auctions.id;
+WITH bids AS 
+    (SELECT bid.auction AS auction, bid.price AS price 
+        FROM nexmark where bid is not null),
+auctions AS
+    (SELECT auction.id AS id
+        FROM nexmark where auction is not null)
+SELECT * FROM bids bids 
+        JOIN auctions auctions 
+            ON bids.auction = auctions.id;
 ```
 
 ### SELECT clause
 The select cause is a comma-separated list of expressions, with an optional alias.
-Because of DataFusion limitations, column names must be unique.
+
+Column names must be unique.
 
 ```sql
 SELECT select_expr [, ...]
@@ -77,7 +80,7 @@ For example,
 
 ```sql
 SELECT 
-    count(*) as bids,
-    count(distinct auction_id) as distinct_auctions,
-    tumble(interval '1 minute') as window
+    count(*) AS bids,
+    count(distinct auction_id) AS distinct_auctions,
+    tumble(interval '1 minute') AS window
     FROM BIDS GROUP BY 3

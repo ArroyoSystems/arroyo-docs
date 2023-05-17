@@ -50,15 +50,6 @@
       ]
     },
     {
-      "group": "Deployment",
-      "pages": [
-        "deployment/overview",
-        "deployment/ec2",
-        "deployment/kubernetes",
-        "deployment/nomad"
-      ]
-    },
-    {
       "group": "SQL Reference",
       "pages": [
         "sql/data-types",
@@ -69,8 +60,17 @@
         "sql/aggregate-functions",
         "sql/window-functions"
       ]
-      
     },
+    {
+      "group": "Deployment",
+      "pages": [
+        "deployment/overview",
+        "deployment/ec2",
+        "deployment/kubernetes",
+        "deployment/nomad"
+      ]
+    },
+    
     {
       "group": "Arroyo Development",
       "pages": [
