@@ -11,8 +11,8 @@ Currently Arroyo supports _sliding_ and _tumbling_ windows.
 ## Tumbling Windows
 Tumbling windows are consecutive, non-overlapping windows of a fixed size.
 Usually that size will be some human-friendly time unit like minutes or hours, 
-but that isn't a requirement. Where in normal SQL you might group by a `date_trunc` call, 
-in streaming SQL you'd use a hop window.
+but that isn't a requirement. Whereas in normal SQL you might group by a `date_trunc` call, 
+in streaming SQL you'd use a tumbling window.
 
 In Arroyo windowing is enabled via special UDFs, in this case `TUMBLE()`.
 For example, to get the number of distinct auction IDs across bids for each minute,
@@ -22,12 +22,12 @@ you'd write a query like
     SELECT TUMBLE(interval '1 minute') as window,
         COUNT(DISTINCT auction_id) AS num_auctions
         FROM bids
-        GROUP BY 1
+        GROUP BY window
     ```
 
 Every record in Arroyo has a corresponding timestamp, 
 which will be processed by the `TUMBLE()` function.
-Similar to Flink, the resulting records will have a timestamp of
+The resulting records will have a timestamp of
 the end of the window minus 1 nanosecond.
 
 
