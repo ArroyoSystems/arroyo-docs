@@ -1,0 +1,30 @@
+---
+title: Window Functions
+description: 'SQL Window Functions in Arroyo'
+---
+
+In SQL, window functions are a powerful tool for producing calculations that are dependent on data in other rows.
+
+They allow you to attach data to the record without having to perform complex aggregations and joins.
+
+In general, window functions are performed across a partition of records and return some computation about the
+record relative to the partition overall.
+
+Currently, Arroyo supports the ROW_NUMBER() window function,
+ and requires the partition include a time window so that there is a guarantee of completeness.
+
+ For example, to calculate the most common auction in a dataset over the last 10 minutes every second,
+ you could use the following query:
+
+```sql
+SELECT * FROM (
+    SELECT ROW_NUMBER()  OVER (
+        PARTITION BY window
+        ORDER BY count DESC) as row_number, auction, count 
+    FROM (
+      SELECT auction,
+             hop(INTERVAL '1' second, INTERVAL '10' minute ) as window,
+             count(*) as count
+        FROM bids
+        GROUP BY 1, 2)) where row_number = 1
+```

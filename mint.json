@@ -62,10 +62,12 @@
       "group": "SQL Reference",
       "pages": [
         "sql/data-types",
-        "sql/query-types",
+        "sql/select-statements",
         "sql/ddl",
+        "sql/windows",
         "sql/scalar-functions",
-        "sql/aggregate-functions"
+        "sql/aggregate-functions",
+        "sql/window-functions"
       ]
       
     },

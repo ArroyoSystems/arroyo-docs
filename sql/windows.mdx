@@ -1,0 +1,53 @@
+---
+title: Windowed Data in SQL
+description: 'Rolling up data by time in SQL'
+---
+
+Because of the unbounded nature of event streams, 
+it is common to aggregate data over a time window.
+There are a number of types of windows that are used in stream processing systems 
+and currently Arroyo supports _sliding_ and _tumbling_ windows.
+
+## Tumbling Windows
+Tumbling windows are consecutive, non-overlapping windows of a fixed size.
+Usually that size will be some human-friendly time unit like minutes or hours, 
+but that isn't a requirement. Where in normal SQL you might group by a `date_trunc` call, 
+in streaming SQL you'd use a hop window.
+
+In Arroyo windowing is enabled via special UDFs, in this case `TUMBLE()`.
+For example, to get the number of distinct auction IDs across bids for each minute,
+you'd write a query like
+    
+    ```sql
+    SELECT TUMBLE(interval '1 minute') as window,
+        COUNT(DISTINCT auction_id) AS num_auctions
+        FROM bids
+        GROUP BY 1
+    ```
+
+Every record in Arroyo has a corresponding timestamp, 
+which will be processed by the `TUMBLE()` function.
+Similar to Flink, the resulting records will have a timestamp of
+the end of the window minus 1 nanosecond.
+
+
+## Sliding Windows
+Sliding windows are similar to tumbling windows,
+but the width of the window is different than how far it advances.
+It is also referred to as a "hopping" window, because the window "hops" forward by some fixed slide.
+
+In Arroyo the `HOP()` function is used to create sliding windows. 
+It takes two arguments, the first is the slide and the second is the window size.
+
+For example, to get the number of distinct auction IDs across bids for the previous minute every second,
+you'd write a query like
+
+        ```sql
+        SELECT HOP(interval '1 second', interval '1 minute') as window,
+            COUNT(DISTINCT auction_id) AS num_auctions
+            FROM bids
+            GROUP BY 1
+        ```
+
+Arroyo has optimized sliding windows so that each hop only needs to perform an incremental amount of work, 
+allowing for long sliding windows with small hops.

@@ -1,17 +1,21 @@
---
+---
 title: Aggregate Functions
 description: 'Supported Aggregate Functions in Arroyo SQL'
+---
 
 Arroyo supports the following aggregate functions. 
-All of them except count distinct are implemented in two phases, 
+All of them except for count distinct are implemented in two phases, 
 which helps minimize the state requirements and scale out aggregations.
 Nullity is handled in line with postgres: 
 `COUNT` always returns the number of non-null entries,
  all others ignore null arguments and return null if all arguments are null.
 
-<Accordion title="count">
-Returns the number of non-null entries in the group. 
-Return type is always `BIGINT`. If `distinct` is specified will be number of unique non-null arguments.
+### Count
+Count returns the number of non-null entries in the group. 
+
+The return type is always `BIGINT`.
+
+If `distinct` is specified will be the number of unique non-null arguments.
 ```
 -- number of records
 count(*)
@@ -20,36 +24,36 @@ count(id)
 -- number of distinct ids
 count(distinct id)
 ```
-</Accordion>
+### Sum
+Returns the sum of numeric arguments.
 
-<Accordion title="sum">
-Returns the sum of numeric arguments. 32 bit numeric types will be promoted to 64 bit, 
+32 bit numeric types will be promoted to 64 bit, 
 e.g. `INT` to `BIGINT`, `FLOAT` to `DOUBLE`.
 ```sql
 sum(price * quantity)
 ```
-</Accordion>
 
-<Accordion title="avg">
-Returns the average of non-null arguments. Result is always a `DOUBLE`.
+### Avg
+Returns the average of non-null arguments.
+
+ Result is always a `DOUBLE`.
 
 ```sql
 avg(price)
 ```
-</Accordion>
+### Min
+Returns the minimum of non-null arguments.
 
-<Accordion title="min">
-Returns the minimum of non-null arguments. Result type is the same as the argument type.
+ Result type is the same as the argument type.
 
 ```sql
 min(price)
 ```
-</Accordion>
+### Max
+Returns the maximum of non-null arguments.
 
-<Accordion title="max">
-Returns the maximum of non-null arguments. Result type is the same as the argument type.
+Result type is the same as the argument type.
 
 ```sql
 max(price)
 ```
-</Accordion>
