@@ -57,7 +57,7 @@ CREATE TABLE mastodon (
 )
 WITH (
     connection = 'mstdn',
-    path = '/streaming/public',
+    path = '/v1/streaming/public',
     events = 'update',
     serialization_mode = 'json');
 ```
@@ -98,15 +98,15 @@ hash tags for us like this:
 }
 ```
 
-The access the tags, we'll need to define our source slightly differently, use the raw json encoder. This
-will give us a single column with the raw JSON data.
+To access the tags, we'll need to define our source slightly differently, using the raw json encoder. This
+will give us a single column called `value` with the raw JSON data.
 
 ```sql
 CREATE TABLE mastodon (
     value TEXT
 )
 WITH (
-    connection = 'mastodon',
+    connection = 'mstdn',
     path = '/streaming/public',
     events = 'update',
     serialization_mode = 'raw_json');
@@ -120,6 +120,11 @@ SELECT tag FROM (
     FROM mastodon)
     WHERE tag IS NOT NULL;
 ```
+
+
+The `extract_json_string` function, when applied to an array like `tags` will return the first value as a string. In
+the future Arroyo will support an unnest function that will allow creating multiple rows from a single row, but for
+now we'll just consider the first hashtag.
 
 ## Counting Hashtags
 
