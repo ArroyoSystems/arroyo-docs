@@ -1,0 +1,73 @@
+---
+title: DDL Statements
+description: 'creating tables and views in Arroyo SQL'
+---
+In addition to its SELECT capabilities Arroyo supports several Data Description Language (DDL) capabilities.
+
+## CREATE TABLE
+Arroyo's CREATE TABLE statements come in three flavors: Create Table As, Memory Table and Connection Table.
+
+### CREATE TABLE AS
+This command creates a table from the query included in it, e.g.
+```sql
+CREATE TABLE orders AS SELECT customer_id, order_id FROM orders;
+```
+The schema is inferred from the query and other queries within the same context can select from the new table.
+
+### CREATE TABLE (In-Memory)
+CREATE TABLE statements without any connection info are presumed to be in memory.
+It can be written to within the same query context and then read from. 
+A memory table may be used in only one `INSERT INTO` statement, but can then be selected from multiple times.
+For example, you could create an `orders` table with a statement like
+
+```sql
+CREATE TABLE orders (customer_id INT, order_id INT);
+```
+
+`CREATE VIEW` is simply an alias for creating a memory table.
+
+### CREATE TABLE (Connection)
+Connection tables allow Arroyo to read and write to external systems like Kafka clusters. 
+Connection tables can be created either in the Source and Sink tabs of the Web UI, 
+or directly within SQL via a CREATE TABLE call.
+
+To create a connection table in SQL,
+you must have already configured the the connection information in the Connections tab 
+so that Arroyo knows how to connect and authenticate against the external system.
+Each configured connection has a name, which is then referenced within the CREATE TABLE call.
+The general form is
+
+```sql
+CREATE TABLE <table name> (
+  [<field name> <field type>,]..
+) WITH (
+  connection = '<connection name>',
+  [connection options]
+)
+```
+
+For example, to create a table that can read and write from 
+a Kafka connection called my_kafka and a Kafka topic order_topic:
+
+```sql
+CREATE TABLE orders (
+  customer_id INT,
+  order_id INT)
+ WITH (
+  connection = 'my_kafka',
+  topic = 'order_topic',
+  format = 'json'
+);
+```
+
+## INSERT INTO
+Arroyo supports INSERT INTO statements for both memory and connection tables.
+In line with standard SQL the insertion will happen column-wise,
+ attempting coercion to the SQL types.
+For example, if you have a memory table `orders` with columns `customer_id` and `order_id`
+you could insert into it with a statement like
+```sql
+INSERT INTO orders SELECT customer, order FROM source_table;
+```
+If the table is a connection table this will result in a sink,
+otherwise it will be a memory table that can then be read from.

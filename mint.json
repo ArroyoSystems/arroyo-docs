@@ -50,6 +50,18 @@
       ]
     },
     {
+      "group": "SQL Reference",
+      "pages": [
+        "sql/data-types",
+        "sql/select-statements",
+        "sql/ddl",
+        "sql/windows",
+        "sql/scalar-functions",
+        "sql/aggregate-functions",
+        "sql/window-functions"
+      ]
+    },
+    {
       "group": "Deployment",
       "pages": [
         "deployment/overview",
@@ -58,6 +70,7 @@
         "deployment/nomad"
       ]
     },
+    
     {
       "group": "Arroyo Development",
       "pages": [
