@@ -134,6 +134,23 @@ REMOTE_COMPILER_ENDPOINT=http://localhost:9000 cargo run --bin arroyo-controller
 ```
 This will manage the execution of pipelines.
 
+<Tip>
+  On MacOS, you may see this error in the controller logs when trying to run a job:
+  ```
+  Child ("/tmp/arroyo-process/m2lgldjw") exited with status Ok(ExitStatus(unix_wait_status(9)))
+  ```
+  This means that MacOS gatekeeper is killing the pipeline binary. To allow the pipeline to run,
+  type this command in your terminal:
+  ```
+  $ sudo spctl --master-disable
+  ```
+  Note that this does disable a security feature, so you may want to revert it when you're done:
+  ```
+  $ sudo spctl --master-enable
+  ````
+</Tip>
+
+
 ## Building the frontend
 
 We use pnpm and vite for frontend development.
@@ -185,16 +202,8 @@ $ REMOTE_COMPILER_ENDPOINT=http://localhost:9000 cargo run --bin arroyo-controll
 
 ## Compiling Protocol Buffers for the frontend
 
-After altering protobuf definitions in `arroyo-rpc` you need to regenerate the Typescript code used by the frontend.
-
-First, install these dependencies:
+After altering protobuf definitions in `arroyo-rpc` you need to regenerate the Typescript code used by the frontend:
 
 ```bash
-$ npm install -g @bufbuild/protobuf @bufbuild/protoc-gen-es @bufbuild/buf
-```
-
-Then generate the Typescript code:
-
-```bash
-$ protoc -I arroyo-rpc/proto/ --es_out arroyo-console/src/gen/ --es_opt target=ts api.proto
+$ pnpm generate
 ```
