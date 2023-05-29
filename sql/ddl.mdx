@@ -52,13 +52,40 @@ a Kafka connection called my_kafka and a Kafka topic order_topic:
 ```sql
 CREATE TABLE orders (
   customer_id INT,
-  order_id INT)
- WITH (
+  order_id INT,
+  date_string TEXT,
+  event_time TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP)),
+  watermark TIMESTAMP GENERATED ALWAYS AS (event_time - INTERVAL '15' SECOND)
+) WITH (
   connection = 'my_kafka',
   topic = 'order_topic',
-  format = 'json'
+  format = 'json_schema_registry',
+  event_time_field = 'event_time',
+  watermark_field = 'watermark'
 );
 ```
+
+#### CREATE TABLE (Connection) Options
+Connection tables are the most powerful of the table types,
+allowing users to configure a number of options
+that specify and modify the behavior.
+They are specified via the `WITH` clause,
+with an unquoted key and a single or double-quoted value.
+The following options are supported:
+| Option            | Description |
+|--------           |-------------|
+| `connection`      | The name of the connection to use.|
+| `topic`           | The name of the topic to read from or write to. Specific to Kafka connections.|
+| `format`          | The format of the data to be deserialized. Defaults to `json`, but also supports `raw_json`, which is a single text field named `value`, and `json_schema_registry`, which trims the first 5 bytes off of each message.  |
+| `event_time_field`| The name of the field to use as the event time. If not specified, the event time will be set by the source.|
+| `watermark_field` | The name of the field to use as the watermark. If not specified, the watermark will be 1 second before the event time.|
+
+#### Virtual Fields
+Virtual fields can be created within the `CREATE TABLE` statement.
+These are done using the `GENERATED ALWAYS AS (expression)` syntax.
+`expression` must be a valid Arroyo SQL expression that only depends on non-virtual fields within the table.
+These will primarily be used to specify event time and watermark fields,
+as most other use cases can be handled by the `SELECT` statement.
 
 ## INSERT INTO
 Arroyo supports INSERT INTO statements for both memory and connection tables.
