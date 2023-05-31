@@ -15,10 +15,11 @@ CREATE TABLE orders AS SELECT customer_id, order_id FROM orders;
 The schema is inferred from the query and other queries within the same context can select from the new table.
 
 ### CREATE TABLE (In-Memory)
-CREATE TABLE statements without any connection info are presumed to be in memory.
-It can be written to within the same query context and then read from. 
-A memory table may be used in only one `INSERT INTO` statement, but can then be selected from multiple times.
-For example, you could create an `orders` table with a statement like
+CREATE TABLE statements without any connection info are presumed to be in
+memory. It can be written to within the same query context and then read from. A
+memory table may be used in only one `INSERT INTO` statement, but can then be
+selected from multiple times. For example, you could create an `orders` table
+with a statement like
 
 ```sql
 CREATE TABLE orders (customer_id INT, order_id INT);
@@ -27,15 +28,18 @@ CREATE TABLE orders (customer_id INT, order_id INT);
 `CREATE VIEW` is simply an alias for creating a memory table.
 
 ### CREATE TABLE (Connection)
-Connection tables allow Arroyo to read and write to external systems like Kafka clusters. 
-Connection tables can be created either in the Source and Sink tabs of the Web UI, 
-or directly within SQL via a CREATE TABLE call.
+Connection tables allow Arroyo to read and write to external systems like Kafka
+clusters. Connections tables may be used as sources, sinks, or both depending on
+the type of connection. For details on all of the supported connections, see the
+[Connectors](/connectors) docs. Connection tables can be created via the
+Source and Sink tabs of the Web UI, or directly in SQL via the `CREATE TABLE`
+statement.
 
-To create a connection table in SQL,
-you must have already configured the connection information in the Connections tab
-so that Arroyo knows how to connect and authenticate against the external system.
-Each configured connection has a name, which is then referenced within the CREATE TABLE call.
-The general form is
+To create a connection table in SQL, you must have already configured the the
+connection information in the Connections tab so that Arroyo knows how to
+connect and authenticate against the external system. Each configured connection
+has a name, which is then referenced within the `CREATE TABLE` call. The general
+form is
 
 ```sql
 CREATE TABLE <table name> (
@@ -46,7 +50,7 @@ CREATE TABLE <table name> (
 )
 ```
 
-For example, to create a table that can read and write from 
+For example, to create a table that can read and write from
 a Kafka connection called my_kafka and a Kafka topic order_topic:
 
 ```sql
@@ -59,25 +63,26 @@ CREATE TABLE orders (
 ) WITH (
   connection = 'my_kafka',
   topic = 'order_topic',
-  serialization_mode = 'json_schema_registry',
+  serialization_mode = 'json',
   event_time_field = 'event_time',
   watermark_field = 'watermark'
 );
 ```
 
-#### CREATE TABLE (Connection) Options
-Connection tables are the most powerful of the table types,
-allowing users to configure a number of options
-that specify and modify the behavior.
-They are specified via the `WITH` clause,
-with an unquoted key and a single or double-quoted value.
-The following options are supported across all connections. Specific connections have their own options.
+#### Options
+Connection tables allow you to configure a number of options that specify and
+modify the behavior. They are specified via the `WITH` clause, with an unquoted
+key and a single or double-quoted value. The following options are supported
+across all connections. Specific connections have their own options. To see all
+of the supported options, refer to the [Connector](/connectors) docs.
+
+
 | Option            | Description |
 |--------           |-------------|
 | `connection`        | The name of the connection to use.|
-| `serialization_mode`| The format of the data to be deserialized. Defaults to `json`, but also supports `raw_json`, which is a single text field named `value`, and `json_schema_registry`, which trims the first 5 bytes off of each message.  |
+| `serialization_mode`| The format of the data to be deserialized. Defaults to `json`, but also supports `raw_json`, which is a single text field named `value`, and `json_schema_registry`, for mesage using the Confluent schema registry.  |
 | `event_time_field`  | The name of the field to use as the [event time](/concepts#event-time). If not specified, the event time will be set by the source.|
-| `watermark_field`   | The name of the field to use as the [watermark](/concepts#watermark). If not specified, the watermark will be 1 second before the event time. This will usually be the event_time_field minus some constant interval, e.g. `event_time - interval '10 seconds'`|
+| `watermark_field`   | The name of the field to use as the [watermark](/concepts#watermark). If not specified, the watermark will be 1 second before the event time. This will usually be the event_time_field minus some constant interval, e.g. `event_time - interval '10 seconds'`.|
 
 #### Virtual Fields
 Virtual fields can be created within the `CREATE TABLE` statement.
@@ -87,13 +92,15 @@ These will primarily be used to specify event time and watermark fields,
 as most other use cases can be handled by the `SELECT` statement.
 
 ## INSERT INTO
-Arroyo supports INSERT INTO statements for both memory and connection tables.
-In line with standard SQL the insertion will happen column-wise,
- attempting coercion to the SQL types.
-For example, if you have a memory table `orders` with columns `customer_id` and `order_id`
-you could insert into it with a statement like
+Arroyo supports INSERT INTO statements for both memory and connection tables. In
+line with standard SQL the insertion will happen column-wise, attempting
+coercion to the SQL types. For example, if you have a memory table `orders` with
+columns `customer_id` and `order_id` you could insert into it with a statement
+like
+
 ```sql
 INSERT INTO orders SELECT customer, order FROM source_table;
 ```
+
 If the table is a connection table this will result in a sink,
 otherwise it will be a memory table that can then be read from.

@@ -107,7 +107,7 @@ CREATE TABLE mastodon (
 )
 WITH (
     connection = 'mstdn',
-    path = '/streaming/public',
+    path = '/v1/streaming/public',
     events = 'update',
     serialization_mode = 'raw_json');
 ```
@@ -189,8 +189,8 @@ CREATE TABLE mastodon (
     value TEXT
 )
 WITH (
-    connection = 'mastodon',
-    path = '/streaming/public',
+    connection = 'mstdn',
+    path = '/v1/streaming/public',
     events = 'update',
     serialization_mode = 'raw_json');
 
