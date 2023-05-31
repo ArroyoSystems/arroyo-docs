@@ -1,0 +1,83 @@
+---
+title: Kafka
+description: "Use Kafka topics as sources and sinks"
+---
+
+Arroyo provides sources and sinks for [Apache Kafka](https://kafka.apache.org/)
+for consistently reading and writing data from Kafka topics using exactly-once
+semantics. Kafka's distributed log model makes it a great fit for stream
+processing applications like Arroyo.
+
+Arroyo supports Kafka clusters that are self-hosted, using Amazon
+MSK<sup>1</sup>, and Confluent Cloud.
+
+*<sup>1</sup> Note that MSK Serverless is not currently supported due to its
+reliance on non-standard IAM authentication*
+
+## Configuring the Connection
+
+Kafka connections can be created via the Web UI or via the API.
+
+<img
+src="/images/create_kafka.png"
+alt="Kafka creation flow"
+style={{ height: "600px" }}
+/>
+
+A Kafka connection has several required and optional fields:
+
+| Field | Description | Required | Example |
+| ----- | ----------- | -------- | ------- |
+| name | A unique name for the connection | Yes | `prod-kafka` |
+| bootstrap_servers | A comma-separated list of Kafka servers to connect to | Yes | `kafka-server-1.cluster:9092,kafka-server-2.cluster:9092` |
+| auth_config.auth_type | The type of authentication to use (one of `None` or `SASL`) | Yes | `None` |
+| auth_config.protocol | The SASL protocol to use (e.g., `SASL_PLAINTEXT`, `SASL_SSL`) | No | `SASL_PLAINTEXT` |
+| auth_config.mechanism | The SASL mechanism to use (e.g., `SCRAM-SHA-256`, `SCRAM-SHA-512`) | No | `SCRAM-SHA-256` |
+| auth_config.username | The username to use for SASL authentication | No | `user` |
+| auth_config.password | The password to use for SASL authentication | No | `password` |
+
+## Kafka Sources
+
+Kafka sources can be created via the Web UI, the API, or directly in SQL. A
+Kafka source is defined by a topic name and a schema.
+
+Schemas can be defined via json-schema, or automatically configured via
+Confluent Schema Registry.
+
+Kakfa sources implement exactly-once semantics by storing the last-read offset
+in Arroyo's state.
+
+## Kafka Sinks
+
+Kafka sinks can be created via the Web UI, the API, or directly in SQL. A Kafka
+sink is defined by a topic name. Currently, Kafka sinks only support writing
+JSON data, with the structure determined by the schema of the data being
+written.
+
+The Kafka sink does not yet support transactional semantics, so double-writes are possible if a pipeline fails and must
+recover from earlier in time (at-least-once semantics). Exactly-once support for Kafka sinks is planned.
+
+## Kafka DDL
+
+Kafka connector tables can defined via SQL DDL and used as sources and sinks in
+SQL queries. In the `CREATE TABLE` statement, the following options are
+supported:
+
+| Option | Description | Required |
+| ------ | ----------- | -------- |
+| connection | The name of the Kafka connection to use | Yes |
+| topic | The name of the Kafka topic to read from | Yes |
+| serialization_mode | The encoding of the data in the kafka topic (one of `json` or `raw_json`) | Yes |
+
+For Example:
+
+```sql
+CREATE TABLE orders (
+  customer_id INT,
+  order_id INT)
+ WITH (
+  connection = 'my_kafka',
+  topic = 'order_topic',
+  serialization_mode = 'json'
+);
+```

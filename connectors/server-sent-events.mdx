@@ -1,0 +1,54 @@
+---
+title: Server-Sent Events
+description: "Read from streaming HTTP sources"
+---
+
+[Server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) (also called EventSource)
+is a simple mechanism to stream data over HTTP. Arroyo supports using SSE/EventSource APIs as sources. Arroyo will
+attempt to provide exactly-once semantics on top of SSE by use of the `Last-Event-ID` header, but this relies on
+proper implementation of the protocol by the server.
+
+## Configuring the Connection
+
+EventSource/SSE sources can be created via the Web UI or via the API as an HTTP connection
+
+<img
+src="/images/create_http.png"
+alt="EventSource creation flow"
+style={{ height: "500px" }}
+/>
+
+An HTTP connection has several required and optional fields:
+
+| Field | Description | Required | Example |
+| ----- | ----------- | -------- | ------- |
+| name | A unique name for the connection | Yes | `my-server` |
+| url | The base endpoint of the HTTP API | Yes | `https://api.example.com` |
+| headers | A comma-separated list of colon separated key-value pairs of headers that will be sent to the server | No | ```Content-Type:application/json,Authorization: Bearer mytoken```
+
+## Server-Sent Events Sources
+
+SSE sources can be created via the UI, API, or directly in SQL. Schemas can be defined via json-schema,
+read dynamically via SQL JSON functions, or described via SQL DDL.
+
+When creating an SSE/EventSource source, the following options are supported:
+
+| Option | Description | Required | Example |
+| ------ | ----------- | -------- | ------- |
+| connection | The name of the HTTP connection to use | Yes | `my-server` |
+| path | An optional path appended to the connection URL | No | `/v1/events` |
+| events | An optional comma-separated list of events to listen for. If not set, all events will be used.| No | `event1,event2` |
+
+In SQL, these options can be set when creating the table, along with a
+`serialization_mode` that determines the format of the data (one of `json` or `raw_json`).
+
+```sql
+CREATE TABLE mastodon (
+    value TEXT
+)
+WITH (
+    connection = 'mstdn',
+    path = '/v1/streaming/public',
+    events = 'update',
+    serialization_mode = 'raw_json');
+```
