@@ -32,7 +32,7 @@ Connection tables can be created either in the Source and Sink tabs of the Web U
 or directly within SQL via a CREATE TABLE call.
 
 To create a connection table in SQL,
-you must have already configured the the connection information in the Connections tab 
+you must have already configured the connection information in the Connections tab
 so that Arroyo knows how to connect and authenticate against the external system.
 Each configured connection has a name, which is then referenced within the CREATE TABLE call.
 The general form is
@@ -52,13 +52,39 @@ a Kafka connection called my_kafka and a Kafka topic order_topic:
 ```sql
 CREATE TABLE orders (
   customer_id INT,
-  order_id INT)
- WITH (
+  order_id INT,
+  date_string TEXT,
+  event_time TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP)),
+  watermark TIMESTAMP GENERATED ALWAYS AS (event_time - INTERVAL '15' SECOND)
+) WITH (
   connection = 'my_kafka',
   topic = 'order_topic',
-  format = 'json'
+  serialization_mode = 'json_schema_registry',
+  event_time_field = 'event_time',
+  watermark_field = 'watermark'
 );
 ```
+
+#### CREATE TABLE (Connection) Options
+Connection tables are the most powerful of the table types,
+allowing users to configure a number of options
+that specify and modify the behavior.
+They are specified via the `WITH` clause,
+with an unquoted key and a single or double-quoted value.
+The following options are supported across all connections. Specific connections have their own options.
+| Option            | Description |
+|--------           |-------------|
+| `connection`        | The name of the connection to use.|
+| `serialization_mode`| The format of the data to be deserialized. Defaults to `json`, but also supports `raw_json`, which is a single text field named `value`, and `json_schema_registry`, which trims the first 5 bytes off of each message.  |
+| `event_time_field`  | The name of the field to use as the [event time](/concepts#event-time). If not specified, the event time will be set by the source.|
+| `watermark_field`   | The name of the field to use as the [watermark](/concepts#watermark). If not specified, the watermark will be 1 second before the event time. This will usually be the event_time_field minus some constant interval, e.g. `event_time - interval '10 seconds'`|
+
+#### Virtual Fields
+Virtual fields can be created within the `CREATE TABLE` statement.
+These are done using the `GENERATED ALWAYS AS (expression)` syntax.
+`expression` must be a valid Arroyo SQL expression that only depends on non-virtual fields within the table.
+These will primarily be used to specify event time and watermark fields,
+as most other use cases can be handled by the `SELECT` statement.
 
 ## INSERT INTO
 Arroyo supports INSERT INTO statements for both memory and connection tables.

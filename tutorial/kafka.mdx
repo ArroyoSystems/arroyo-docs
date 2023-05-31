@@ -9,8 +9,10 @@ cover setting up a local Kafka broker and generating some sample data.
 ## Setting up Kafka
 
 The easiest way to get a Kafka broker up and running is to use the
-[Confluent Platform](https://www.confluent.io/product/confluent-platform/). Follow the installation instructions
-[here](https://developer.confluent.io/quickstart/kafka-local/) to set up a local installation on your machine.
+[Confluent Platform](https://www.confluent.io/product/confluent-platform/).
+ Follow the installation instructions
+[here](https://docs.confluent.io/platform/7.4/installation/installing_cp/zip-tar.html#get-the-software)
+to set up a local installation on your machine.
 
 Once you have the Confluent Platform installed, you can start the Kafka broker by running the following command in
 the confluent directory:
@@ -21,7 +23,7 @@ $ bin/confluent local services start
 
 ## Generating data
 
-The confluent platform includes Kafka connect, which can be used to generate data for testing using the
+The Confluent Platform includes Kafka connect, which can be used to generate data for testing using the
 [datagen plugin](https://github.com/confluentinc/kafka-connect-datagen). First, we need to install the plugin. Run
 the following command in the confluent directory:
 
@@ -77,7 +79,7 @@ Select "Kafka" as the connection type and fill in the following settings:
     If you're running Arroyo in Docker, you will need to do a bit more setup to enable Arroyo to talk to Kafka.
 
     First, you will need find your bridge IP address. You can do this by running
-    `docker network inspect bridge | grep Gatway` which should return an ip address, for example `172.17.0.1`.
+    `docker network inspect bridge | grep Gateway` which should return an ip address, for example `172.17.0.1`.
 
     Then you will need to configure the Kafka broker to listen on that IP address. To do this, edit the
     `etc/kafka/server.properties` file in the confluent installation and add the following lines:
@@ -138,7 +140,7 @@ Click "Create" to finish.
 
 Now we're ready to talk to Kafka! Go to the Jobs tab, and click "Create Pipeline."
 
-We can start with a simpe query that will select all the orders from the `orders` table to see what the data looks like:
+We can start with a simple query that will select all the orders from the `orders` table to see what the data looks like:
 
 ```sql
 SELECT * from orders;
