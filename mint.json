@@ -39,12 +39,17 @@
       "name": "API Reference",
       "icon": "rectangle-terminal",
       "url": "api-reference"
+    },
+    {
+      "name": "Releases",
+      "icon": "notes",
+      "url": "releases"
     }
   ],
   "navigation": [
     {
       "group": "Home",
-      "pages": ["introduction", "getting-started", "concepts", "architecture", "releases"]
+      "pages": ["introduction", "getting-started", "concepts", "architecture"]
     },
     {
       "group": "Tutorial",
@@ -91,6 +96,13 @@
       "group": "API Documentation",
       "pages": [
         "api-reference/overview"
+      ]
+    },
+    {
+      "group": "Releases",
+      "pages": [
+        "releases/v0.3.0",
+        "releases/v0.2.0"
       ]
     },
     {

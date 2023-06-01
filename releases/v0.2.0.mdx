@@ -1,9 +1,7 @@
 ---
-title: Releases
-description: "Arroyo release notes"
+title: v0.2.0
+description: "Release 0.2.0 of Arroyo"
 ---
-
-# v0.2.0
 
 This release marks our first versioned release of Arroyo since we open-sourced the engine in April.
 
@@ -21,9 +19,9 @@ native Kubernetes support and easy deployment via a [Helm chart](https://doc.arr
 our SQL support with features like JSON functions and windowless joins, and made many more fixes and improvements
 detailed below.
 
-## Features
+# Features
 
-### Native Kubernetes support
+## Native Kubernetes support
 
 As of release 0.2.0, Arroyo can natively target Kubernetes as a scheduler for running pipelines. We now also support
 easily running the Arroyo control plane on Kubernetes using our new [helm
@@ -36,7 +34,7 @@ See the [docs](https://doc.arroyo.dev/deployment/kubernetes) for all the details
 - K8s deployment and helm chart by [@mwylde](https://github.com/mwylde) in
   [#91](https://github.com/ArroyoSystems/arroyo/pull/91)
 
-### Nomad deployments
+## Nomad deployments
 
 Arroyo has long had first-class support for Nomad as a scheduler, where we take advantage of the very low-latency and
 lightweight scheduling support. Now we also support Nomad as an easy deploy target for the control plane as well via a
@@ -47,7 +45,7 @@ See the docs [for more details](https://doc.arroyo.dev/deployment/nomad).
 - Support for deploying Arroyo to a nomad cluster by [@mwylde](https://github.com/mwylde) in
   [#50](https://github.com/ArroyoSystems/arroyo/pull/50)
 
-### SQL features
+## SQL features
 
 With this release we are making big improvements in SQL completeness. Notably, we've made our JSON support much more
 flexible with the introduction of SQL JSON functions including `get_json_objects`, `get_first_json_object`, and
@@ -74,7 +72,7 @@ Here are some of the highlights:
 - Add COALESCE, NULLIF, MAKE_ARRAY by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
   [#89](https://github.com/ArroyoSystems/arroyo/pull/89)
 
-### Connectors, Web UI, and platform support
+## Connectors, Web UI, and platform support
 
 Arroyo now supports SASL authentication for Kafka and FreeBSD
 
@@ -85,7 +83,7 @@ Arroyo now supports SASL authentication for Kafka and FreeBSD
 - Add support for changing pipeline parallelism in the Web UI by [@jbeisen](https://github.com/jbeisen) in
   [#77](https://github.com/ArroyoSystems/arroyo/pull/77)
 
-## Fixes
+# Fixes
 
 - Fix filter on partition_by parsing. by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
   [#27](https://github.com/ArroyoSystems/arroyo/pull/27)
@@ -94,7 +92,7 @@ Arroyo now supports SASL authentication for Kafka and FreeBSD
 - Fix the quoting of types in the sql package by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
   [#64](https://github.com/ArroyoSystems/arroyo/pull/64)
 
-## Improvements
+# Improvements
 
 - SQL macro testing by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
   [#10](https://github.com/ArroyoSystems/arroyo/pull/10)
