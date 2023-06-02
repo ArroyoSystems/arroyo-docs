@@ -1,0 +1,51 @@
+---
+title: User-defined functions
+description: 'Implement custom business logic with UDFs'
+---
+
+Arroyo SQL can be extended with user-defined functions. Currently, only Rust UDFs are supported. UDFs can be defined
+as part of the SQL API call, or via the Web UI.
+
+UDFs are defined as Rust functions. The parameters and return type of the UDF are determined by the definition of the
+function. All types must be valid [SQL data types](/sql/data-types).
+
+Here's an example of a simple UDF that squares an integer:
+
+```rust
+fn my_square(x: i64) -> i64 {
+  x * x
+}
+```
+
+Once registered, this can be used in SQL queries:
+
+```sql
+SELECT my_square(auction.bid) FROM nexmark
+```
+
+## Nullability
+
+Nullability handling is controlled via the type signature of the UDF parameters and return types. If a parameter is
+an `Option` type (for example `Option<i64>`), then it will be called with all inputs, even if they are `NULL`. If the
+parameter is not an `Option` type (for example `i64`), then it will only be called with non-`NULL` inputs.
+
+Similarly, if the return type is an `Option` type, then the output type is nullable, otherwise it is non-nullable. If
+
+In table form:
+
+| Input | Parameter type | Return type | Called on | Nullability |
+| ----- | -------------- | ----------- | --------- | ----------- |
+| Nullable | `T` | `T` | Non-null values | Nullable |
+| Nullable | `Option<T>` | `T` | All values | Non-null |
+| Nullable | `T` | `Option<T>` | Non-null values | Nullable |
+| Nullable | `Option<T>` | `Option<T>` | All values | Nullable |
+| Non-null | `T` | `T` | All values | Non-null |
+| Non-null | `Option<T>` | `T` | All values | Non-null |
+| Non-null | `T` | `Option<T>` | All values | Nullable |
+| Non-null | `Option<T>` | `Option<T>` | All values | Nullable |
+
+## Debugging UDFs
+
+If UDFs panic, they will produce log lines in the worker logs. These are not currently forwarded to the Web UI, so you
+will need to find the logs where the workers are running. For the default `process` scheduler, this will be in the
+controller logs. For `kubernetes` and `nomad` schedulers, this will be within the actual worker pods.
