@@ -56,7 +56,8 @@
       "pages": [
         "tutorial/first-pipeline",
         "tutorial/mastodon",
-        "tutorial/kafka"
+        "tutorial/kafka",
+        "tutorial/debezium"
       ]
     },
     {
