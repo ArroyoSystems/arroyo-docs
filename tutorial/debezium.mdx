@@ -1,0 +1,159 @@
+---
+title: Debezium
+description: "Use Debezium to consume an updating source"
+---
+
+[Debezium](https://debezium.io/) is a CDC (change data capture) tool that is widely used to dynamically respond to changes within your database.
+In this tutorial we'll setup Debezium to consume from Arroyo's checkpoint table, and aggregate over them.
+
+
+## Setting up Arroyo
+
+First, follow the developer instructions for running [Arroyo](/getting-started#locally) locally.
+This will allow a persistent database that we can attach Debezium to.
+
+## Configure Postgres
+Next, we'll need to configure [Postgres](https://debezium.io/documentation/reference/stable/connectors/postgresql.html#setting-up-postgresql) in order to enable Debezium to read the changes.
+First, we'll need to enable logical decoding by adding the following to `postgresql.conf`:
+
+```
+wal_level = logical
+```
+The location of this file varies depending on operating system and method of installation.
+On Mac OS with Homebrew, it will be something like `/opt/homebrew/var/postgresql@15/postgresql.conf`,
+while on Ubuntu something like `/etc/postgresql/14/main/postgresql.conf`.
+
+Next, for the `checkpoints` table, we need to enable the `REPLICA IDENTITY` to `FULL`:
+
+```sql
+ALTER TABLE checkpoints REPLICA IDENTITY FULL;
+```
+For this demo we can use the same `arroyo` user that we created for the Arroyo services,
+ but in production it's recommended to create a separate user for Debezium.
+
+## Run Debezium and kafka
+Debezium requires Zookeeper, Kafka and some way to run [Kafka Connect](https://kafka.apache.org/documentation.html#connect).
+There are many ways to do this, but for simplicity we recommend a single docker-compose file:
+```yaml
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - zookeeper
+    ports:
+      - 9094:9094
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  debezium:
+    image: debezium/connect:2.2
+    depends_on:
+      - kafka
+    ports:
+      - 8083:8083
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: debezium_connect_configs
+      OFFSET_STORAGE_TOPIC: debezium_connect_offsets
+      STATUS_STORAGE_TOPIC: debezium_connect_statuses
+```
+
+Confirm that the three docker images are running via `docker ps` and tailing their logs.
+
+## Create Debezium Connector
+We can use `curl` to create a debezium connection using the [Debezium REST API](https://debezium.io/documentation/reference/stable/api.html).
+First, create a file connector-config.json with contents
+```json
+{
+    "name": "arroyo-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "host.docker.internal",
+        "database.port": "5432",
+        "database.user": "arroyo",
+        "database.password": "arroyo",
+        "database.dbname": "arroyo",
+        "database.server.name": "arroyo",
+        "tombstones.on.delete": "false",
+        "table.include.list": "public.checkpoints",
+        "topic.prefix": "arroyo",
+        "plugin.name": "pgoutput",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+    }
+}
+```
+Then, submit it to Debezium via
+```
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" localhost:8083/connectors -d @connector-config.json
+```
+This should now emit Debezium messages for each change to the `checkpoints` table to a topic named `arroyo.public.checkpoints`.
+
+## Run a job to generate checkpoints
+
+Run a simple stateless query such as `SELECT * FROM nexmark` to generate some checkpointing data so we have something to work with.
+This will produce a checkpoint every 10 seconds, by default, which will trigger updates to postgresql.
+
+## Consume checkpointing data
+After making a registering your Kafka cluster as a connection named `local`, you can query the checkpointing debezium data with
+```sql
+CREATE TABLE checkpoints (
+    id BIGINT,
+    organization_id TEXT,
+    job_id TEXT,
+
+    state_backend TEXT,
+    epoch INT,
+    min_epoch INT,
+    start_time TIMESTAMP NOT NULL,
+    finish_time TIMESTAMP,
+    state TEXT,
+
+    operators TEXT
+) WITH (
+    connection = 'local',
+    topic = 'arroyo.public.checkpoints',
+    serialization_mode = 'debezium_json'
+);
+
+SELECT * FROM checkpoints
+```
+This will merely dump out the data as three columns, `"before"`, `"after"`, and `"op"`,
+ in line with the Debezium schema.
+However, we can also write more complex queries over the source.
+For instance, consider the following query.
+```sql
+
+SELECT
+SUM(CASE WHEN running THEN 1 ELSE 0 END) as running_checkpoints,
+SUM(CASE WHEN running THEN 0 ELSE 1 END) as finished_checkpoints
+FROM (
+SELECT finish_time IS NULL as running FROM checkpoints)
+```
+This will produce an updating dataset that reports how many running versus finished checkpoints we've seen.
+
+
+### Writing Debezium outputs
+In addition to reading Debezium streams as update tables,
+Arroyo also supports writing Debezium messages to kafka as a sink.
+This can be done by creating a table with the `serialization_mode` set to `debezium_json`
+ and a `topic` set to the desired kafka topic.
+
+Have more questions? File an issue on [Github](https://github.com/ArroyoSystems/arroyo/issues)
+or join our [Discord](https://discord.gg/cjCr5rVmyR)!
