@@ -2,19 +2,25 @@
 title: DDL Statements
 description: 'creating tables and views in Arroyo SQL'
 ---
+
 In addition to its SELECT capabilities Arroyo supports several Data Description Language (DDL) capabilities.
 
 ## CREATE TABLE
+
 Arroyo's CREATE TABLE statements come in three flavors: Create Table As, Memory Table and Connection Table.
 
 ### CREATE TABLE AS
+
 This command creates a table from the query included in it, e.g.
+
 ```sql
 CREATE TABLE orders AS SELECT customer_id, order_id FROM orders;
 ```
+
 The schema is inferred from the query and other queries within the same context can select from the new table.
 
 ### CREATE TABLE (In-Memory)
+
 CREATE TABLE statements without any connection info are presumed to be in
 memory. It can be written to within the same query context and then read from. A
 memory table may be used in only one `INSERT INTO` statement, but can then be
@@ -28,6 +34,7 @@ CREATE TABLE orders (customer_id INT, order_id INT);
 `CREATE VIEW` is simply an alias for creating a memory table.
 
 ### CREATE TABLE (Connection)
+
 Connection tables allow Arroyo to read and write to external systems like Kafka
 clusters. Connections tables may be used as sources, sinks, or both depending on
 the type of connection. For details on all of the supported connectors, see the
@@ -69,7 +76,7 @@ CREATE TABLE orders (
   order_id INT,
   date_string TEXT,
   event_time TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP)),
-  watermark TIMESTAMP GENERATED ALWAYS AS (event_time - INTERVAL '15' SECOND)
+  watermark TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP) - INTERVAL '15' SECOND
 ) WITH (
   connector = 'kafka',
   format = 'json',
@@ -83,6 +90,7 @@ CREATE TABLE orders (
 
 
 #### Options
+
 Connection tables allow you to configure a number of options that specify and
 modify the behavior. They are specified via the `WITH` clause, with an unquoted
 key and a single or double-quoted value. The following options are supported
@@ -99,6 +107,7 @@ of the supported options, refer to the [Connector](/connectors) docs.
 | `watermark_field`   | The name of the field to use as the [watermark](/concepts#watermark). If not specified, the watermark will be 1 second before the event time. This will usually be the event_time_field minus some constant interval, e.g. `event_time - interval '10 seconds'`.|
 
 #### Virtual Fields
+
 Virtual fields can be created within the `CREATE TABLE` statement.
 These are done using the `GENERATED ALWAYS AS (expression)` syntax.
 `expression` must be a valid Arroyo SQL expression that only depends on non-virtual fields within the table.
@@ -106,6 +115,7 @@ These will primarily be used to specify event time and watermark fields,
 as most other use cases can be handled by the `SELECT` statement.
 
 ## INSERT INTO
+
 Arroyo supports INSERT INTO statements for both memory and connection tables. In
 line with standard SQL the insertion will happen column-wise, attempting
 coercion to the SQL types. For example, if you have a memory table `orders` with
