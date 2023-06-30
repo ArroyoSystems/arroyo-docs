@@ -37,7 +37,7 @@ To create a topic, go to the control center UI at http://localhost:9021/clusters
 Topics page.
 
 Click "Add Topic" and create a topic called `orders` with default settings. Then create a second topic with the
-name `sink`.
+name `results`.
 
 Next we're going to create a Kafka connect source to generate data. Click the "Connect" tab in the control center and
 select the "connect-default" cluster.
@@ -64,16 +64,27 @@ Now clicking back into the `orders` topic on the Topics page, you should see dat
 
 ## Creating a Kafka connection
 
-Now that we have a Kafka broker running and some data being generated, we can connect it to Arroyo. Start by opening
-the Arroyo UI at http://localhost:8000.
+Now that we have a Kafka broker running and some data being generated, we can
+connect it to Arroyo by creating what's called a "Connection," which is an
+external system that Arroyo can read from (as a source) or write to (as a sink).
+
+There are two ways to do this: we can either create a connection in the Web UI,
+or directly in SQL using [DDL statements](/sql/ddl). We'll start by creating the
+source connection in the Web UI by opening it at http://localhost:8000.
 
 A Connection in Arroyo is an external system that Arroyo will read or write to. To create a Kafka connection, click
 the "Connections" tab in the Arroyo UI and then click "Create Connection."
 
-Select "Kafka" as the connection type and fill in the following settings:
+Find Kafka in the list of connectors, and click "Create."
+
+Next we will need to configure the connection information for the Kafka cluster. This is stored separately from the
+table configuration so that it can be shared across many different connections.
+
+Under the Cluster config box, click "Create new" and enter the following information:
 
 * Name: `local-confluent`
 * Bootstrap Servers: `localhost:9092`
+* Authentication: `None`
 
 <Tip>
     If you're running Arroyo in Docker, you will need to do a bit more setup to enable Arroyo to talk to Kafka.
@@ -100,45 +111,61 @@ Select "Kafka" as the connection type and fill in the following settings:
     `172.17.0.1:19092`.
 </Tip>
 
-Click "Test" and then "Create" to create the connection.
 
-If the connection is not successful, make sure that the Kafka broker is running and that the IP address is correct and
-port are correct.
+### Configuring source table
 
-## Creating a Kafka source
+Once the cluster config is created, we will need to configure the source table. Enter the following:
 
-Next we will create a source that reads from the Kafka topic we created earlier. Click the "Sources" tab in the Arroyo
-UI and then click "Create Source." Select "Kafka" as the source type and click "Continue."
+* Topic: `orders`
+* Table Type: `Source`
+* Offset: `latest`
 
-Select the `local-confluent` connection and enter `orders` for the topic. Click the Validate button to make sure the
-topic is valid, then Continue.
+This will configure the table as a source, reading from the `orders` topic, and
+starting from the latest offset. Click next to continue.
 
-Arroyo sources need to have a defined schema so we know how to deserialize the data. Currently json-schema is the only
+<img src="/images/kafka_tutorial_create_source.png" alt="Configuring the Kafka source" />
+
+Arroyo sources need to have a defined format and schema so that data can be
+deserialized and used in SQL queries. The Kafka data generator is configured to
+produce data in JSON format, so we'll select that as the data format.
+
+We also configured the generator to use the
+[Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html),
+so we can use that to configure the schema automatically.
+
+Under "Schema type," select `Confluent Schema Registry`, then enter the URL for the schema registry, by default
+`http://localhost:8081`. Click "Fetch Schema" to pull in the json-schema, and then continue.
+
+Currently json-schema is the only
 supported format. Also supported is the Confluent Schema Registry, which can be used to store and manage schemas. Since
 the topic we generated has an associated schema in the schema registry, choose that option and click "Continue".
 
 Enter the URL for the schema registry (this will be either `http://localhost:8081` or `http://<GATEWAY IP>:8081` if
 running in docker). Click "Fetch Schema" to pull in the json-schema, and then continue.
 
-On the next screen click "Test source," which will validate the connection, topic, and schema. If everything is good,
-click "Continue." Finally, give the source a name like `orders`; this will be the name of the table that you will query.
-Finally, click "Publish" to create the source.
+<Tip>
+    When Kafka uses the schema registry, it uses a
+    [special encoding](https://docs.confluent.io/platform/current/schema-registry/serdes-develop/index.html#wire-format)
+    that's not quite standard JSON. This means that it's necessary to specify that
+    the schema registry is being used. In the UI, this can be done by fetching the schema from the schema registry.
+    In SQL this requires setting `'format_options.confluent_schema_registry' = 'true'` in the with clause.
+</Tip>
 
-## Creating a Kafka sink
+Click "Continue" to finish configuring the source table. On the final screen, we
+can give the connection a name `orders`, then test that it's valid.
 
-Next we're going to create a Kafka sink to write our outputs to. Go to the "Sinks" tab and click "Create Sink".
+WHen you click "Test Connection," Arroyo will attempt to connect to Kafka with the configured bootstrap servers,
+validates that the topic exists, and tries reading a message from the topic.
 
-Select "Kafka" as the sink type, and enter the following settings:
-
-* Name: `kafka-sink`
-* Kafka Connection: `local-confluent`
-* Topic: `sink`
-
-Click "Create" to finish.
+If everything is good, click "Create" to create the connection.
 
 ## Creating the Pipeline
 
 Now we're ready to talk to Kafka! Go to the Jobs tab, and click "Create Pipeline."
+
+This brings us to the pipeline SQL editor. On the left, we can see all of the
+sources and sinks we've created, including the `orders` source. By clicking on
+the source, we can see the schema of the source table.
 
 We can start with a simple query that will select all the orders from the `orders` table to see what the data looks like:
 
@@ -148,8 +175,8 @@ SELECT * from orders;
 
 Previewing that should show a stream of data being generated by the datagen connector.
 
-Let's try something a little more interesting. We're going to count the number of orders by store over a sliding window.
-We can do that with this query:
+Let's try something a little more interesting. We're going to count the number
+of orders by store over a sliding window. We can do that with this query:
 
 ```sql
 SELECT count(*) as count, store_order_id as store
@@ -157,15 +184,77 @@ FROM orders
 GROUP BY store_order_id, hop(interval '2 seconds', interval '10 seconds');
 ```
 
-You can continue to try out queries, or start running this one for real.
+<img src="/images/kafka_tutorial_previewing.png" alt="Previewing output of the query" />
 
-Click "Start Pipeline" and give the pipeline a name. Select `kafka-sink` as the sink, and click "Start."
+## Inserting into a Kafka sink
 
-Once the pipeline starts running, we can see the oputputs by running the Kafka console consumer in the confluent
-directory:
+There are two ways to create connections in Arroyo. Previously we created a
+Kafka source connection via the web UI, and now we're going to create a Kafka
+sink via SQL.
+
+Connections (sources and sinks) are modeled in SQL as tables, so we can create
+them via [DDL statements](/sql/ddl). It will look like this:
+
+```sql
+CREATE TABLE kafka_sink (
+    count BIGINT,
+    store BIGINT
+) WITH (
+    'connector' = 'kafka',
+    'type' = 'sink',
+    'format' = 'json',
+    'bootstrap_servers' = 'localhost:9092',
+    'topic' = 'results'
+);
+```
+
+Connection tables are created via `CREATE TABLE` statements that have a
+`connector` with option, which specifices which connector should be used; in
+this case Kafka. Other required options are `type` which specifies whether the
+table is a source or a sink, and `format` which specifies the format of the
+data.
+
+Then, each connector will have a set of options that may be set—for Kafka, we
+need to set the `bootstrap_servers` option to tell it how to connect, and the
+`topic` to write to. See all of the options for the kafka connector in the
+[connectors docs](/connectors/kafka).
+
+Now we're ready to send the results of our query to the kafka sink we created,
+which we do via an `INSERT INTO` statement.
+
+This gives us the entire query:
+
+```sql
+CREATE TABLE kafka_sink (
+    count BIGINT,
+    store BIGINT
+) WITH (
+    'connector' = 'kafka',
+    'bootstrap_servers' = 'localhost:9092',
+    'type' = 'sink',
+    'topic' = 'results',
+    'format' = 'json'
+);
+
+INSERT INTO kafka_sink SELECT count(*), store_order_id
+FROM orders
+GROUP BY store_order_id, hop(interval '2 seconds', interval '10 seconds');
+```
+
+<Tip>
+  Note that in preview mode, connection sinks are swapped out for a Web Sink so that you
+  can see the output and ensuring no data test data is written the actual sink. The real
+  sink will be used when the pipeline is started.
+</Tip>
+
+Now we're ready to run the pipeline for real. Click "Start Pipeline" and give
+the pipeline a name, and click "Start."
+
+Once the pipeline starts running, we can see the oputputs by running the Kafka
+console consumer in the confluent directory:
 
 ```
-$ bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic sink
+$ bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic results
 {"count":2,"store":3}
 {"count":1,"store":6}
 {"count":5,"store":8}
@@ -175,4 +264,5 @@ $ bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic sink
 ...
 ```
 
-When you're done, hit "Stop" to stop the pipeline.
+When you're done, hit "Stop" to stop the pipeline. You may also want to stop
+the datagen connector, which you can do in the confluent web ui.

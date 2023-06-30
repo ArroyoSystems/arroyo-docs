@@ -16,38 +16,30 @@ guide to get that set up.
 ## Creating the connection
 
 The first thing we need to do is create a source that will read from the Mastodon firehose. We
-will be using the EventSource API (also known as Server-Sent Events) to read from the firehose, via
+will be using the Server-Sent Events API (also known as EventSource) to read from the firehose, via
 [this api](https://docs.joinmastodon.org/methods/streaming/#public).
 
-Arroyo has native support for EventSource, so we just need to configure it.
+Arroyo comes with an SSE connector, so we just need create a connection source
+that points to the mastodon server. A Connection in Arroyo is an external system
+that Arroyo will read or write to.
 
-We will start by creating a _connection_, which tells Arroyo how to connect to a remote system (in this
-case, an HTTP server).
-
-Navigate to the connections tab (http://localhost:8000/connections), and click "Create Connection."
-
-Select Http as the connect type, and enter the following configuration:
-
-|  |  |
-| ---- | ------- |
-| Name | `mstdn` |
-| URL | `https://mstdn.social/api` |
-
-Leave the headers field blank (if we were connecting to a server that required authentication, we would
-add it there).
-
-Click `Test` to validate that we're able to connect to the server, then `Create`.
-
-## Drinking from the firehose
-
-We could create a reusable mastodon source in the Sources tab, but for now we'll create the source
-directly in SQL.
+There are two ways to create a connection in Arroyo. We can create a re-usable connection in the
+Connections tab, or we can create a connection directly in SQL. For this tutorial, we'll create
+the connection directly in SQL.
 
 Navigate to the Jobs tab (http://localhost:8000/jobs), and click `Create Pipeline`.
 
-We'll start by just streaming in the data, to get a sense of what it looks like.
+Connection tables are created via `CREATE TABLE` statements that have a
+`connector` with option, which specifices which connector should be used; in
+this case `sse` (for server-sent evnets). Also required is `format`, which
+specifies the format of the data (in this case, `json`).
 
-First, enter this SQL to define the mastodon source:
+Then, each connector will have a set of options that may be set—for SSE, we need
+to set the `endpoint` option to tell it where to connect to. We're also setting
+the `events` field to filter the events that we will read. See all of the
+options for the kafka connector in the [connectors docs](/connectors/sse).
+
+We can define the mastodon source connection like this:
 
 ```sql
 CREATE TABLE mastodon (
@@ -56,19 +48,20 @@ CREATE TABLE mastodon (
     content TEXT
 )
 WITH (
-    connection = 'mstdn',
-    path = '/v1/streaming/public',
-    events = 'update',
-    serialization_mode = 'json');
+    connector = 'sse',
+    format = 'json',
+    endpoint = 'https://mstdn.social/api/v1/streaming/public',
+    events = 'update'
+);
 ```
 
-Then follow that with a query over it:
+Then we can read from it, to get a sense of the data:
 
 ```sql
 select * from mastodon;
 ```
 
-Click `Preview` to run a preview pipeline over the data.
+Click `Start Preview` to run a preview pipeline over the data.
 
 <Tip>
     Arroyo has several ways to define sources and sinks. We can create a re-usable source in the Sources tab,
@@ -98,7 +91,7 @@ hash tags for us like this:
 }
 ```
 
-To access the tags, we'll need to define our source slightly differently, using the raw json encoder. This
+To access the tags, we'll need to define our source slightly differently, using the raw string format. This
 will give us a single column called `value` with the raw JSON data.
 
 ```sql
@@ -106,10 +99,11 @@ CREATE TABLE mastodon (
     value TEXT
 )
 WITH (
-    connection = 'mstdn',
-    path = '/v1/streaming/public',
-    events = 'update',
-    serialization_mode = 'raw_json');
+    connector = 'sse',
+    format = 'raw_string',
+    endpoint = 'https://mstdn.social/api/v1/streaming/public',
+    events = 'update'
+);
 ```
 
 Now we can pull out the tags using the `extract_json_string` function:
@@ -189,11 +183,11 @@ CREATE TABLE mastodon (
     value TEXT
 )
 WITH (
-    connection = 'mstdn',
-    path = '/v1/streaming/public',
-    events = 'update',
-    serialization_mode = 'raw_json');
-
+    connector = 'sse',
+    format = 'raw_string',
+    endpoint = 'https://mstdn.social/api/v1/streaming/public',
+    events = 'update'
+);
 
 CREATE VIEW tags AS (
     SELECT tag FROM (
@@ -213,5 +207,5 @@ SELECT * FROM (
             group by tag, window)) WHERE row_num <= 5;
 ```
 
-We can run the pipeline for real by clicking `Run`. Configure it with a web sink, which will
-let us stream the results to a web browser.
+We can run the pipeline for real by clicking `Start Pipeline`. Give it a name,
+then click `Start` to run the pipeline.

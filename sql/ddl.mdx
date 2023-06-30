@@ -30,28 +30,38 @@ CREATE TABLE orders (customer_id INT, order_id INT);
 ### CREATE TABLE (Connection)
 Connection tables allow Arroyo to read and write to external systems like Kafka
 clusters. Connections tables may be used as sources, sinks, or both depending on
-the type of connection. For details on all of the supported connections, see the
+the type of connection. For details on all of the supported connectors, see the
 [Connectors](/connectors) docs. Connection tables can be created via the
-Source and Sink tabs of the Web UI, or directly in SQL via the `CREATE TABLE`
+Connections tabs of the Web UI, or directly in SQL via the `CREATE TABLE`
 statement.
 
-To create a connection table in SQL, you must have already configured the the
-connection information in the Connections tab so that Arroyo knows how to
-connect and authenticate against the external system. Each configured connection
-has a name, which is then referenced within the `CREATE TABLE` call. The general
-form is
+Connection tables are created via special `CREATE TABLE` statements that
+include a `WITH` clause. The `WITH` clause specifies the connector, the format
+that the data is encoded with, and various other options that are specific to
+the connector. The general form of the statement is:
 
 ```sql
 CREATE TABLE <table name> (
   [<field name> <field type>,]..
 ) WITH (
-  connection = '<connection name>',
+  connector = '<connector name>',
+  format = '<format name>',
   [connection options]
 )
 ```
 
-For example, to create a table that can read and write from
-a Kafka connection called my_kafka and a Kafka topic order_topic:
+where `connector` is one of the connectors documented [here](/connectors) and
+format is one of:
+
+* `json`
+* `debezium_json`
+* `protobuf`
+* `avro`
+* `raw_string`
+
+(note protobuf and avro support are still in progress).
+
+For example, to create a Kafka source for the topic 1order_topic`:
 
 ```sql
 CREATE TABLE orders (
@@ -61,13 +71,16 @@ CREATE TABLE orders (
   event_time TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP)),
   watermark TIMESTAMP GENERATED ALWAYS AS (event_time - INTERVAL '15' SECOND)
 ) WITH (
-  connection = 'my_kafka',
+  connector = 'kafka',
+  format = 'json',
+  type = 'source',
+  bootstrap_servers = 'localhost:9092',
   topic = 'order_topic',
-  serialization_mode = 'json',
   event_time_field = 'event_time',
   watermark_field = 'watermark'
 );
 ```
+
 
 #### Options
 Connection tables allow you to configure a number of options that specify and
@@ -77,10 +90,11 @@ across all connections. Specific connections have their own options. To see all
 of the supported options, refer to the [Connector](/connectors) docs.
 
 
-| Option            | Description |
-|--------           |-------------|
-| `connection`        | The name of the connection to use.|
-| `serialization_mode`| The format of the data to be deserialized. Defaults to `json`, but also supports `raw_json`, which is a single text field named `value`, and `json_schema_registry`, for mesage using the Confluent schema registry.  |
+| Option           | required  | Description |
+|--------          | --------- |-------------|
+| `connector`      | required  | The name of the connector to use.|
+| `format`         | required  | The format of the data to be deserialized. |
+| `format_options.confluent_schema_registry` | optional | If set to `true`, confluent schema registry decoding will be used |
 | `event_time_field`  | The name of the field to use as the [event time](/concepts#event-time). If not specified, the event time will be set by the source.|
 | `watermark_field`   | The name of the field to use as the [watermark](/concepts#watermark). If not specified, the watermark will be 1 second before the event time. This will usually be the event_time_field minus some constant interval, e.g. `event_time - interval '10 seconds'`.|
 
