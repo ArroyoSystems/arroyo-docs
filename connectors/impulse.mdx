@@ -1,0 +1,40 @@
+---
+title: Impulse source
+description: "Periodic generator source"
+---
+
+The Impulse source generates a stream of events at a specified interval. It is useful for
+testing and can be used to drive more complex generated sources.
+
+## Configuring the Connection
+
+Impulse sources can be created via the Web UI or directly in SQL.
+
+An impulse connection has several required and optional fields:
+
+| Field | Description | Required | Example |
+| ----- | ----------- | -------- | ------- |
+| event_rate | The number of messages per second to produce | Yes | 100 |
+| event_time_interval | The number of microseconds between the event times of subsequent events emitted by the source; if not set wall-clock time is used | No | 200000 |
+| message_count | If set, the source will finish after emitting this many messages; otherwise it runs indefinitely | No | 50000 |
+
+Impulse sources have a particular schema, that must be matched exactly when
+creating a source in SQL:
+
+```sql
+counter BIGINT UNSIGNED NOT NULL,
+subtask_index BIGINT UNSIGNED NOT NULL
+```
+
+An impulse source can be created in SQL like this:
+
+```sql
+CREATE TABLE impulse (
+    counter BIGINT UNSIGNED NOT NULL,
+    subtask_index BIGINT UNSIGNED NOT NULL
+)
+WITH (
+    connector = 'impulse',
+    event_rate = '100'
+);
+```

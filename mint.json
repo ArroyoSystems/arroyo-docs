@@ -64,11 +64,13 @@
       "group": "Connectors",
       "pages": [
           "connectors/overview",
+          "connectors/blackhole",
+          "connectors/impulse",
           "connectors/kafka",
-          "connectors/redpanda",
-          "connectors/server-sent-events",
           "connectors/mysql",
           "connectors/postgres",
+          "connectors/redpanda",
+          "connectors/server-sent-events",
           "connectors/state"
       ]
     },
