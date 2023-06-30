@@ -28,13 +28,16 @@ A Kafka connection has several required and optional fields:
 
 | Field | Description | Required | Example |
 | ----- | ----------- | -------- | ------- |
-| name | A unique name for the connection | Yes | `prod-kafka` |
 | bootstrap_servers | A comma-separated list of Kafka servers to connect to | Yes | `kafka-server-1.cluster:9092,kafka-server-2.cluster:9092` |
-| auth_config.auth_type | The type of authentication to use (one of `None` or `SASL`) | Yes | `None` |
-| auth_config.protocol | The SASL protocol to use (e.g., `SASL_PLAINTEXT`, `SASL_SSL`) | No | `SASL_PLAINTEXT` |
-| auth_config.mechanism | The SASL mechanism to use (e.g., `SCRAM-SHA-256`, `SCRAM-SHA-512`) | No | `SCRAM-SHA-256` |
-| auth_config.username | The username to use for SASL authentication | No | `user` |
-| auth_config.password | The password to use for SASL authentication | No | `password` |
+| auth.type | One of 'none' or 'sasl' | No | `sasl` |
+| auth.protocol | The SASL protocol to use (e.g., `SASL_PLAINTEXT`, `SASL_SSL`) | No | `SASL_PLAINTEXT` |
+| auth.mechanism | The SASL mechanism to use (e.g., `SCRAM-SHA-256`, `SCRAM-SHA-512`) | No | `SCRAM-SHA-256` |
+| auth.username | The username to use for SASL authentication | No | `user` |
+| auth.password | The password to use for SASL authentication | No | `password` |
+| topic | The name of the Kafka topic to read from | Yes |
+| type | The type of table (either 'source' or 'sink') | Yes | `source` |
+| source.offset | The offset to start reading from (either 'earliest' or 'latest') | No | `earliest` |
+
 
 ## Kafka Sources
 
@@ -54,8 +57,9 @@ sink is defined by a topic name. Currently, Kafka sinks only support writing
 JSON data, with the structure determined by the schema of the data being
 written.
 
-The Kafka sink does not yet support transactional semantics, so double-writes are possible if a pipeline fails and must
-recover from earlier in time (at-least-once semantics). Exactly-once support for Kafka sinks is planned.
+The Kafka sink does not yet support transactional semantics, so double-writes
+are possible if a pipeline fails and must recover from earlier in time
+(at-least-once semantics). Exactly-once support for Kafka sinks is planned.
 
 ## Kafka DDL
 
@@ -66,18 +70,19 @@ supported:
 | Option | Description | Required |
 | ------ | ----------- | -------- |
 | connection | The name of the Kafka connection to use | Yes |
-| topic | The name of the Kafka topic to read from | Yes |
-| serialization_mode | The encoding of the data in the kafka topic (one of `json` or `raw_json`) | Yes |
 
 For Example:
 
 ```sql
 CREATE TABLE orders (
   customer_id INT,
-  order_id INT)
- WITH (
-  connection = 'my_kafka',
+  order_id INT
+) WITH (
+  connector = 'kafka',
+  format = 'json',
+  bootstrap_servers = 'kafka-server-1.cluster:9092,kafka-server-2.cluster:9092',
   topic = 'order_topic',
-  serialization_mode = 'json'
+  type = 'source',
+  'source.offset' = 'earliest'
 );
 ```

@@ -8,18 +8,18 @@ to use Arroyo to process data in real-time.
 
 ## Creating a demo source
 
-Arroyo includes several generated data sources we can use to try out the engine. To create one, go to the Sources tab
-on the left menu, and click "Create Source".
+Arroyo includes several generated data sources we can use to try out the engine. To create one, go to the Connections
+tab on the left menu, and click "Create Connection".
 
-From there, you can choose what type of source you would like to create. For this tutorial, we're going to create a
+From there, you can choose what type of connection you would like to create. For this tutorial, we're going to create a
 Nexmark source. [Nexmark](https://datalab.cs.pdx.edu/niagara/NEXMark/) is a standard benchmark for streaming systems.
 It involves various query patterns over a data set from a simulated auction website.
 
-Once Nexmark is selected, click continue. Then set the desired event rate. For this tutorial, the default of 100/sec
-should suffice.
+Find Nexmark in the list of connectors and click "Create." Then set the desired
+event rate. For this tutorial, 100 messages/sec should suffice.
 
-Click continue, and finally give name the source "nexmark," and click "Publish" to finish creating the
-source.
+Click next, and finally give name the source "nexmark," and click "Test
+Connection," then "Create" to finish creating the source.
 
 ## Creating a pipeline
 
@@ -46,8 +46,10 @@ each input event will result in a single output line.
 
 ### Windows
 
-Many streaming pipelines involve working with time in some way. Arroyo supports a few different ways of expressing computations over the time characteristic of our data. Let's add a sliding window (called `hop` in SQL) to perform
-a time-oriented aggregation:
+Many streaming pipelines involve working with time in some way. Arroyo supports
+a few different ways of expressing computations over the time characteristic of
+our data. Let's add a sliding window (called `hop` in SQL) to perform a
+time-oriented aggregation:
 
 ```sql
 SELECT avg(bid.price) as avg_price
@@ -80,9 +82,9 @@ Plug that into the editor and preview it, validating the results look like we ex
 ### Running the pipeline
 
 Once we're happy with it, we can run the pipeline for real. Click the "Start Pipeline" button, give it a name
-(for example "top_auctions"). Then we can select a sink, which determines where the results go. The current release
-of Arroyo supports streaming results to the browser ("Web" sink), to a log file ("Log"), and to Kafka. For now,
-select Web so that we can see the outputs, and click "Start".
+(for example "top_auctions"). Because we didn't specify a sink in the query (via an `INSERT INTO` statement),
+Arroyo will automatically add a Web sink so that we can view the results in the Web UI. Click "Start" to create
+the pipeline.
 
 This will compile and run the pipeline. Once it's running, we can click nodes on the pipeline dataflow graph and
 see metrics for that operator. Clicking into the Outputs tab we can tail the results for the pipeline. The Checkpoints
