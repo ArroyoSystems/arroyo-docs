@@ -16,45 +16,76 @@ not currently supported, please get in touch with the team on Discord or via Git
 | [Server-Sent Events](/connectors/server-sent-events) | Yes | No | OSS|
 | [MySQL](/connectors/mysql) | Yes | Yes | OSS |
 | [Postgres](/connectors/postgres) | Yes | Yes | OSS |
+| [Blackhole Sink](/connectors/blackhole) | No | Yes | OSS |
+| [Impulse source](/connectors/impulse) | Yes | No | OSS |
+| [Nexmark source](/connectors/nexmark) | Yes | No | OSS |
 | [State Sink](/connectors/state) | No | Yes | Arroyo Cloud |
 
-<img src="/images/create_source.png" alt="Create source dialog" />
+<img src="/images/create_connection.png" alt="Create connection dialog" />
 
 ## Using connectors
 
-Connecting with an external system happens in two steps. First, you create the _connection_, which describes how
-to talk with the external system (generally this will involve configuring an endpoint and setting up authentication if
-required). This connection can be shared by all users of that external system; so for example, there would be a single
-connection for a particular Kafka cluster.
+Arroyo SQL supports a special kind of table called a _connection table_ which is
+used to interact with external systems as sources or sinks.
 
-Connections can be created either in the Web UI or via the API. Once a connection has been created, it can be used to
-create a _source_ or _sink_. A source is used to read data from an external system, and a sink is used to write data to
-an external system.
+Connection tables come in two forms. _Saved connections_ are created in the Web UI
+or via the API and can be easily reused across queries. Existing saved connections
+can be viewed via the Connections tab of the Web UI, and their schemas can be seen
+in the catalogue view in the SQL editor.
 
-Sources and sinks can also be created in the Web UI or API, which allows them to be reusable across multiple pipelines.
-A typical pattern is that the data engineering team may set up, for example, a source for a particular Kafka topic,
-along with its schema, which can then be used by pipeline authors.
+Connection tables can also be created via `CREATE TABLE` statements in SQL, as described
+in the [DDL](/sql/ddl) docs.
 
-Sources and sinks can also be created directly in SQL by using DDL statements, as described in the
-[SQL docs](/sql/ddl).
+A particular connection table is either a _source_ (meaning it reads data from
+an external system) or a _sink_ (meaning it writes data). Some connectors support
+only one of these, while others support both.
 
-See the individual connector docs for details on how to configure them in Arroyo.
+See the individual connector docs for details on on their capabilities and how
+to configure them in Arroyo.
 
-## Source schemas
+## Connection formats
 
-Sources in Arroyo must have associated schemas to allow them to be used in SQL queries. Schemas describe how to
-interpret the data, mapping it into a table composed of [Arroyo SQL types](/sql/data-types).
+Some connectors support arbitrary data formats, while others have a fixed format defined
+by the connetor. For example, Kafka stores data as a sequence of bytes, which can be
+interpreted in many different ways. When creating a connection, it's necessary to specify
+the format of the data so that Arroyo can deserialize or serialize it.
 
-Schemas can be defined when creating the source in the web UI or API, which allows them to be reused across queries.
-Arroyo supports several methods of schema definition, some of which are also associated with a particular data format:
+Arroyo supports the following formats:
+
+* json
+* avro (in progress)
+* protobuf (in progress)
+* raw_string
+* parquet
+
+Formats may be specified via the `format` option the `CREATE TABLE` `WITH` clause,
+or via the web ui.
+
+Some formats have additional options that can be configued via `format_options`:
+
+* `format_options.json_schema_registry`: configures the connection to use
+  [the Confluent Schema Registry wire format](https://docs.confluent.io/platform/current/schema-registry/serdes-develop/index.html#wire-format).
+
+
+## Connection schemas
+
+Connections in Arroyo must have associated schemas to allow them to be used in
+SQL queries. Schemas describe how to interpret the data, mapping it into a table
+composed of [Arroyo SQL types](/sql/data-types).
+
+Schemas can be defined when creating the source in the web UI or API, which
+allows them to be reused across queries. Arroyo supports several methods of
+schema definition, some of which are also associated with a particular data
+format:
 
 * [Json Schema](https://json-schema.org/)
 * [Avro](https://avro.apache.org/docs/current/spec.html) (in progress)
 * [Protobuf](https://developers.google.com/protocol-buffers) (in progress)
 
-JSON sources may also be configured as `Raw Json`, which means that the data will be available in SQL as a table with
-a single column called `value`, with type `VARCHAR`. This can then be parsed dynamically with the
+JSON sources may also be configured as `Raw Json`, which means that the data
+will be available in SQL as a table with a single column called `value`, with
+type `TEXT`. This can then be parsed dynamically with the
 [SQL JSON functions](/sql/scalar-functions#json-functions).
 
-Schemas can also be read automatically from
+Schemas for Kafka topics can also be read automatically from
 [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html).
