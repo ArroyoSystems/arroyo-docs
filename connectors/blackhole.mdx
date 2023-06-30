@@ -1,0 +1,26 @@
+---
+title: Blackhole Sink
+description: "No-op sink that swallows all data"
+---
+
+The Blackhole sink is a no-op sink that swallows all data. It is most useful
+for testing and benchmarking purposes, where the overhead of a real sink is
+undeseriable.
+
+## Configuring the Connection
+
+Blackhole sinks can be created via the Web UI or directly in SQL.
+
+Blackhole connections have no options.
+
+For example, in SQL:
+
+```sql
+CREATE TABLE blackhole (
+    id TEXT,
+    count BIGINT
+)
+WITH (
+    connector = 'blackhole'
+);
+```
