@@ -16,7 +16,8 @@ Nexmark source. [Nexmark](https://datalab.cs.pdx.edu/niagara/NEXMark/) is a stan
 It involves various query patterns over a data set from a simulated auction website.
 
 Find Nexmark in the list of connectors and click "Create." Then set the desired
-event rate. For this tutorial, 100 messages/sec should suffice.
+event rate. For this tutorial, 100 messages/sec should suffice. Leave the other
+fields blank.
 
 Click next, and finally give name the source "nexmark," and click "Test
 Connection," then "Create" to finish creating the source.
@@ -31,11 +32,13 @@ of a text editor where we can write SQL, and actions we can take with that query
 
 ### First query
 
-Let's start with a simple query:
+Let's start with a simple query. Type this into the editor:
 
 ```sql
 SELECT bid FROM nexmark WHERE bid IS NOT NULL;
 ```
+
+and hit "Start Preview."
 
 This will simply dump out all of our data from our source that fits the filter criteria, which can be useful to get
 a handle on our data before we start to build more sophisticated queries. Note that the first query may take some time
@@ -43,6 +46,8 @@ to compile, although subsequent queries should be much faster.
 
 Once the query runs, you should start to see outputs in the Results tab. Since we did a simple pass-through query,
 each input event will result in a single output line.
+
+<img src="/images/first_pipeline_tutorial_query.png" alt="Screenshot showing the output of running the query" />
 
 ### Windows
 

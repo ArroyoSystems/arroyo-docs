@@ -30,8 +30,7 @@ For example, in SQL:
 ```sql
 CREATE TABLE mastodon (
     value TEXT
-)
-WITH (
+) /WITH (
     connector = 'sse',
     endpoint = 'https://api./v1/streaming/public',
     events = 'update',

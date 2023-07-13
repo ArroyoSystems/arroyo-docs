@@ -80,37 +80,64 @@ Find Kafka in the list of connectors, and click "Create."
 Next we will need to configure the connection information for the Kafka cluster. This is stored separately from the
 table configuration so that it can be shared across many different connections.
 
-Under the Cluster config box, click "Create new" and enter the following information:
+Under the Cluster config box, click "Create new". How you configure the connection will depend on how you're
+running Arroyo.
 
-* Name: `local-confluent`
-* Bootstrap Servers: `localhost:9092`
-* Authentication: `None`
+For each method, you will use the following settings:
 
-<Tip>
-    If you're running Arroyo in Docker, you will need to do a bit more setup to enable Arroyo to talk to Kafka.
+- Name: `local-confluent`
+- Authentication: `None`
 
-    First, you will need find your bridge IP address. You can do this by running
-    `docker network inspect bridge | grep Gateway` which should return an ip address, for example `172.17.0.1`.
+<Card>
+    <Tabs>
+        <Tab title="Local Arroyo">
+            If you're running Arroyo locally, configure your kafka connection with:
 
-    Then you will need to configure the Kafka broker to listen on that IP address. To do this, edit the
-    `etc/kafka/server.properties` file in the confluent installation and add the following lines:
+            ```
+            Bootstrap Servers: localhost:9092
+            ```
+        </Tab>
+        <Tab title="Docker for Mac">
+            If you're running Arroyo in Docker for Mac, you will need to use a different address
+            to allow Arroyo to connect to the Kafka broker running on your host machine. By default
+            this is `host.docker.internal`, so configure your kafka connection with:
 
-    ```
-    listeners=PLAINTEXT://localhost:9092:DOCKER://172.17.0.1:19092,
-    listener.security.protocol.map=PLAINTEXT:PLAINTEXT,DOCKER:PLAINTEXT
-    ```
+            ```
+            Bootstrap Servers: host.docker.internal:9092
+            ```
+        </Tab>
+        <Tab title="Docker on Linux">
+            If you're running Arroyo in Docker on Linux, you will need to do a bit more setup
+            to enable Arroyo to talk to Kafka.
 
-    Finally, you will need to restart the Kafka broker by running
+            First, you will need find your bridge IP address. You can do this by
+            running
+            ```
+            docker network inspect bridge | grep Gateway
+            ```
+            which should return an ip address, for example `172.17.0.1`.
 
-    ```
-    $ bin/confluent local services stop
-    $ bin/confluent local services start
-    ```
+            Then you will need to configure the Kafka broker to listen on that IP
+            address. To do this, edit the `etc/kafka/server.properties` file in the
+            confluent installation and add the following lines:
 
-    Then, use the gateway IP address with port 19092 as the bootstrap server in the connection settings, for example
-    `172.17.0.1:19092`.
-</Tip>
+            ```
+            listeners=PLAINTEXT://localhost:9092:DOCKER://172.17.0.1:19092,
+            listener.security.protocol.map=PLAINTEXT:PLAINTEXT,DOCKER:PLAINTEXT
+            ```
 
+            Finally, you will need to restart the Kafka broker by running
+
+            ```
+            $ bin/confluent local services stop
+            $ bin/confluent local services start
+            ```
+
+            Then, use the gateway IP address with port 19092 as the bootstrap server
+            in the connection settings, for example `172.17.0.1:19092`.
+        </Tab>
+    </Tabs>
+</Card>
 
 ### Configuring source table
 
@@ -140,8 +167,10 @@ Currently json-schema is the only
 supported format. Also supported is the Confluent Schema Registry, which can be used to store and manage schemas. Since
 the topic we generated has an associated schema in the schema registry, choose that option and click "Continue".
 
-Enter the URL for the schema registry (this will be either `http://localhost:8081` or `http://<GATEWAY IP>:8081` if
-running in docker). Click "Fetch Schema" to pull in the json-schema, and then continue.
+Enter the URL for the schema registry (this will be either
+`http://localhost:8081`, `http://host.docker.internal:8081`, or
+`http://<GATEWAY IP>:8081` similarly to how you configured the bootstrap servers
+above). Click "Fetch Schema" to pull in the json-schema, and then continue.
 
 <Tip>
     When Kafka uses the schema registry, it uses a
@@ -203,6 +232,7 @@ CREATE TABLE kafka_sink (
     'connector' = 'kafka',
     'type' = 'sink',
     'format' = 'json',
+    -- use the same value for bootstrap_servers as you used above
     'bootstrap_servers' = 'localhost:9092',
     'topic' = 'results'
 );

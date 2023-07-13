@@ -1,0 +1,70 @@
+---
+title: Fluvio
+description: "Use Fluvio topics as sources and sinks"
+---
+
+Arroyo provides sources and sinks for [Fluvio](https://fluvio.io/) for
+consistently reading and writing data from Fluvio topics. Fluvio is a
+distributed streaming platform built on top of Rust and Kubernetes. Fluvio has
+support for simple, stateless processing, but with Arroyo it can be extended to
+perform complex, stateful processing and analytics.
+
+## Configuring the Connection
+
+Fluvio connections can be created via the Web UI or in SQL.
+
+<img
+src="/images/create_fluvio.png"
+alt="Fluvio creation flow"
+/>
+
+A Fluvio connection has several required and optional fields:
+
+| Field | Description | Required | Example |
+| ----- | ----------- | -------- | ------- |
+| endpoint | The endpoint of your Fluvio cluster; if not specified the default profile is used | No | `my-cluster:9003` |
+| topic | The name of the Fluvio topic to read from or write to | Yes |
+| type | The type of table (either 'source' or 'sink') | Yes | `source` |
+| source.offset | The offset to start reading from (either 'earliest' or 'latest') | If source | `earliest` |
+
+## Fluvio Sources
+
+Fluvio sources can be created via the Web UI, the API, or directly in SQL. A
+FLuvio source is defined by a topic name and a schema.
+
+Schemas can be defined via json-schema or via SQL DDL statements.
+
+Fluvio sources implement exactly-once semantics by storing the last-read offset
+in Arroyo's state.
+
+## Fluvio Sinks
+
+Fluvio sinks can be created via the Web UI, the API, or directly in SQL. A
+Fluvio sink is defined by a topic name and schema. Currently, Fluvio sinks only
+support writing JSON data, with the structure determined by the schema of the
+data being written.
+
+## Fluvio DDL
+
+Fluvio sources and sinks can be created directly in SQL. For example:
+
+```sql
+CREATE TABLE source (
+  value TEXT
+) WITH (
+  connector = 'fluvio',
+  format = 'raw_string',
+  topic = 'greetings',
+  type = 'source'
+);
+
+
+CREATE TABLE sink (
+  msg TEXT
+) WITH (
+  connector = 'fluvio',
+  format = 'json',
+  topic = 'fluvio-sink',
+  type = 'sink'
+);
+```

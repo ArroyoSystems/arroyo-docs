@@ -10,8 +10,8 @@ Arroyo can be used in a real-world setting.
 In this tutorial we are going to build a simple dashboard that shows the most popular hashtags
 across the mastodon network.
 
-Before starting this tutorial, you will need a running Arroyo cluster. See the [getting started](/getting-started)
-guide to get that set up.
+Before starting this tutorial, you will need a running Arroyo cluster. See the
+[getting started](/getting-started) guide to get that set up.
 
 ## Creating the connection
 
@@ -19,11 +19,11 @@ The first thing we need to do is create a source that will read from the Mastodo
 will be using the Server-Sent Events API (also known as EventSource) to read from the firehose, via
 [this api](https://docs.joinmastodon.org/methods/streaming/#public).
 
-Arroyo comes with an SSE connector, so we just need create a connection source
-that points to the mastodon server. A Connection in Arroyo is an external system
-that Arroyo will read or write to.
+Arroyo comes with an SSE connector, so we just need create a connection
+that points to the mastodon API. Connections in Arroyo allow queries to
+read and write data from external sources.
 
-There are two ways to create a connection in Arroyo. We can create a re-usable connection in the
+There are two ways to create a connection. We can create a re-usable connection in the
 Connections tab, or we can create a connection directly in SQL. For this tutorial, we'll create
 the connection directly in SQL.
 
@@ -31,13 +31,13 @@ Navigate to the Jobs tab (http://localhost:8000/jobs), and click `Create Pipelin
 
 Connection tables are created via `CREATE TABLE` statements that have a
 `connector` with option, which specifices which connector should be used; in
-this case `sse` (for server-sent evnets). Also required is `format`, which
+this case `sse` (for server-sent events). Also required is `format`, which
 specifies the format of the data (in this case, `json`).
 
 Then, each connector will have a set of options that may be set—for SSE, we need
 to set the `endpoint` option to tell it where to connect to. We're also setting
-the `events` field to filter the events that we will read. See all of the
-options for the kafka connector in the [connectors docs](/connectors/sse).
+the `events` field to filter the events that we will read. You can find all of the
+options for the SSE connector in the [connectors docs](/connectors/server-sent-events).
 
 We can define the mastodon source connection like this:
 
@@ -46,8 +46,7 @@ CREATE TABLE mastodon (
     id TEXT,
     uri TEXT,
     content TEXT
-)
-WITH (
+) WITH (
     connector = 'sse',
     format = 'json',
     endpoint = 'https://mstdn.social/api/v1/streaming/public',
@@ -62,13 +61,6 @@ select * from mastodon;
 ```
 
 Click `Start Preview` to run a preview pipeline over the data.
-
-<Tip>
-    Arroyo has several ways to define sources and sinks. We can create a re-usable source in the Sources tab,
-    which can be used in multiple pipelines. We can also define a source directly in SQL with a schema, as we
-    did here. Finally, we could use the `rawJson` serialization mode to define a source without a schema, then
-    use the JSON functions to parse the data.
-</Tip>
 
 You should see something like this:
 
@@ -97,8 +89,7 @@ will give us a single column called `value` with the raw JSON data.
 ```sql
 CREATE TABLE mastodon (
     value TEXT
-)
-WITH (
+) WITH (
     connector = 'sse',
     format = 'raw_string',
     endpoint = 'https://mstdn.social/api/v1/streaming/public',
@@ -148,7 +139,8 @@ Finally, we can find the top tags by using a SQL window function to rank the tag
 
 <Tip>
     SQL window functions are not the same as Arroyo windows. SQL window functions are a way to
-    perform calculations over multiple rows of data. Arroyo windows meanwhile aggregate over time.
+    perform calculations over multiple rows of data, while Arroyo windows aggregate over time.
+
     See [here](https://en.wikipedia.org/wiki/Window_function_(SQL)) for more on SQL window functions.
 </Tip>
 
@@ -181,8 +173,7 @@ Now that we have our complete query:
 ```sql
 CREATE TABLE mastodon (
     value TEXT
-)
-WITH (
+) WITH (
     connector = 'sse',
     format = 'raw_string',
     endpoint = 'https://mstdn.social/api/v1/streaming/public',

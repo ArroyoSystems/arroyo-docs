@@ -1,0 +1,56 @@
+---
+title: WebSocket source
+description: "Read from WebSocket APIs"
+---
+
+[WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) is an API
+that enables streaming communication between clients and servers. It is a common choice
+for real-time web applications. Arroyo provides a WebSocket source that allows you to
+read from WebSocket APIs in your pipeline.
+
+WebSocket is a very flexible protocol, and does not have standard semantics for tracking
+progress or restarting from a past point in time. As a result, the WebSocket source
+may currently miss messages on recovery.
+
+Various APIs may also require some level of negotiation before the WebSocket connection
+becomes active. The WebSocket source currently supports sending a single subscription
+message on connection, which is sufficient to work with many real-world APIs.
+
+If you'd like to use the WebSocket source with an API that requires additional features,
+reach out to the team on [Discord](https://discord.gg/cjCr5rVmyR).
+
+## Configuring the Connection
+
+Websocket sources can be created via the Web UI or directly in SQL.
+
+<img
+src="/images/create_websocket.png"
+alt="WebSocket creation flow"
+/>
+
+A WebSocket source has several required and optional fields:
+
+| Field | Description | Required | Example |
+| ----- | ----------- | -------- | ------- |
+| endpoint | The endpoint for the WebSocket server | Yes | `wss://api.example.com/v1/events` |
+| subscription_message | A message that will be sent to the server after connection | No | ```{"type": "subscribe", "channel": "events"}``` |
+
+For example, in SQL:
+
+```sql
+CREATE TABLE coinbase (
+    type TEXT,
+    price TEXT
+) WITH (
+    connector = 'websocket',
+    endpoint = 'wss://ws-feed.exchange.coinbase.com',
+    subscription_message = '{
+      "type": "subscribe",
+      "product_ids": [
+        "BTC-USD"
+      ],
+      "channels": ["ticker"]
+    }',
+    format = 'json'
+);
+```
