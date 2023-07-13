@@ -1,14 +1,48 @@
 ---
-title: "Arroyo API"
+title: "API Overview"
 description: "How to use the Arroyo API"
 ---
 
-Arroyo exposes a gRPC API that can be used to create connections, sources,
-sinks, pipelines and manage jobs.
+In Arroyo 0.4, we've released the initial endpoints of REST API, supporting
+creating and managing pipelines and jobs. The REST API by default runs at
+http://localhost:8000/api.
 
-The API proto file can be found here:
-https://github.com/ArroyoSystems/arroyo/blob/master/arroyo-rpc/proto/api.proto.
+More endpoints are coming. If you're looking to get started with the API, please
+reach out on [Discord](https://discord.gg/cjCr5rVmyR) or at
+support@arroyo.systems.
 
-More complete API documentation with usage examples is coming. If you're looking to
-get started with the API, please reach out on [Discord](https://discord.gg/cjCr5rVmyR)
-or at support@arroyo.systems.
+## Tutorial: Create and manage a pipeline
+
+This tutorial will walk you through creating a pipeline, waiting for it to be
+fully running, stopping it, and waiting for it to be fully stopped.
+
+
+
+
+
+## Pagination
+
+List resources return paginated responses wrapped in a JSON object that looks
+like this:
+
+```json
+{
+    "data": [
+        {
+            "id": "pl_asVfUS2zAa",
+            ...
+        },
+        {
+            "id": "pl_O6GKZiL6mn",
+            ...
+        },
+        ...
+    ],
+    "hasMore": true
+}
+```
+
+The `data` field contains the list of resources. The `hasMore` field indicates
+whether there are more resources to fetch. If `hasMore` is `true`, you can
+fetch the next page of resources by passing the `startingAfter` query parameter to
+the endpoint, with the ID of the last resource in the `data` field.

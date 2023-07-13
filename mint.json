@@ -24,6 +24,9 @@
     "name": "Arroyo Cloud",
     "url": "https://arroyo.dev"
   },
+  "api": {
+    "baseUrl": "http://localhost:8000/api"
+  },
   "anchors": [
     {
       "name": "Github",
@@ -65,13 +68,15 @@
       "pages": [
           "connectors/overview",
           "connectors/blackhole",
+          "connectors/fluvio",
           "connectors/impulse",
           "connectors/kafka",
           "connectors/mysql",
           "connectors/postgres",
           "connectors/redpanda",
           "connectors/server-sent-events",
-          "connectors/state"
+          "connectors/state",
+          "connectors/websocket"
       ]
     },
     {
@@ -99,7 +104,17 @@
     {
       "group": "API Documentation",
       "pages": [
-        "api-reference/overview"
+        "api-reference/overview",
+        {
+          "group": "Pipelines",
+          "pages": [
+            "api-reference/pipelines/list-pipelines",
+            "api-reference/pipelines/get-pipeline",
+            "api-reference/pipelines/create-pipeline",
+            "api-reference/pipelines/delete-pipeline",
+            "api-reference/pipelines/get-pipeline-jobs"
+          ]
+        }
       ]
     },
     {

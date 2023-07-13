@@ -16,12 +16,11 @@ reliance on non-standard IAM authentication*
 
 ## Configuring the Connection
 
-Kafka connections can be created via the Web UI or via the API.
+Kafka connections can be created via the Web UI or via SQL.
 
 <img
 src="/images/create_kafka.png"
 alt="Kafka creation flow"
-style={{ height: "600px" }}
 />
 
 A Kafka connection has several required and optional fields:
@@ -34,9 +33,9 @@ A Kafka connection has several required and optional fields:
 | auth.mechanism | The SASL mechanism to use (e.g., `SCRAM-SHA-256`, `SCRAM-SHA-512`) | No | `SCRAM-SHA-256` |
 | auth.username | The username to use for SASL authentication | No | `user` |
 | auth.password | The password to use for SASL authentication | No | `password` |
-| topic | The name of the Kafka topic to read from | Yes |
+| topic | The name of the Kafka topic to read from or write to | Yes |
 | type | The type of table (either 'source' or 'sink') | Yes | `source` |
-| source.offset | The offset to start reading from (either 'earliest' or 'latest') | No | `earliest` |
+| source.offset | The offset to start reading from (either 'earliest' or 'latest') | If source | `earliest` |
 
 
 ## Kafka Sources
@@ -64,14 +63,9 @@ are possible if a pipeline fails and must recover from earlier in time
 ## Kafka DDL
 
 Kafka connector tables can defined via SQL DDL and used as sources and sinks in
-SQL queries. In the `CREATE TABLE` statement, the following options are
-supported:
+SQL queries.
 
-| Option | Description | Required |
-| ------ | ----------- | -------- |
-| connection | The name of the Kafka connection to use | Yes |
-
-For Example:
+For example:
 
 ```sql
 CREATE TABLE orders (
