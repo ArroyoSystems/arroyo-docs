@@ -112,7 +112,8 @@
             "api-reference/pipelines/get-pipeline",
             "api-reference/pipelines/create-pipeline",
             "api-reference/pipelines/delete-pipeline",
-            "api-reference/pipelines/get-pipeline-jobs"
+            "api-reference/pipelines/get-pipeline-jobs",
+            "api-reference/pipelines/update-pipeline"
           ]
         }
       ]

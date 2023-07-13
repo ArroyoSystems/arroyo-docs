@@ -4,7 +4,7 @@
     "title": "Arroyo REST API",
     "description": "",
     "license": {
-      "name": ""
+      "name": "MIT OR Apache-2.0"
     },
     "version": "1.0.0"
   },
@@ -219,9 +219,15 @@
           "id",
           "runningDesired",
           "state",
-          "runId"
+          "runId",
+          "createdAt"
         ],
         "properties": {
+          "createdAt": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0.0
+          },
           "failureMessage": {
             "type": "string",
             "nullable": true
@@ -286,10 +292,16 @@
           "query",
           "udfs",
           "checkpointIntervalMicros",
-          "stop"
+          "stop",
+          "createdAt"
         ],
         "properties": {
           "checkpointIntervalMicros": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0.0
+          },
+          "createdAt": {
             "type": "integer",
             "format": "int64",
             "minimum": 0.0
@@ -413,6 +425,12 @@
             "$ref": "#/components/schemas/UdfLanguage"
           }
         }
+      },
+      "UdfLanguage": {
+        "type": "string",
+        "enum": [
+          "rust"
+        ]
       }
     }
   },
