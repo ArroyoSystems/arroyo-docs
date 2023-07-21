@@ -1,0 +1,60 @@
+---
+title: File System
+description: "Write Parquet and JSON to S3 and local filesystems"
+---
+
+Arroyo provides the capability to write Parquet and JSON files to S3 and local filesystems.
+This will produce complete files in line with the checkpointing system.
+As such, the file system sinks write all data exactly once.
+
+## Configuring the File System Sink
+
+The file system sink is currently only configurable through SQL,
+ using the [SQL DDL](sql/ddl) syntax.
+ The connector name will be `filesystem` and there are several additional options
+ 
+ ### Destination Options
+
+ | Field | Description | Required | Example |
+ | ----- | ----------- | -------- | ------- |
+ | `path` | A URI to the target destination | No | `file:///test-data/my-cool-arroyo-pipeline`, `https://s3.us-west-2.amazonaws.com/awesome-arroyo-bucket/amazing-arroyo-dir` |
+ | `s3_bucket` | The S3 bucket to write to | No | `awesome-arroyo-bucket` |
+ | `S3_directory` | The S3 directory to write to | No | `amazing-arroyo-dir` |
+ | `aws_region`| The AWS region to write to | No | `us-west-2` |
+
+### Output File Options
+| Field | Description | Default | Example |
+| ----- | ----------- | -------- | ------- |
+| `target_file_size` | Target number of bytes in a file before it is closed and a new file is opened | `None` | `100000000` |
+| `target_part_size` | The target size in bytes of each part of a multipart upload. Must be at least 5MB. | `5242880` | `10000000`|
+| `max_parts` | Maximum number of multipart uploads | `1000` | `50` |
+| `rollover_seconds` | Number of seconds a file will be open before it is closed and a new file is opened | `30` | `3600` |
+| `inactivity_rollover_seconds` | Number of seconds a file will be open without any new data before it is closed and a new file is opened | `None` | `600` |
+| `format` | The format to write the data in. Supported values: `parquet`, `json` | Required | `json` |
+
+### Parquet Options
+Parquet has a few supported options. Please reach out if you'd like to expand the settings allowed.
+
+| Field | Description | Default | Example |
+| ----- | ----------- | -------- | ------- |
+| `parquet_compression` | The compression codec to use for Parquet files. Supported values: `none`, `snappy`, `gzip`, `zstd`, `lz4`. | `none` | `zstd` |
+| `parquet_row_batch_size` | The maximum number of rows to write per record batch | `10000` | `100`|
+| `parquet_row_group_size` | The maximum number of rows to write per row group | `1000000` | `100000` |
+
+
+## File System Sink DDL
+
+Here's an example for how to create a table to write parquet to S3:
+```sql
+CREATE TABLE bids (
+  auction bigint,
+  bidder bigint,
+  price bigint,
+  datetime timestamp
+) WITH (
+  connector ='filesystem',
+  path = 'https://s3.us-west-2.amazonaws.com/demo/s3-uri',
+  format = 'parquet',
+  parquet_compression = 'zstd',
+  rollover_seconds = '60'
+);
