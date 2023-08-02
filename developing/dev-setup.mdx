@@ -18,6 +18,7 @@ $ sudo mv bin/protoc /usr/local/bin
 $ curl https://sh.rustup.rs -sSf | sh -s -- -y
 $ cargo install wasm-pack
 $ cargo install refinery_cli
+$ npm install --global @openapitools/openapi-generator-cli
 ```
 
 ### MacOS
@@ -36,12 +37,13 @@ Then install Rust
 $ curl https://sh.rustup.rs -sSf | sh -s -- -y
 ```
 
-Finally, install the following packages using cargo:
+Finally, install the following packages:
 
 ```bash
 $ cargo install wasm-pack
 $ cargo install refinery_cli
 $ cargo install cargo-nextest
+$ pnpm install --global @openapitools/openapi-generator-cli
 ```
 
 
@@ -200,10 +202,15 @@ then set the `REMOTE_COMPILER_ENDPOINT` environment variable when running the co
 $ REMOTE_COMPILER_ENDPOINT=http://localhost:9000 cargo run --bin arroyo-controller
 ```
 
-## Compiling Protocol Buffers for the frontend
+## Compiling objects for the frontend
 
 After altering protobuf definitions in `arroyo-rpc` you need to regenerate the Typescript code used by the frontend:
 
 ```bash
 $ pnpm run generate
+```
+Similarly, after altering REST API types in `arroyo-api` you need to run:
+
+```bash
+$ pnpm run openapi
 ```
