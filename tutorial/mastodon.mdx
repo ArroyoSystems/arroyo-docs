@@ -156,7 +156,7 @@ SELECT * FROM (
             group by tag, window)) WHERE row_num <= 5
 ```
 
-This produces the the top 5 tags over the last 15 minutes by filtering on the `row_num` column, which
+This produces the top 5 tags over the last 15 minutes by filtering on the `row_num` column, which
 contains that tag's rank within the window.
 
 <Tip>
