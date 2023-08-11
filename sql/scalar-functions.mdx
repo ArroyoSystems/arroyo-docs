@@ -3,7 +3,7 @@ title: Scalar Functions
 description: 'Supported Scalar Functions in Arroyo SQL'
 ---
 
-Arroyo's Scalar function support mainly mirrors that of DataFusion, 
+Arroyo's Scalar function support mainly mirrors that of DataFusion,
 which in turn uses the semantics of the equivalent Postgres functions.
 
 ## Math Functions
@@ -121,6 +121,8 @@ SELECT sinh(0.5) FROM source;
 0.5210953054937474
 ```
 
+---
+
 ## String Functions
 
 ### ascii
@@ -138,7 +140,7 @@ SELECT bit_length('hello world') FROM source;
 ```
 
 ### btrim
-Removes the longest string consisting only of characters 
+Removes the longest string consisting only of characters
 in the second argument (a space by default) from the start and end of string.
 ```sql
 SELECT btrim(' hello world ') FROM source;
@@ -220,7 +222,7 @@ SELECT ltrim(' hello world ') FROM source;
 'hello world '
 ```
 
-### Octet_length
+### octet_length
 Returns the number of bytes in a string.
 ```sql
 SELECT octet_length('hello world') FROM source;
@@ -292,6 +294,8 @@ SELECT substr('hello world', 7, 5) FROM source;
 'world'
 ```
 
+---
+
 ## Hash Functions
 Postgres-equivalent hash functions.
 
@@ -332,10 +336,83 @@ SELECT sha512('hello world') FROM source;
   989dd35bc5ff499670da34255b45b0cfd830e81f605dcf7dc5542e93ae9cd76f'
 ```
 
+---
+
+## Date/Time Functions
+
+### date_part
+Returns the part of the date/time as a number.
+```sql
+SELECT date_part('year', '2019-01-01') FROM source;
+2019
+```
+
+Supported date parts are:
+
+`year`, `month`, `week`, `day`, `hour`, `minute`, `second`, `millisecond`, `microsecond`, `nanosecond`, `dow`, `doy`
+
+### date_trunc
+
+Truncates the date/time to the given precision.
+```sql
+SELECT date_trunc('day', '2019-01-01 12:34:56') FROM source;
+'2019-01-01 00:00:00'
+```
+
+Supported precisions are:
+
+`year`, `month`, `week`, `day`, `hour`, `minute`, `second`
+
+### to_timestamp_seconds
+
+Converts the given string to a timestamp with seconds.
+```sql
+SELECT to_timestamp_seconds('2019-01-01 12:34:56') FROM source;
+'2019-01-01 12:34:56'
+```
+
+### to_timestamp_millis
+
+Converts the given string to a timestamp with milliseconds.
+```sql
+SELECT to_timestamp_millis('2019-01-01 12:34:56.789') FROM source;
+'2019-01-01 12:34:56.789'
+```
+
+
+### to_timestamp_micros
+
+Converts the given string to a timestamp with microseconds.
+```sql
+SELECT to_timestamp_micros('2019-01-01 12:34:56.789012') FROM source;
+'2019-01-01 12:34:56.789012'
+```
+
+### to_timestamp
+
+Converts the given string to a timestamp with nanosecond precision
+```sql
+SELECT to_timestamp('2019-01-01 12:34:56') FROM source;
+'2019-01-01T12:34:56.000000000Z'
+```
+
+### from_unixtime
+
+Converts an integer to RFC3339 timestamp format. Input is parsed as nanoseconds
+since the UNIX Epoch.
+
+```sql
+SELECT from_unixtime(1546303496000000000) FROM source;
+'2018-12-31T16:44:56.000000000Z'
+```
+
+
+---
+
 ## JSON Functions
 The JSON functions provide basic json parsing functions using
- [JsonPath](https://goessner.net/articles/JsonPath/)
-  an evolving standard for querying JSON objects.
+[JsonPath](https://goessner.net/articles/JsonPath/) an evolving standard for
+querying JSON objects.
 
 ### get_json_objects
 Returns the JSON elements in the first argument that match the JsonPath in the second argument.
