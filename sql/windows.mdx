@@ -1,57 +1,86 @@
 ---
-title: Windowed Data in SQL
+title: Streaming Windows
 description: 'Rolling up data by time in SQL'
 ---
 
-Because of the unbounded nature of event streams, 
-it is common to aggregate data over a time window.
-There are a number of types of windows that are used in stream processing systems.
-Currently Arroyo supports _sliding_ and _tumbling_ windows.
+Because of the unbounded nature of event streams, it is common to aggregate data
+over a time window. There are a number of types of windows that are used in
+stream processing systems. Currently Arroyo supports three kinds of windows:
+_sliding_ (aka hopping), _tumbling_, and _session_ windows.
+
+Using a streaming window makes the query time and watermark aware. See the
+[timely processing](/concepts#timely-processing) docs for more background,
+and our [streaming SQL explained](https://www.arroyo.dev/blog/streaming-sql-explained)
+blog post for more details on how using windows affects query semantics.
 
 ## Tumbling Windows
+
 Tumbling windows are consecutive, non-overlapping windows of a fixed size.
-Usually that size will be some human-friendly time unit like minutes or hours, 
-but that isn't a requirement. Whereas in normal SQL you might group by a `date_trunc` call, 
+Usually that size will be some human-friendly time unit like minutes or hours,
+but that isn't a requirement. Whereas in normal SQL you might group by a `date_trunc` call,
 in streaming SQL you'd use a tumbling window.
 
 In Arroyo windowing is enabled via special UDFs, in this case `TUMBLE()`.
 For example, to get the number of distinct auction IDs across bids for each minute,
 you'd write a query like
-    
-    ```sql
-    SELECT TUMBLE(interval '1 minute') as window,
-        COUNT(DISTINCT auction_id) AS num_auctions
-        FROM bids
-        GROUP BY window
-    ```
 
-Every record in Arroyo has a corresponding timestamp, 
+```sql
+SELECT TUMBLE(interval '1 minute') as window,
+    COUNT(DISTINCT auction_id) AS num_auctions
+    FROM bids
+    GROUP BY window
+```
+
+Every record in Arroyo has a corresponding timestamp,
 which will be processed by the `TUMBLE()` function.
 The resulting records will have a timestamp of
 the end of the window minus 1 nanosecond.
 
 
 ## Sliding Windows
-Sliding windows are an extension of tumbling windows, with the addition of a "slide".
-It is defined by two time durations,
-a width for each window and 
-a slide that designates the time between the start of consecutive windows.
-Typically the slide is less than the window. 
-A sliding window can be used to provide a view of data over some lookback time (the width), 
-updated with some frequency (the slide).
+Sliding windows are an extension of tumbling windows, with the addition of a
+"slide". It is defined by two time durations, a width for each window and a
+slide that designates the time between the start of consecutive windows.
+Typically the slide is less than the window. A sliding window can be used to
+provide a view of data over some lookback time (the width), updated with some
+frequency (the slide).
 
-In Arroyo the `HOP()` function is used to create sliding windows. 
+In Arroyo the `HOP()` function is used to create sliding windows.
 It takes two arguments, the first is the slide and the second is the window size.
 
 For example, to get the number of distinct auction IDs across bids for the previous minute every second,
 you'd write a query like
 
-        ```sql
-        SELECT HOP(interval '1 second', interval '1 minute') as window,
-            COUNT(DISTINCT auction_id) AS num_auctions
-            FROM bids
-            GROUP BY 1
-        ```
+```sql
+SELECT HOP(interval '1 second', interval '1 minute') as window,
+    COUNT(DISTINCT auction_id) AS num_auctions
+    FROM bids
+    GROUP BY 1
+```
 
-Arroyo has optimized sliding windows so that each hop only needs to perform an incremental amount of work, 
+Arroyo has optimized sliding windows so that each hop only needs to perform an incremental amount of work,
 allowing for long sliding windows with small hops.
+
+## Session Windows
+
+Session windows are non-fixed-width windows that are defined by a gap in
+activity. For example, a session window with gap size 30 minutes, defined on a
+stream of user clicks might be would aggregate over all clicks that occur within
+30 minutes of each other. Once there has been a 30 minute gap for a given user,
+the session window would close and a new one would be opened for the next
+click.
+
+In Arroyo the `SESSION()` function is used to create session windows.
+
+For example, to get the number of distinct auction IDs across bids for each session,
+
+```sql
+SELECT SESSION(interval '30 minutes') as window,
+    COUNT(DISTINCT auction_id) AS num_auctions
+    FROM bids
+    GROUP BY 1
+```
+
+As of Arroyo 0.5, session windows are limited to a maximum size of 24 hours. If a
+window is open for longer than that, it will be closed and a new one will be
+opened.
