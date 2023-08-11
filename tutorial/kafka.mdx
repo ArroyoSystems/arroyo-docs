@@ -177,7 +177,7 @@ above). Click "Fetch Schema" to pull in the json-schema, and then continue.
     [special encoding](https://docs.confluent.io/platform/current/schema-registry/serdes-develop/index.html#wire-format)
     that's not quite standard JSON. This means that it's necessary to specify that
     the schema registry is being used. In the UI, this can be done by fetching the schema from the schema registry.
-    In SQL this requires setting `'format_options.confluent_schema_registry' = 'true'` in the with clause.
+    In SQL this requires setting `'json.confluent_schema_registry' = 'true'` in the with clause.
 </Tip>
 
 Click "Continue" to finish configuring the source table. On the final screen, we
