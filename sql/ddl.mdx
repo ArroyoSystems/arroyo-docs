@@ -104,6 +104,7 @@ of the supported options, refer to the [Connector](/connectors) docs.
 | `format`         | if connector does not have a built-in format  | The format of the data to be deserialized. |
 | `event_time_field`| no  | The name of the field to use as the [event time](/concepts#event-time). If not specified, the event time will be set by the source.|
 | `watermark_field` | no  | The name of the field to use as the [watermark](/concepts#watermark). If not specified, the watermark will be 1 second before the event time. This will usually be the event_time_field minus some constant interval, e.g. `event_time - interval '10 seconds'`.|
+| `idle_micros`    | no  | The number of microseconds to wait before considering a source idle. Defaults to `30000000` (30 seconds). Set to `-1` to disable source idleness.|
 
 #### Virtual Fields
 
