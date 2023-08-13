@@ -114,3 +114,29 @@ type `TEXT`. This can then be parsed dynamically with the
 
 Schemas for Kafka topics can also be read automatically from
 [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html).
+
+## Source idleness
+
+Paritioned sources (like Kafka or Kinesis) may experience periods when some
+partitions are active but others are idle due to the way that they are keyed.
+This can cause issues in Arroyo due to how [watermarks](/concepts/#watermarks) are
+calculated: as the minimum of the watermarks of all partitions.
+
+If some partitions are idle, the watermark will not advance, and queries that
+depend on it will not make progress. To address this, sources support a concept
+of _idleness_, which allows them to mark partitions as idle after a period of
+inactivity. Idle partitions, meanwhile, are ignored for the purpose of calculating
+watermarks and so allow queries to advance.
+
+Idleness is enabled by default for all sources with a period of 5 minutes. It can be
+configured when creating a source in SQL by setting the `idle_micros` options, or disabled
+by setting it to `-1`.
+
+A special case of idleness occurs when there are more Arroyo source tasks than partitions
+(for example, a Kafka topic with 4 partitions read by 8 Arroyo tasks). This means that
+some tasks will never receive data, and so will never advance their watermarks. This can
+occur as well for non-partitioned sources like WebSocket, where only a single task is
+able to read data.
+
+To address this, source tasks with no work assigned to them will mark themselves as idle
+immediately.
