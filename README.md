@@ -18,3 +18,12 @@ $ mintlify dev
 ```
 
 **Note: Mintlify is not currently compatible with Node 20. Node 18 is recommended.**
+
+## Updating the API Reference
+
+We use the [mintlify scraper](https://mintlify.com/docs/api-playground/openapi-generation)
+to generate the pages. After copying the latest `api-spec.json` into this repo, run:
+
+```bash
+$ npx @mintlify/scraping@latest openapi-file api-spec.json -o api-reference --overwrite
+```
