@@ -36,6 +36,8 @@ A Kafka connection has several required and optional fields:
 | topic | The name of the Kafka topic to read from or write to | Yes |
 | type | The type of table (either 'source' or 'sink') | Yes | `source` |
 | source.offset | The offset to start reading from (either 'earliest' or 'latest') | If source | `earliest` |
+| source.read_mode | The read mode to use (either 'read_committed' or 'read_uncommitted') | If source | `read_committed` |
+| sink.commit_mode | The commit mode to use (either 'exactly_once' or 'at_least_once') | If sink | `exactly_once` |
 
 
 ## Kafka Sources
@@ -56,9 +58,16 @@ sink is defined by a topic name. Currently, Kafka sinks only support writing
 JSON data, with the structure determined by the schema of the data being
 written.
 
-The Kafka sink does not yet support transactional semantics, so double-writes
-are possible if a pipeline fails and must recover from earlier in time
-(at-least-once semantics). Exactly-once support for Kafka sinks is planned.
+The Kafka sink supports both *exactly once* and *at least once*. 
+At least once delivery will proactively write to the downstream Kafka topic
+as messages come in. This can potentially result in duplicate messages in the event of a pipeline failure.
+
+Exactly once delivery writes to kafka using its transaction API. 
+Data is staged within each epoch of the checkpointing system, 
+and then committed through a two-phase protocol once all data is staged.
+Currently the system does not cleanly recover from failures during the commit phase,
+as this requires Kafka to be better able to participate in a two-phase commit.
+See (this issue)[https://github.com/ArroyoSystems/arroyo/issues/224] for more details.
 
 ## Kafka DDL
 
@@ -77,6 +86,7 @@ CREATE TABLE orders (
   bootstrap_servers = 'kafka-server-1.cluster:9092,kafka-server-2.cluster:9092',
   topic = 'order_topic',
   type = 'source',
-  'source.offset' = 'earliest'
+  'source.offset' = 'earliest',
+  'source.read_mode' = 'read_committed'
 );
 ```
