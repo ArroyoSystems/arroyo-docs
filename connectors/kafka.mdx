@@ -62,7 +62,7 @@ The Kafka sink supports both *exactly once* and *at least once*.
 At least once delivery will proactively write to the downstream Kafka topic
 as messages come in. This can potentially result in duplicate messages in the event of a pipeline failure.
 
-Exactly once delivery writes to kafka using its transaction API. 
+Exactly once delivery writes to Kafka using its transaction API. 
 Data is staged within each epoch of the checkpointing system, 
 and then committed through a two-phase protocol once all data is staged.
 Currently the system does not cleanly recover from failures during the commit phase,
