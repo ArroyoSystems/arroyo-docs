@@ -14,11 +14,57 @@
     }
   ],
   "paths": {
+    "/v1/connectors": {
+      "get": {
+        "tags": [
+          "connectors"
+        ],
+        "summary": "List all connectors",
+        "description": "List all connectors",
+        "operationId": "get_connectors",
+        "responses": {
+          "200": {
+            "description": "Got connectors collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectorCollection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get all jobs",
+        "description": "Get all jobs",
+        "operationId": "get_jobs",
+        "responses": {
+          "200": {
+            "description": "Get all jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobCollection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/ping": {
       "get": {
         "tags": [
           "ping"
         ],
+        "summary": "Ping endpoint",
+        "description": "Ping endpoint",
         "operationId": "ping",
         "responses": {
           "200": {
@@ -72,6 +118,38 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Pipeline"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pipelines/validate": {
+      "post": {
+        "tags": [
+          "pipelines"
+        ],
+        "summary": "Get a pipeline graph",
+        "description": "Get a pipeline graph",
+        "operationId": "validate_pipeline",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidatePipelinePost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created pipeline and job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PipelineGraph"
                 }
               }
             }
@@ -184,7 +262,7 @@
         ],
         "summary": "List a pipeline's jobs",
         "description": "List a pipeline's jobs",
-        "operationId": "get_jobs",
+        "operationId": "get_pipeline_jobs",
         "parameters": [
           {
             "name": "id",
@@ -209,10 +287,291 @@
           }
         }
       }
+    },
+    "/v1/pipelines/{pipeline_id}/jobs/{job_id}/checkpoints": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "List a job's checkpoints",
+        "description": "List a job's checkpoints",
+        "operationId": "get_job_checkpoints",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "Job id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Got job's checkpoints",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckpointCollection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pipelines/{pipeline_id}/jobs/{job_id}/errors": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "List a job's error messages",
+        "description": "List a job's error messages",
+        "operationId": "get_job_errors",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "Job id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Got job's error messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobLogMessageCollection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pipelines/{pipeline_id}/jobs/{job_id}/operator_metric_groups": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get a job's metrics",
+        "description": "Get a job's metrics",
+        "operationId": "get_operator_metric_groups",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "Job id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Got metric groups",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorMetricGroupCollection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pipelines/{pipeline_id}/jobs/{job_id}/output": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Subscribe to a job's output",
+        "description": "Subscribe to a job's output",
+        "operationId": "get_job_output",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "Job id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job output as 'text/event-stream'"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "Checkpoint": {
+        "type": "object",
+        "required": [
+          "epoch",
+          "backend",
+          "startTime"
+        ],
+        "properties": {
+          "backend": {
+            "type": "string"
+          },
+          "epoch": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0.0
+          },
+          "finishTime": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "minimum": 0.0
+          },
+          "startTime": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "CheckpointCollection": {
+        "type": "object",
+        "required": [
+          "data",
+          "hasMore"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Checkpoint"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Connector": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "icon",
+          "description",
+          "tableConfig",
+          "enabled",
+          "source",
+          "sink",
+          "customSchemas",
+          "testing",
+          "hidden"
+        ],
+        "properties": {
+          "connectionConfig": {
+            "type": "string",
+            "nullable": true
+          },
+          "customSchemas": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sink": {
+            "type": "boolean"
+          },
+          "source": {
+            "type": "boolean"
+          },
+          "tableConfig": {
+            "type": "string"
+          },
+          "testing": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ConnectorCollection": {
+        "type": "object",
+        "required": [
+          "data",
+          "hasMore"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Connector"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
       "Job": {
         "type": "object",
         "required": [
@@ -284,6 +643,174 @@
           }
         }
       },
+      "JobLogLevel": {
+        "type": "string",
+        "enum": [
+          "info",
+          "warn",
+          "error"
+        ]
+      },
+      "JobLogMessage": {
+        "type": "object",
+        "required": [
+          "createdAt",
+          "level",
+          "message",
+          "details"
+        ],
+        "properties": {
+          "createdAt": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0.0
+          },
+          "details": {
+            "type": "string"
+          },
+          "level": {
+            "$ref": "#/components/schemas/JobLogLevel"
+          },
+          "message": {
+            "type": "string"
+          },
+          "operatorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "taskIndex": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "minimum": 0.0
+          }
+        }
+      },
+      "JobLogMessageCollection": {
+        "type": "object",
+        "required": [
+          "data",
+          "hasMore"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobLogMessage"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Metric": {
+        "type": "object",
+        "required": [
+          "time",
+          "value"
+        ],
+        "properties": {
+          "time": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0.0
+          },
+          "value": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MetricGroup": {
+        "type": "object",
+        "required": [
+          "name",
+          "subtasks"
+        ],
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/MetricNames"
+          },
+          "subtasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubtaskMetrics"
+            }
+          }
+        }
+      },
+      "MetricNames": {
+        "type": "string",
+        "enum": [
+          "bytes_recv",
+          "bytes_sent",
+          "messages_recv",
+          "messages_sent",
+          "backpressure"
+        ]
+      },
+      "OperatorMetricGroup": {
+        "type": "object",
+        "required": [
+          "operatorId",
+          "metricGroups"
+        ],
+        "properties": {
+          "metricGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MetricGroup"
+            }
+          },
+          "operatorId": {
+            "type": "string"
+          }
+        }
+      },
+      "OperatorMetricGroupCollection": {
+        "type": "object",
+        "required": [
+          "data",
+          "hasMore"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperatorMetricGroup"
+            }
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OutputData": {
+        "type": "object",
+        "required": [
+          "operatorId",
+          "timestamp",
+          "key",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "operatorId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0.0
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
       "Pipeline": {
         "type": "object",
         "required": [
@@ -293,9 +820,27 @@
           "udfs",
           "checkpointIntervalMicros",
           "stop",
-          "createdAt"
+          "createdAt",
+          "actionText",
+          "actionInProgress",
+          "graph",
+          "preview"
         ],
         "properties": {
+          "action": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StopType"
+              }
+            ],
+            "nullable": true
+          },
+          "actionInProgress": {
+            "type": "boolean"
+          },
+          "actionText": {
+            "type": "string"
+          },
           "checkpointIntervalMicros": {
             "type": "integer",
             "format": "int64",
@@ -306,11 +851,17 @@
             "format": "int64",
             "minimum": 0.0
           },
+          "graph": {
+            "$ref": "#/components/schemas/PipelineGraph"
+          },
           "id": {
             "type": "string"
           },
           "name": {
             "type": "string"
+          },
+          "preview": {
+            "type": "boolean"
           },
           "query": {
             "type": "string"
@@ -341,6 +892,75 @@
           },
           "hasMore": {
             "type": "boolean"
+          }
+        }
+      },
+      "PipelineEdge": {
+        "type": "object",
+        "required": [
+          "srcId",
+          "destId",
+          "keyType",
+          "valueType",
+          "edgeType"
+        ],
+        "properties": {
+          "destId": {
+            "type": "string"
+          },
+          "edgeType": {
+            "type": "string"
+          },
+          "keyType": {
+            "type": "string"
+          },
+          "srcId": {
+            "type": "string"
+          },
+          "valueType": {
+            "type": "string"
+          }
+        }
+      },
+      "PipelineGraph": {
+        "type": "object",
+        "required": [
+          "nodes",
+          "edges"
+        ],
+        "properties": {
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PipelineEdge"
+            }
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PipelineNode"
+            }
+          }
+        }
+      },
+      "PipelineNode": {
+        "type": "object",
+        "required": [
+          "nodeId",
+          "operator",
+          "parallelism"
+        ],
+        "properties": {
+          "nodeId": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string"
+          },
+          "parallelism": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0.0
           }
         }
       },
@@ -411,6 +1031,26 @@
           "force"
         ]
       },
+      "SubtaskMetrics": {
+        "type": "object",
+        "required": [
+          "idx",
+          "metrics"
+        ],
+        "properties": {
+          "idx": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0.0
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Metric"
+            }
+          }
+        }
+      },
       "Udf": {
         "type": "object",
         "required": [
@@ -431,6 +1071,24 @@
         "enum": [
           "rust"
         ]
+      },
+      "ValidatePipelinePost": {
+        "type": "object",
+        "required": [
+          "query",
+          "udfs"
+        ],
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "udfs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Udf"
+            }
+          }
+        }
       }
     }
   },
@@ -438,6 +1096,14 @@
     {
       "name": "pipelines",
       "description": "Pipeline management endpoints"
+    },
+    {
+      "name": "jobs",
+      "description": "Job management endpoints"
+    },
+    {
+      "name": "connectors",
+      "description": "Connector management endpoints"
     },
     {
       "name": "ping",

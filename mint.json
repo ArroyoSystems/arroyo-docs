@@ -108,12 +108,35 @@
         {
           "group": "Pipelines",
           "pages": [
-            "api-reference/pipelines/list-pipelines",
-            "api-reference/pipelines/get-pipeline",
-            "api-reference/pipelines/create-pipeline",
-            "api-reference/pipelines/delete-pipeline",
-            "api-reference/pipelines/get-pipeline-jobs",
-            "api-reference/pipelines/update-pipeline"
+            "api-reference/pipelines/list-all-pipelines",
+            "api-reference/pipelines/create-a-new-pipeline",
+            "api-reference/pipelines/get-a-pipeline-graph",
+            "api-reference/pipelines/get-a-single-pipeline",
+            "api-reference/pipelines/delete-a-pipeline",
+            "api-reference/pipelines/update-a-pipeline",
+            "api-reference/pipelines/list-a-pipelines-jobs"
+          ]
+        },
+        {
+          "group": "Jobs",
+          "pages": [
+            "api-reference/jobs/get-all-jobs",
+            "api-reference/jobs/list-a-jobs-checkpoints",
+            "api-reference/jobs/list-a-jobs-error-messages",
+            "api-reference/jobs/get-a-jobs-metrics",
+            "api-reference/jobs/subscribe-to-a-jobs-output"
+          ]
+        },
+        {
+          "group": "Connectors",
+          "pages": [
+            "api-reference/connectors/list-all-connectors"
+          ]
+        },
+        {
+          "group": "Ping",
+          "pages": [
+            "api-reference/ping/ping-endpoint"
           ]
         }
       ]
