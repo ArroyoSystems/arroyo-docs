@@ -58,7 +58,7 @@ sink is defined by a topic name. Currently, Kafka sinks only support writing
 JSON data, with the structure determined by the schema of the data being
 written.
 
-The Kafka sink supports both *exactly once* and *at least once*. 
+The Kafka sink supports both *exactly once* and *at least once* modes. 
 At least once delivery will proactively write to the downstream Kafka topic
 as messages come in. This can potentially result in duplicate messages in the event of a pipeline failure.
 
