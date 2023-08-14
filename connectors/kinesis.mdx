@@ -21,7 +21,6 @@ A Kinesis connection has several required and optional fields:
 | -----------------------------------| -------------------------------------------------------------------------------- | -----------------| ----------- |
 | stream_name                        | The Kinesis stream name for this table                                           | Must be specified| `my_stream` |
 | source.offset                      | The offset to start reading from (either 'earliest' or 'latest')                 | `latest`         | `latest`    |
-| source.poll_shard_interval_seconds | The number of seconds to wait between polling for new shards                     |  `10`            | `10`        |
 | sink.max_records_per_batch         | The number of records to batch together before writing to Kinesis                | `500`            | `100`       |
 | sink.max_bytes_per_batch           | The maximum size of a batch of records to write to Kinesis                       | `4500000`        | `1000000`   |
 | sink.flush_interval_millis         | The number of milliseconds to wait before flushing a batch of records to Kinesis | `1000`           | `1000`      |
@@ -50,8 +49,7 @@ CREATE TABLE orders (
   stream_name = 'my_stream',
   type = 'source',
   format = 'json',
-  'source.offset' = 'latest',
-  'source.poll_shard_interval_seconds' = '10'
+  'source.offset' = 'latest'
 );
 ```
 
