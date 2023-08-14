@@ -68,6 +68,7 @@
       "pages": [
           "connectors/overview",
           "connectors/blackhole",
+          "connectors/filesystem",
           "connectors/fluvio",
           "connectors/impulse",
           "connectors/kafka",
