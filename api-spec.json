@@ -994,7 +994,6 @@
         "required": [
           "name",
           "query",
-          "udfs",
           "parallelism"
         ],
         "properties": {
@@ -1017,7 +1016,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Udf"
-            }
+            },
+            "nullable": true
           }
         }
       },
@@ -1075,8 +1075,7 @@
       "ValidatePipelinePost": {
         "type": "object",
         "required": [
-          "query",
-          "udfs"
+          "query"
         ],
         "properties": {
           "query": {
@@ -1086,7 +1085,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Udf"
-            }
+            },
+            "nullable": true
           }
         }
       }
