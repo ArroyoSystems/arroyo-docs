@@ -72,6 +72,7 @@
           "connectors/fluvio",
           "connectors/impulse",
           "connectors/kafka",
+          "connectors/kinesis",
           "connectors/mysql",
           "connectors/postgres",
           "connectors/redpanda",
