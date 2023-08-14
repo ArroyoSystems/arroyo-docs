@@ -35,9 +35,9 @@ A Kafka connection has several required and optional fields:
 | auth.password | The password to use for SASL authentication | No | `password` |
 | topic | The name of the Kafka topic to read from or write to | Yes |
 | type | The type of table (either 'source' or 'sink') | Yes | `source` |
-| source.offset | The offset to start reading from (either 'earliest' or 'latest') | If source | `earliest` |
-| source.read_mode | The read mode to use (either 'read_committed' or 'read_uncommitted') | If source | `read_committed` |
-| sink.commit_mode | The commit mode to use (either 'exactly_once' or 'at_least_once') | If sink | `exactly_once` |
+| source.offset | The offset to start reading from (either 'earliest' or 'latest') | No | `earliest` |
+| source.read_mode | The read mode to use. 'read_committed' only reads committed Kafka messages, while 'read_uncommitted' will read all messages.  | No | `read_committed` |
+| sink.commit_mode | The commit mode to use (either 'exactly_once' or 'at_least_once') | No | `exactly_once` |
 
 
 ## Kafka Sources
@@ -48,8 +48,8 @@ Kafka source is defined by a topic name and a schema.
 Schemas can be defined via json-schema, or automatically configured via
 Confluent Schema Registry.
 
-Kakfa sources implement exactly-once semantics by storing the last-read offset
-in Arroyo's state.
+Kakfa sources implement exactly-once semantics by storing the last-read offset in Arroyo's state.
+Additionally, you can set `source.read_mode` to `read_committed` to ensure that only committed messages are read.
 
 ## Kafka Sinks
 
