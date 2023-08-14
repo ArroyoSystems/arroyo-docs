@@ -10,7 +10,7 @@ Debezium is a CDC (change data capture) tool that monitors the Postgres transact
 and publishes changes to Kafka. Arroyo can read these changes from Kafka and present them
 as streaming tables which can be queried like any other table.
 
-Currently Debezium tables must be create via `CREATE TABLE` calls in SQL and must be configured
+Currently Debezium tables must be created via `CREATE TABLE` calls in SQL and must be configured
 with `format = 'debezium_json'`. Otherwise, the options are the same as for other
 [Kafka sources](/connectors/kafka).
 
