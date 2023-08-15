@@ -206,7 +206,8 @@ CREATE TABLE checkpoints (
     bootstrap_servers = 'localhost:9092',
     type = 'source',
     topic = 'arroyo.public.checkpoints',
-    format = 'debezium_json'
+    format = 'debezium_json',
+    'json.timestamp_format' = 'RFC3339'
 );
 
 SELECT * FROM checkpoints
@@ -217,13 +218,9 @@ This will merely dump out the data as three columns, `"before"`, `"after"`, and
 complex queries over the source. For instance, consider the following query.
 
 ```sql
-SELECT
-SUM(CASE WHEN running THEN 1 ELSE 0 END) as running_checkpoints,
-SUM(CASE WHEN running THEN 0 ELSE 1 END) as finished_checkpoints
-FROM (
-SELECT finish_time IS NULL as running FROM checkpoints)
+SELECT id, epoch, min_epoch, state FROM checkpoints where finish_time is null;
 ```
-This will produce an updating dataset that reports how many running versus finished checkpoints we've seen.
+This will produce an updating dataset that shows all non-finished checkpoints as the state evolves.
 
 
 ### Writing Debezium outputs
