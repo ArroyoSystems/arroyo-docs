@@ -18,7 +18,8 @@ $ sudo mv bin/protoc /usr/local/bin
 $ curl https://sh.rustup.rs -sSf | sh -s -- -y
 $ cargo install wasm-pack
 $ cargo install refinery_cli
-$ npm install --global @openapitools/openapi-generator-cli
+$ curl -fsSL https://get.pnpm.io/install.sh | sh -
+$ pnpm install --global @openapitools/openapi-generator-cli
 ```
 
 ### MacOS
@@ -156,8 +157,6 @@ This will manage the execution of pipelines.
 ## Building the frontend
 
 We use pnpm and vite for frontend development.
-
-Start by installing pnpm by following the instructions here: https://pnpm.io/installation.
 
 Then you should be able to run the console in dev mode like this:
 
