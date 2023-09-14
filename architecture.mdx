@@ -11,13 +11,12 @@ The Arroyo system architecture is composed of several services, as can be seen i
 
 ### web ui
 
-The web ui is a single-page app written in react that interacts with the system via the gRPC API. It allows users to
-configure the system, create pipelines, and monitor their statuses.
+The web ui is a single-page app written in react that interacts with the system via the [REST API](api-reference/overview).
+It allows users to configure the system, create pipelines, and monitor their statuses.
 
 ### arroyo-api
 
-The API server backs the web ui and handles all configuration operations and pipeline management. It exposes a gRPC APIs
-(defined in [api.proto](https://github.com/ArroyoSystems/arroyo/blob/master/arroyo-rpc/proto/api.proto)).
+The API server backs the web ui and handles all configuration operations and pipeline management via the [REST API](api-reference/overview).
 
 API operations, like creating a pipeline or updating its state operate soley by updating the configuration in
 the postgres database. This is asynchronously applied to the actual state of the environment by the controller. The API
@@ -27,7 +26,7 @@ itself is stateless and does not communicate with the rest of the system except 
 
 The controller runs a control loop that continuously reconciles the desired state of the system (as defined in the database)
 with the actual state of the system, as determined by monitoring the environment. This is similar to a Kubernetes
-controller, (see [here](https://kubernetes.io/docs/concepts/architecture/controller/) for an overview of this pattern.
+controller, (see [here](https://kubernetes.io/docs/concepts/architecture/controller/) for an overview of this pattern).
 
 There is a single controller instance that runs in the system, and high-availability is not yet supported in the open
 source release. If the controller instance fails, the workers will eventually stop and wait for the controller to come
@@ -60,7 +59,8 @@ the recommended mode for production usage, and is what we run in production for 
 
 #### kubernetes
 
-Support for scheduling workers on a Kubernetes cluster is coming soon.
+Arroyo can be deployed to [Kubernetes](https://kubernetes.io/) and configured to schedule workers on the cluster.
+See more details [here](/deployment/kubernetes).
 
 ### arroyo-worker
 
