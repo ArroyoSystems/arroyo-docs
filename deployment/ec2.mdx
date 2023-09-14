@@ -52,8 +52,8 @@ the following environment variables:
 - `DATABASE_USER`
 - `DATABASE_PASSWORD`
 
-You will also need to configure the controller with the S3 bucket name via the `S3_BUCKET` and `S3_REGION` environment
-variables to take advantage of remote checkpoint storage; otherwise checkpoints will be stored locally on the workers.
+You will also need to configure the controller and compiler service with `ARTIFACT_URL` and `CHECKPOINT_URL` as described
+in the [overview](/deployment/overview#storage).
 
 ### Prometheus
 

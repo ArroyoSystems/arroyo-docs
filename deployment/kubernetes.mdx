@@ -6,9 +6,12 @@ description: "Running an Arroyo cluster on Kubernetes"
 Arroyo supports Kubernetes as both a _scheduler_ (for running Arroyo pipeline tasks) and as as a deploy target for the
 Arroyo control plane. This is the easiest way to get a production quality Arroyo cluster running.
 
-This guide assumes a working Kubernetes cluster. This may be a local installation (like
-[minikube](https://minikube.sigs.k8s.io/docs/)) or a cloud provider (like [EKS](https://aws.amazon.com/eks/)). All
-stable Kubernetes versions are supported (currently >=1.25) but older versions will likely work as well.
+This guide assumes a working Kubernetes cluster. This may be a local
+installation (like [minikube](https://minikube.sigs.k8s.io/docs/)) or a cloud
+provider (like [Amazon EKS](https://aws.amazon.com/eks/) or
+[Google Kubenretes Engine](https://cloud.google.com/kubernetes-engine)). All
+stable Kubernetes versions are supported (currently >=1.25) but older versions
+will likely work as well.
 
 A complete working Arroyo cluster involves a number of compents (as described in more detail in the
 [architecture guide](/architecture)):
@@ -38,7 +41,7 @@ Once this is installed, you should be able to see the Arroyo helm hart:
 ```shell
 $ helm search repo arroyo
 NAME         	CHART VERSION	APP VERSION	DESCRIPTION
-arroyo/arroyo	0.1.0        	0.1.0      	Helm chart for the Arroyo stream processing engine
+arroyo/arroyo	0.6.0        	0.6.0      	Helm chart for the Arroyo stream processing engine
 ```
 
 ## Configure the Helm chart
@@ -59,11 +62,12 @@ The most important options are:
   Prometheus is not required for operation of the system, but is needed for the Arroyo UI metrics to function. By
   default Arroyo expects you to have a scrape interval of 5s. If you have a higher scrape interval (for example, the
   default 1m) you will need to update the `prometheus.queryRate` configuration to at least 4x the scrape interval.
-- `s3.bucket` and `s3.region`: Configures the s3 bucket and region that will be used for storing artifacts and
-  checkpoints. If using s3, the pods will need to have access to the bucket.
-- `outputDir`: Alternatively, you may configure the pods to write artifacts and checkpoints to a local directory when
-  running a local Kubernetes cluster. You will additionally need to configure `volumes` and `volumeMounts` to make this
-  directory available on all of the pods.
+- `artifactUrl` and `checkpointUrl`: Configures where pipeline artifacts and
+  checkpoints are stored. See the [overview](/deployment/overview#storage) for
+  more details on how these are configured. If this is set to a local directory
+  (when running a local k8s cluster), you will need to configure `volumes` and
+  `volumeMounts` to make this directory available on all of the pods.
+- `existingConfigMap` allows you to set environment variables on the Arroyo pods.
 
 
 The helm chart can be configured either via a `values.yaml` file or via command line arguments. See the
@@ -74,7 +78,8 @@ The helm chart can be configured either via a `values.yaml` file or via command 
 To run on a local Kubernetes cluster without S3, you can use the following configuration:
 
 ```yaml
-outputDir: "/tmp/arroyo-test"
+artifactUrl: "/tmp/arroyo-test"
+checkpointUrl: "/tmp/arroyo-test"
 
 volumes:
   - name: checkpoints
@@ -95,15 +100,14 @@ an S3 bucket named `arroyo-artifacts` in the `us-east-1` region, you can use the
 
 ```yaml
 postgresql:
-    externalDatabase:
+  externalDatabase:
     host: db.prod.iad.arroyo.cluster
     name: arroyo_test
     user: arroyodb
     password: arroyodb
 
-s3:
-  bucket: "arroyo-testing"
-  region: "us-east-1"
+artifactUrl: "s3://arroyo-artifacts"
+checkpointUrl: "s3://arroyo-checkpoints"
 ```
 
 <Tip>
@@ -111,6 +115,34 @@ If you are using an external Postgres instance (for example one hosted in RDS) y
 pod template for your EKS cluster has a security group that allows access to the your RDS cluster. If not, you may
 see the Arroyo service pods hang on startup as they try to connect.
 </Tip>
+
+### Example GKE configuration
+
+For a production deployment on GKE, you may want to use an external Postgres
+instance and GCS bucket. You will need to give the pods access to the GCS bucket
+by creating a service account with the `storage.objects.admin` role and
+specifying the name of the service account in the helm chart configuration. See
+[this guide](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
+for details on how to set up the permissions. The service account you create can
+then be configured in the helm chart with the `serviceAccount` value.
+
+
+```yaml
+artifactUrl: "gs://arroyo-artifacts"
+checkpointUrl: "gs://arroyo-checkpoints"
+
+postgresql:
+  externalDatabase:
+    host: db.prod.iad.arroyo.cluster
+    name: arroyo_test
+    user: arroyodb
+    password: arroyodb
+
+serviceAccount:
+  name: gke-access-gcs
+  create: false
+```
+
 
 ## Installing the helm chart
 
