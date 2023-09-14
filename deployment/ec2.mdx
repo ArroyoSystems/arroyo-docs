@@ -36,10 +36,10 @@ The Arroyo services can be run via Nomad, or separately on VMs.
 
 An Arroyo cluster consists of more or more arroyo-api process and a single arroyo-controller process. This can be run
 however you like, and may be run on a single machine or on multiple machines. To achieve high-availability on the API
-layer, you will need to run multipe instances behind a load balancer (such as an ALB).
+layer, you will need to run multiple instances behind a load balancer (such as an ALB).
 
-The arroyo-api server exposes a gRPC API on port 8001 by default, and serves static HTML and JS for the web UI on port
-8000. If the API and controller are not running on the same machine, the API needs to be configured with the endpoint of
+The arroyo-api server exposes port 8000 publicly, serving the frontend page as well as the REST API.
+If the API and controller are not running on the same machine, the API needs to be configured with the endpoint of
 the controller's gRPC API via the `CONTROLLER_ADDR` environment variable. By default, the controller runs its gRPC API
 on port 9190. If the controller's hostname is `arroyo-controller.int` then the API would be configured with
 `CONTROLLER_ADDR=http://arroyo-controller.int:9190`.
@@ -58,7 +58,7 @@ variables to take advantage of remote checkpoint storage; otherwise checkpoints 
 ### Prometheus
 
 Prometheus is required for the web UI metrics support. All arroyo services run a Prometheus exporter on their admin HTTP
-port (8002 for the API, and 9191 for the controller) at `/metrics`.
+port (8001 for the API, and 9191 for the controller) at `/metrics`.
 
 The workers rely on the Prometheus pushgateway to produce metrics. You will need to run a pushgateway instance on the
 nodes that run the arroyo workers at the default endpoint of `localhost:9091`, and you will need to configure your
