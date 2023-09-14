@@ -74,10 +74,12 @@
           "connectors/kafka",
           "connectors/kinesis",
           "connectors/mysql",
+          "connectors/polling-http",
           "connectors/postgres",
           "connectors/redpanda",
           "connectors/server-sent-events",
           "connectors/state",
+          "connectors/webhook",
           "connectors/websocket"
       ]
     },
