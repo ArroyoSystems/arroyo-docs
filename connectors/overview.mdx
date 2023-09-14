@@ -90,6 +90,22 @@ Raw string data is treated as a single column named `value` with type `TEXT`,
 and can be operated on using
 [SQL string functions](/sql/scalar-functions#string-functions) or UDFs.
 
+Raw string is supported for both deserialization (from sources) and serialization
+(to sinks). As a serialization format, it can be useful for generating data in formats
+that Arroyo does not support natively, for example via UDFs:
+
+```rust
+fn my_to_json(f: f64) -> String {
+    let v = serde_json::json!({
+        "my_complex": {
+            "nested_format": f
+        }
+    });
+
+    serde_json::to_string(&v).unwrap()
+}
+```
+
 ### Parquet
 
 [Parquet](https://parquet.apache.org/) is a columnar data format that is commonly
