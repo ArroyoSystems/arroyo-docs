@@ -1,0 +1,40 @@
+---
+title: Webhook
+description: "Sink outputs to an HTTP endpoint"
+---
+
+The Webhook sink can send pipeline outputs to any HTTP server. This can be used
+to connect Arroyo with a variety of web systems. Requests are sent as POSTS to the
+configured endpoint. Headers be configured on the source, while the body is determined
+by the SQL query using the specified format.
+
+## Configuring the Connection
+
+Polling HTTP sources can be created via the Web UI or directly in SQL.
+
+<img
+src="/images/create_webhook.png"
+alt="Webhook sink creationg flow"
+/>
+
+A webhook connector has several required and optional fields:
+
+| Field | Description | Required | Example |
+| ----- | ----------- | -------- | ------- |
+| endpoint | The endpoint for the HTTP server | Yes | `https://api.example.com/v1/webhook` |
+| headers | A comma-separated list of colon separated key-value pairs of headers that will be sent to the server | No | ```Content-Type:application/json,Authorization: Bearer mytoken```
+
+
+For example, we can send query outputs to a Slack channel via the Slack webhook API:
+
+```sql
+CREATE TABLE slack (
+    text TEXT
+) WITH (
+    connector = 'webhook',
+    endpoint = 'https://hooks.slack.com/services/XXXXX/XXXXX/XXXXX',
+    method = 'POST',
+    headers = 'Content-Type:application/json',
+    format = 'json'
+);
+```
