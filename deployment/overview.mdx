@@ -3,13 +3,14 @@ title: Overview
 description: "Running a distributed Arroyo cluster"
 ---
 
-While the single-node Arroyo cluster is useful for testing and development, it is not suitable for production. This
-page describes how to run a production-ready distributed Arroyo cluster using Arroyo's built-in scheduler, [Kubernetes](https://kubernetes.io/) or
-[nomad](https://www.nomadproject.io/).
+While the single-node Arroyo cluster is useful for testing and development, it
+is not suitable for production. This page describes how to run a
+production-ready distributed Arroyo cluster using Arroyo's built-in scheduler or
+[Kubernetes](https://kubernetes.io/).
 
 Before attempting to run a cluster, you should familiarize yourself with the [Arroyo architecture](/architecture). We
 are also happy to support users rolling out their own clusters, so please reach out to us at support@arroyo.systems or
-on discord with any questions.
+on Discord with any questions.
 
 ## Common Setup
 
@@ -18,10 +19,30 @@ on discord with any questions.
 Arroyo relies on a postgres database to store configuration data and metadata. You will need to create a database
 (by default called `arroyo`, but this can be configured).
 
-### S3
+### Storage
 
-You will need to create a S3 bucket to store checkpoints and artifacts. This will need to be writable by the nodes
-that are running the Arroyo controller and workers.
+You will need a place to store pipeline artifacts (binaries) and checkpoint data. This needs to be accessible to
+all nodes in your cluster, including Arroyo services (controller, compiler service) and pipeline workers. Arroyo
+supports several storage backends, including S3, GCS, and local filesystem. For local testing, a filesystem that's3
+mounted on all nodes is sufficient, but for production you will likely want to use an object store like S3 or GCS.
+We also support S3-compatible object stores like MinIO and Localstack; endpoints can be set via the `s3::` prefix
+or the `AWS_ENDPOINT_URL` environment variable.
+
+The storage backedn is configured via two environment variables:
+
+* `ARTIFACT_URL` controls where pipeline artifacts (i.e., binaries) are stored; this needs to be set on the compiler
+  service if using, or the controller if not
+* `CHECKPOINT_URL` controls where checkpoint data is stored; this needs to be set on the controller
+
+The values for these variables are URLs that specify the storage location. We support a number of ways of specifying
+these, for example:
+
+* `s3://my-bucket/key/path`
+* `s3::https://my-custom-s3:1234/my-bucket/key/path`
+* `https://s3.us-east-1.amazonaws.com/my-bucket`
+* `file:///my/local/filesystem`
+* `/my/local/filesystem`
+* `gs://my-gcs-bucket`
 
 ### Prometheus
 
