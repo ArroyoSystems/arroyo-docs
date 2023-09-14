@@ -93,7 +93,8 @@
         "sql/scalar-functions",
         "sql/aggregate-functions",
         "sql/window-functions",
-        "sql/udfs"
+        "sql/udfs",
+        "sql/udafs"
       ]
     },
     {
