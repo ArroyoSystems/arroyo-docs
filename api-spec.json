@@ -14,6 +14,250 @@
     }
   ],
   "paths": {
+    "/v1/connection_profiles": {
+      "get": {
+        "tags": [
+          "connection_profiles"
+        ],
+        "summary": "List all connection profiles",
+        "description": "List all connection profiles",
+        "operationId": "get_connection_profiles",
+        "responses": {
+          "200": {
+            "description": "Got connections collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionProfileCollection"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "connection_profiles"
+        ],
+        "summary": "Create connection profile",
+        "description": "Create connection profile",
+        "operationId": "create_connection_profile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionProfilePost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created connection profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/connection_tables": {
+      "get": {
+        "tags": [
+          "connection_tables"
+        ],
+        "summary": "List all connection tables",
+        "description": "List all connection tables",
+        "operationId": "get_connection_tables",
+        "parameters": [
+          {
+            "name": "starting_after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Got connection table collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionTableCollection"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "connection_tables"
+        ],
+        "summary": "Create a new connection table",
+        "description": "Create a new connection table",
+        "operationId": "create_connection_table",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionTablePost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created connection table",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionTable"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/connection_tables/schemas/confluent": {
+      "get": {
+        "tags": [
+          "connection_tables"
+        ],
+        "summary": "Get a Confluent Schema",
+        "description": "Get a Confluent Schema",
+        "operationId": "get_confluent_schema",
+        "parameters": [
+          {
+            "name": "topic",
+            "in": "query",
+            "description": "Confluent topic name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endpoint",
+            "in": "query",
+            "description": "Confluent schema registry endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Got Confluent Schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfluentSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/connection_tables/schemas/test": {
+      "post": {
+        "tags": [
+          "connection_tables"
+        ],
+        "summary": "Test a Connection Schema",
+        "description": "Test a Connection Schema",
+        "operationId": "test_schema",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Schema is valid"
+          }
+        }
+      }
+    },
+    "/v1/connection_tables/test": {
+      "post": {
+        "tags": [
+          "connection_tables"
+        ],
+        "summary": "Test a Connection Table",
+        "description": "Test a Connection Table",
+        "operationId": "test_connection_table",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionTablePost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Job output as 'text/event-stream'"
+          }
+        }
+      }
+    },
+    "/v1/connection_tables/{id}": {
+      "delete": {
+        "tags": [
+          "connection_tables"
+        ],
+        "summary": "Delete a Connection Table",
+        "description": "Delete a Connection Table",
+        "operationId": "delete_connection_table",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Connection Table id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted connection table"
+          }
+        }
+      }
+    },
     "/v1/connectors": {
       "get": {
         "tags": [
@@ -81,6 +325,28 @@
         "summary": "List all pipelines",
         "description": "List all pipelines",
         "operationId": "get_pipelines",
+        "parameters": [
+          {
+            "name": "starting_after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Got pipelines collection",
@@ -125,19 +391,19 @@
         }
       }
     },
-    "/v1/pipelines/validate": {
+    "/v1/pipelines/validate_query": {
       "post": {
         "tags": [
           "pipelines"
         ],
         "summary": "Get a pipeline graph",
         "description": "Get a pipeline graph",
-        "operationId": "validate_pipeline",
+        "operationId": "validate_query",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ValidatePipelinePost"
+                "$ref": "#/components/schemas/ValidateQueryPost"
               }
             }
           },
@@ -145,11 +411,43 @@
         },
         "responses": {
           "200": {
-            "description": "Created pipeline and job",
+            "description": "Validated query",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PipelineGraph"
+                  "$ref": "#/components/schemas/QueryValidationResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pipelines/validate_udfs": {
+      "post": {
+        "tags": [
+          "pipelines"
+        ],
+        "summary": "Validate UDFs",
+        "description": "Validate UDFs",
+        "operationId": "validate_udfs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateUdfsPost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Validated query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UdfValidationResult"
                 }
               }
             }
@@ -288,6 +586,49 @@
         }
       }
     },
+    "/v1/pipelines/{id}/restart": {
+      "post": {
+        "tags": [
+          "pipelines"
+        ],
+        "summary": "Restart a pipeline",
+        "description": "Restart a pipeline",
+        "operationId": "restart_pipeline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PipelineRestart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated pipeline",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pipeline"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/pipelines/{pipeline_id}/jobs/{job_id}/checkpoints": {
       "get": {
         "tags": [
@@ -330,6 +671,59 @@
         }
       }
     },
+    "/v1/pipelines/{pipeline_id}/jobs/{job_id}/checkpoints/{epoch}/operator_checkpoint_groups": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get a checkpoint's details",
+        "description": "Get a checkpoint's details",
+        "operationId": "get_checkpoint_details",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "description": "Pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "description": "Job id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "epoch",
+            "in": "path",
+            "description": "Epoch",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Got checkpoint's details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorCheckpointGroupCollection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/pipelines/{pipeline_id}/jobs/{job_id}/errors": {
       "get": {
         "tags": [
@@ -355,6 +749,28 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "starting_after",
+            "in": "query",
+            "description": "Starting after",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
             }
           }
         ],
@@ -452,6 +868,9 @@
   },
   "components": {
     "schemas": {
+      "AvroFormat": {
+        "type": "object"
+      },
       "Checkpoint": {
         "type": "object",
         "required": [
@@ -466,22 +885,230 @@
           "epoch": {
             "type": "integer",
             "format": "int32",
-            "minimum": 0.0
+            "minimum": 0
           },
           "finishTime": {
             "type": "integer",
             "format": "int64",
             "nullable": true,
-            "minimum": 0.0
+            "minimum": 0
           },
           "startTime": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0.0
+            "minimum": 0
           }
         }
       },
       "CheckpointCollection": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Checkpoint"
+            }
+          }
+        }
+      },
+      "CheckpointEventSpan": {
+        "type": "object",
+        "required": [
+          "startTime",
+          "finishTime",
+          "spanType",
+          "description"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "finishTime": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "spanType": {
+            "$ref": "#/components/schemas/CheckpointSpanType"
+          },
+          "startTime": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "CheckpointSpanType": {
+        "type": "string",
+        "enum": [
+          "alignment",
+          "sync",
+          "async",
+          "committing"
+        ]
+      },
+      "ConfluentSchema": {
+        "type": "object",
+        "required": [
+          "schema"
+        ],
+        "properties": {
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "ConnectionProfile": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "connector",
+          "config",
+          "description"
+        ],
+        "properties": {
+          "config": {},
+          "connector": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ConnectionProfileCollection": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConnectionProfile"
+            }
+          }
+        }
+      },
+      "ConnectionProfilePost": {
+        "type": "object",
+        "required": [
+          "name",
+          "connector",
+          "config"
+        ],
+        "properties": {
+          "config": {},
+          "connector": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ConnectionSchema": {
+        "type": "object",
+        "required": [
+          "fields"
+        ],
+        "properties": {
+          "definition": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SchemaDefinition"
+              }
+            ],
+            "nullable": true
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SourceField"
+            }
+          },
+          "format": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Format"
+              }
+            ],
+            "nullable": true
+          },
+          "framing": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Framing"
+              }
+            ],
+            "nullable": true
+          },
+          "structName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ConnectionTable": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "createdAt",
+          "connector",
+          "tableType",
+          "config",
+          "schema",
+          "consumers"
+        ],
+        "properties": {
+          "config": {},
+          "connectionProfile": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionProfile"
+              }
+            ],
+            "nullable": true
+          },
+          "connector": {
+            "type": "string"
+          },
+          "consumers": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "schema": {
+            "$ref": "#/components/schemas/ConnectionSchema"
+          },
+          "tableType": {
+            "$ref": "#/components/schemas/ConnectionType"
+          }
+        }
+      },
+      "ConnectionTableCollection": {
         "type": "object",
         "required": [
           "data",
@@ -491,13 +1118,49 @@
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Checkpoint"
+              "$ref": "#/components/schemas/ConnectionTable"
             }
           },
           "hasMore": {
             "type": "boolean"
           }
         }
+      },
+      "ConnectionTablePost": {
+        "type": "object",
+        "required": [
+          "name",
+          "connector",
+          "config"
+        ],
+        "properties": {
+          "config": {},
+          "connectionProfileId": {
+            "type": "string",
+            "nullable": true
+          },
+          "connector": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "schema": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionSchema"
+              }
+            ],
+            "nullable": true
+          }
+        }
+      },
+      "ConnectionType": {
+        "type": "string",
+        "enum": [
+          "source",
+          "sink"
+        ]
       },
       "Connector": {
         "type": "object",
@@ -557,8 +1220,7 @@
       "ConnectorCollection": {
         "type": "object",
         "required": [
-          "data",
-          "hasMore"
+          "data"
         ],
         "properties": {
           "data": {
@@ -566,11 +1228,108 @@
             "items": {
               "$ref": "#/components/schemas/Connector"
             }
-          },
-          "hasMore": {
-            "type": "boolean"
           }
         }
+      },
+      "FieldType": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "primitive"
+            ],
+            "properties": {
+              "primitive": {
+                "$ref": "#/components/schemas/PrimitiveType"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "struct"
+            ],
+            "properties": {
+              "struct": {
+                "$ref": "#/components/schemas/StructType"
+              }
+            }
+          }
+        ]
+      },
+      "Format": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "json"
+            ],
+            "properties": {
+              "json": {
+                "$ref": "#/components/schemas/JsonFormat"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "avro"
+            ],
+            "properties": {
+              "avro": {
+                "$ref": "#/components/schemas/AvroFormat"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "parquet"
+            ],
+            "properties": {
+              "parquet": {
+                "$ref": "#/components/schemas/ParquetFormat"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "raw_string"
+            ],
+            "properties": {
+              "raw_string": {
+                "$ref": "#/components/schemas/RawStringFormat"
+              }
+            }
+          }
+        ]
+      },
+      "Framing": {
+        "type": "object",
+        "required": [
+          "method"
+        ],
+        "properties": {
+          "method": {
+            "$ref": "#/components/schemas/FramingMethod"
+          }
+        }
+      },
+      "FramingMethod": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "newline"
+            ],
+            "properties": {
+              "newline": {
+                "$ref": "#/components/schemas/NewlineDelimitedFraming"
+              }
+            }
+          }
+        ]
       },
       "Job": {
         "type": "object",
@@ -585,7 +1344,7 @@
           "createdAt": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0.0
+            "minimum": 0
           },
           "failureMessage": {
             "type": "string",
@@ -595,7 +1354,7 @@
             "type": "integer",
             "format": "int64",
             "nullable": true,
-            "minimum": 0.0
+            "minimum": 0
           },
           "id": {
             "type": "string"
@@ -603,7 +1362,7 @@
           "runId": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0.0
+            "minimum": 0
           },
           "runningDesired": {
             "type": "boolean"
@@ -612,7 +1371,7 @@
             "type": "integer",
             "format": "int64",
             "nullable": true,
-            "minimum": 0.0
+            "minimum": 0
           },
           "state": {
             "type": "string"
@@ -621,15 +1380,14 @@
             "type": "integer",
             "format": "int64",
             "nullable": true,
-            "minimum": 0.0
+            "minimum": 0
           }
         }
       },
       "JobCollection": {
         "type": "object",
         "required": [
-          "data",
-          "hasMore"
+          "data"
         ],
         "properties": {
           "data": {
@@ -637,9 +1395,6 @@
             "items": {
               "$ref": "#/components/schemas/Job"
             }
-          },
-          "hasMore": {
-            "type": "boolean"
           }
         }
       },
@@ -654,6 +1409,7 @@
       "JobLogMessage": {
         "type": "object",
         "required": [
+          "id",
           "createdAt",
           "level",
           "message",
@@ -663,9 +1419,12 @@
           "createdAt": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0.0
+            "minimum": 0
           },
           "details": {
+            "type": "string"
+          },
+          "id": {
             "type": "string"
           },
           "level": {
@@ -682,7 +1441,7 @@
             "type": "integer",
             "format": "int64",
             "nullable": true,
-            "minimum": 0.0
+            "minimum": 0
           }
         }
       },
@@ -704,6 +1463,26 @@
           }
         }
       },
+      "JsonFormat": {
+        "type": "object",
+        "properties": {
+          "confluentSchemaRegistry": {
+            "type": "boolean"
+          },
+          "debezium": {
+            "type": "boolean"
+          },
+          "includeSchema": {
+            "type": "boolean"
+          },
+          "timestampFormat": {
+            "$ref": "#/components/schemas/TimestampFormat"
+          },
+          "unstructured": {
+            "type": "boolean"
+          }
+        }
+      },
       "Metric": {
         "type": "object",
         "required": [
@@ -714,7 +1493,7 @@
           "time": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0.0
+            "minimum": 0
           },
           "value": {
             "type": "number",
@@ -750,6 +1529,55 @@
           "backpressure"
         ]
       },
+      "NewlineDelimitedFraming": {
+        "type": "object",
+        "properties": {
+          "maxLineLength": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "minimum": 0
+          }
+        }
+      },
+      "OperatorCheckpointGroup": {
+        "type": "object",
+        "required": [
+          "operatorId",
+          "bytes",
+          "subtasks"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "operatorId": {
+            "type": "string"
+          },
+          "subtasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubtaskCheckpointGroup"
+            }
+          }
+        }
+      },
+      "OperatorCheckpointGroupCollection": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperatorCheckpointGroup"
+            }
+          }
+        }
+      },
       "OperatorMetricGroup": {
         "type": "object",
         "required": [
@@ -771,8 +1599,7 @@
       "OperatorMetricGroupCollection": {
         "type": "object",
         "required": [
-          "data",
-          "hasMore"
+          "data"
         ],
         "properties": {
           "data": {
@@ -780,9 +1607,6 @@
             "items": {
               "$ref": "#/components/schemas/OperatorMetricGroup"
             }
-          },
-          "hasMore": {
-            "type": "boolean"
           }
         }
       },
@@ -804,12 +1628,30 @@
           "timestamp": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0.0
+            "minimum": 0
           },
           "value": {
             "type": "string"
           }
         }
+      },
+      "PaginationQueryParams": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "minimum": 0
+          },
+          "starting_after": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ParquetFormat": {
+        "type": "object"
       },
       "Pipeline": {
         "type": "object",
@@ -844,12 +1686,12 @@
           "checkpointIntervalMicros": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0.0
+            "minimum": 0
           },
           "createdAt": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0.0
+            "minimum": 0
           },
           "graph": {
             "$ref": "#/components/schemas/PipelineGraph"
@@ -960,7 +1802,7 @@
           "parallelism": {
             "type": "integer",
             "format": "int32",
-            "minimum": 0.0
+            "minimum": 0
           }
         }
       },
@@ -971,13 +1813,13 @@
             "type": "integer",
             "format": "int64",
             "nullable": true,
-            "minimum": 0.0
+            "minimum": 0
           },
           "parallelism": {
             "type": "integer",
             "format": "int64",
             "nullable": true,
-            "minimum": 0.0
+            "minimum": 0
           },
           "stop": {
             "allOf": [
@@ -1003,7 +1845,7 @@
           "parallelism": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0.0
+            "minimum": 0
           },
           "preview": {
             "type": "boolean",
@@ -1021,6 +1863,139 @@
           }
         }
       },
+      "PipelineRestart": {
+        "type": "object",
+        "properties": {
+          "force": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "PrimitiveType": {
+        "type": "string",
+        "enum": [
+          "int32",
+          "int64",
+          "u_int32",
+          "u_int64",
+          "f32",
+          "f64",
+          "bool",
+          "string",
+          "bytes",
+          "unix_millis",
+          "unix_micros",
+          "unix_nanos",
+          "date_time",
+          "json"
+        ]
+      },
+      "QueryValidationResult": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "graph": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PipelineGraph"
+              }
+            ],
+            "nullable": true
+          }
+        }
+      },
+      "RawStringFormat": {
+        "type": "object"
+      },
+      "SchemaDefinition": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "json_schema"
+            ],
+            "properties": {
+              "json_schema": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "protobuf_schema"
+            ],
+            "properties": {
+              "protobuf_schema": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "avro_schema"
+            ],
+            "properties": {
+              "avro_schema": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "raw_schema"
+            ],
+            "properties": {
+              "raw_schema": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "SourceField": {
+        "type": "object",
+        "required": [
+          "fieldName",
+          "fieldType",
+          "nullable"
+        ],
+        "properties": {
+          "fieldName": {
+            "type": "string"
+          },
+          "fieldType": {
+            "$ref": "#/components/schemas/SourceFieldType"
+          },
+          "nullable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SourceFieldType": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "sqlName": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/FieldType"
+          }
+        }
+      },
       "StopType": {
         "type": "string",
         "enum": [
@@ -1031,17 +2006,61 @@
           "force"
         ]
       },
+      "StructType": {
+        "type": "object",
+        "required": [
+          "fields"
+        ],
+        "properties": {
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SourceField"
+            }
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SubtaskCheckpointGroup": {
+        "type": "object",
+        "required": [
+          "index",
+          "bytes",
+          "eventSpans"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "eventSpans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CheckpointEventSpan"
+            }
+          },
+          "index": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
       "SubtaskMetrics": {
         "type": "object",
         "required": [
-          "idx",
+          "index",
           "metrics"
         ],
         "properties": {
-          "idx": {
+          "index": {
             "type": "integer",
             "format": "int32",
-            "minimum": 0.0
+            "minimum": 0
           },
           "metrics": {
             "type": "array",
@@ -1050,6 +2069,32 @@
             }
           }
         }
+      },
+      "TestSourceMessage": {
+        "type": "object",
+        "required": [
+          "error",
+          "done",
+          "message"
+        ],
+        "properties": {
+          "done": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "TimestampFormat": {
+        "type": "string",
+        "enum": [
+          "rfc3339",
+          "unix_millis"
+        ]
       },
       "Udf": {
         "type": "object",
@@ -1072,7 +2117,23 @@
           "rust"
         ]
       },
-      "ValidatePipelinePost": {
+      "UdfValidationResult": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "udfsRs": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ValidateQueryPost": {
         "type": "object",
         "required": [
           "query"
@@ -1089,10 +2150,33 @@
             "nullable": true
           }
         }
+      },
+      "ValidateUdfsPost": {
+        "type": "object",
+        "required": [
+          "udfsRs"
+        ],
+        "properties": {
+          "udfsRs": {
+            "type": "string"
+          }
+        }
       }
     }
   },
   "tags": [
+    {
+      "name": "ping",
+      "description": "Ping endpoint"
+    },
+    {
+      "name": "connection_profiles",
+      "description": "Connection profiles management endpoints"
+    },
+    {
+      "name": "connection_tables",
+      "description": "Connection tables management endpoints"
+    },
     {
       "name": "pipelines",
       "description": "Pipeline management endpoints"
@@ -1104,10 +2188,6 @@
     {
       "name": "connectors",
       "description": "Connector management endpoints"
-    },
-    {
-      "name": "ping",
-      "description": "Ping endpoint"
     }
   ]
 }
