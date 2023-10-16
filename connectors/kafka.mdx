@@ -37,6 +37,7 @@ A Kafka connection has several required and optional fields:
 | type | The type of table (either 'source' or 'sink') | Yes | `source` |
 | source.offset | The offset to start reading from (either 'earliest' or 'latest') | No | `earliest` |
 | source.read_mode | The read mode to use. 'read_committed' only reads committed Kafka messages, while 'read_uncommitted' will read all messages.  | No | `read_committed` |
+| group_id | For sources, sets the Kafka consumer group to use; note that using the same group for multiple pipelines will result in each pipeline seeing only a subset of the data | No | `my-group` |
 | sink.commit_mode | The commit mode to use (either 'exactly_once' or 'at_least_once') | No | `exactly_once` |
 
 
@@ -58,12 +59,12 @@ sink is defined by a topic name. Currently, Kafka sinks only support writing
 JSON data, with the structure determined by the schema of the data being
 written.
 
-The Kafka sink supports both *exactly once* and *at least once* modes. 
+The Kafka sink supports both *exactly once* and *at least once* modes.
 At least once delivery will proactively write to the downstream Kafka topic
 as messages come in. This can potentially result in duplicate messages in the event of a pipeline failure.
 
-Exactly once delivery writes to Kafka using its transaction API. 
-Data is staged within each epoch of the checkpointing system, 
+Exactly once delivery writes to Kafka using its transaction API.
+Data is staged within each epoch of the checkpointing system,
 and then committed through a two-phase protocol once all data is staged.
 Currently the system does not cleanly recover from failures during the commit phase,
 as this requires Kafka to be better able to participate in a two-phase commit.
