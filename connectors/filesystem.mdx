@@ -59,6 +59,8 @@ Parquet has a few supported options. Please reach out if you'd like to expand th
 
 ### Partitioning Options
 Arroyo now supports partitioning of outputs. There are two types of partitioning: event time-based and field-based.
+You can use either or both of these types of partitioning.
+If both are used, the time-based partitioning is placed prior to the field-based partitioning.
 
 #### Event Time-based Partitioning
 Event time partitioning uses each record's event_time, formatting it using a strftime-style formatting string.
