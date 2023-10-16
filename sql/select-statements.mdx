@@ -5,7 +5,7 @@ description: 'Querying data in Arroyo SQL'
 
 Select statements are used to manipulate data in Arroyo.```
 The general form of that statement is:
-    
+
 ```sql
 [WITH with_query [, ...]]
 SELECT select_expr [, ...]
@@ -25,14 +25,14 @@ WITH query_name AS (subquery) [,...]
 For example, using the nexmark source, you can create datasets for bids and price and then join.
 ```sql
 
-WITH bids AS 
-    (SELECT bid.auction AS auction, bid.price AS price 
+WITH bids AS
+    (SELECT bid.auction AS auction, bid.price AS price
         FROM nexmark where bid is not null),
 auctions AS
     (SELECT auction.id AS id
         FROM nexmark where auction is not null)
-SELECT * FROM bids bids 
-        JOIN auctions auctions 
+SELECT * FROM bids bids
+        JOIN auctions auctions
             ON bids.auction = auctions.id;
 ```
 
@@ -46,8 +46,8 @@ SELECT select_expr [, ...]
 ```
 
 ### FROM clause
-The `FROM` clause specifies the primary source of data. 
-It will be either a table name or subquery. 
+The `FROM` clause specifies the primary source of data.
+It will be either a table name or subquery.
 The table name can be either a saved source,
  a table created in the `WITH` clause or a table created via `CREATE TABLE` and inserted into.
 Tables can be given aliases, but will default to their name as the alias for things like joins.
@@ -56,10 +56,10 @@ FROM from_item
 ```
 
 ### JOIN clause
-The `JOIN` clause allows you to join multiple tables together. 
+The `JOIN` clause allows you to join multiple tables together.
 By default it will be an inner join, but you can also specify `LEFT`, `RIGHT`, or `FULL` joins.
 Joins must include an `ON` clause specifying the join condition.
-```sql 
+```sql
 SELECT * FROM bids join auctions on bids.auction = auctions.id;
 ```
 
@@ -73,14 +73,43 @@ WHERE condition
 ### GROUP BY clause
 The `GROUP BY` clause is used to compute aggregates over some set of fields.
 All GROUP BY queries will implicitly include a time window,
-and if the input doesn't already have a time window, 
+and if the input doesn't already have a time window,
 it should be specified as one of the grouping fields.
 
 For example,
 
 ```sql
-SELECT 
+SELECT
     count(*) AS bids,
     count(distinct auction_id) AS distinct_auctions,
     tumble(interval '1 minute') AS window
-    FROM BIDS GROUP BY 3
+FROM BIDS GROUP BY 3
+```
+
+### UNNEST operator
+
+The `UNNEST` operator allows you to unnest arrays into multiple rows. This can be used
+as a normal scalar function with the following restrictions:
+
+* It may only appear in the `SELECT` clause
+* Only one array may be unnested per query
+
+For example,
+
+```sql
+SELECT
+    UNNEST(make_array(1, 2, 3)) as x
+FROM BIDS;
+```
+
+which will produce the following output:
+
+```
++---+
+| x |
++---+
+| 1 |
+| 2 |
+| 3 |
++---+
+```

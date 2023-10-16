@@ -112,6 +112,32 @@ fn my_to_json(f: f64) -> String {
 used for storing data in data lakes. Arroyo supports writing Parquet via the FileSystem
 sink. Refer for the [FileSystem sink docs](/connectors/filesystem) for details.
 
+## Framing
+
+The framing configuration for a source determines how messages read from the source
+are split into records for processing. By default, this is set to `none`, which
+means that the source will emit a single record for each message it reads. This is
+particularly useful for sources—like HTTP endpoints—that do not have their own
+framing protocol.
+
+Framing is configured via the `framing` option when creating a SQL table. Currently
+only `newline` is supported, which splits the input on newlines.
+
+You may also set `framing.newline.max_length` to a number of bytes to limit the
+maximum length of a single record. Records that exceed this length will be truncated.
+
+For example:
+
+```sql
+CREATE TABLE my_source (
+    value TEXT
+) WITH (
+    ...
+    framing = 'newline',
+    'framing.newline.max_length' = '10000'
+)
+```
+
 ## Connection schemas
 
 Connections in Arroyo must have associated schemas to allow them to be used in
@@ -134,6 +160,7 @@ type `TEXT`. This can then be parsed dynamically with the
 
 Schemas for Kafka topics can also be read automatically from
 [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html).
+
 
 ## Source idleness
 
