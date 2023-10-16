@@ -208,9 +208,9 @@ Let's try something a little more interesting. We're going to count the number
 of orders by store over a sliding window. We can do that with this query:
 
 ```sql
-SELECT count(*) as count, store_order_id as store
+SELECT count(*) as count, store_id as store
 FROM orders
-GROUP BY store_order_id, hop(interval '2 seconds', interval '10 seconds');
+GROUP BY store_id, hop(interval '2 seconds', interval '10 seconds');
 ```
 
 <img src="/images/kafka_tutorial_previewing.png" alt="Previewing output of the query" />
@@ -266,9 +266,9 @@ CREATE TABLE kafka_sink (
     'format' = 'json'
 );
 
-INSERT INTO kafka_sink SELECT count(*), store_order_id
+INSERT INTO kafka_sink SELECT count(*), store_id
 FROM orders
-GROUP BY store_order_id, hop(interval '2 seconds', interval '10 seconds');
+GROUP BY store_id, hop(interval '2 seconds', interval '10 seconds');
 ```
 
 <Tip>
