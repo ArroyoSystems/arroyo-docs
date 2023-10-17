@@ -27,7 +27,7 @@ The value is a URL pointing to the destination directory. The most common exampl
 
 ### Additional Backend Configuration
 
-StorageBackends, Arroyo's generalization of an object store, can now be passed additional arguments when instantiated.
+StorageBackends, Arroyo's generalization of an object store, can be passed additional arguments when instantiated.
 Currently this is only supported for S3-API based backends (including MinIO), and are namespaced with "storage." at the beginning.
 This allows you to pass in custom endpoints, credentials, and regions. The most common options are listed below.
 
@@ -58,7 +58,7 @@ Parquet has a few supported options. Please reach out if you'd like to expand th
 | `parquet_row_group_size` | The maximum number of rows to write per row group | `1000000` | `100000` |
 
 ### Partitioning Options
-Arroyo now supports partitioning of outputs. There are two types of partitioning: event time-based and field-based.
+Arroyo supports partitioning of outputs. There are two types of partitioning: event time-based and field-based.
 You can use either or both of these types of partitioning.
 If both are used, the time-based partitioning is placed prior to the field-based partitioning.
 
