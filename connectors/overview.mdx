@@ -114,11 +114,12 @@ sink. Refer for the [FileSystem sink docs](/connectors/filesystem) for details.
 
 ## Framing
 
-The framing configuration for a source determines how messages read from the source
-are split into records for processing. By default, this is set to `none`, which
-means that the source will emit a single record for each message it reads. This is
-particularly useful for sources—like HTTP endpoints—that do not have their own
-framing protocol.
+The framing configuration for a source determines how messages read from the
+source are split into records for processing. This is particularly useful for
+sources—like HTTP endpoints—that do not have their own framing protocol.
+
+By default, the framing is `none`, which means that the source will emit a
+single record for each message it reads.
 
 Framing is configured via the `framing` option when creating a SQL table. Currently
 only `newline` is supported, which splits the input on newlines.
