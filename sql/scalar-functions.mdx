@@ -414,20 +414,13 @@ The JSON functions provide basic json parsing functions using
 [JsonPath](https://goessner.net/articles/JsonPath/) an evolving standard for
 querying JSON objects.
 
-### get_json_objects
+### extract_json
+
 Returns the JSON elements in the first argument that match the JsonPath in the second argument.
 The returned value is an array of json strings.
 ```sql
-SELECT get_json_objects('{"a": 1, "b": 2, "c": 3}', '$.a') FROM source;
+SELECT extract_json('{"a": 1, "b": 2, "c": 3}', '$.a') FROM source;
 ['1']
-```
-
-### get_first_json_object
-Returns the first json object the first argument that matches the JsonPath in the second argument.
-It is returned as a json string.
-```sql
-SELECT get_first_json_object('{"a": "a", "b": 2, "c": 3}', '$.a') FROM source;
-'\"a\"'
 ```
 
 ### extract_json_string
@@ -435,4 +428,33 @@ Returns an unescaped String for the first item matching the JsonPath, if it is a
 ```sql
 SELECT extract_json_string('{"a": "a", "b": 2, "c": 3}', '$.a') FROM source;
 'a'
+```
+
+---
+
+## Regex Functions
+
+Arroyo supports several regex functions. Regex functions are implemented using
+the [regex](https://docs.rs/regex/latest/regex/index.html/) crate and support
+the syntax documented there.
+
+For more complex regex operations, consider using the regex library directly
+via a [Rust UDF](/sql/udfs).
+
+### regexp_match
+
+Returns all matches of the regex in the string as an array of strings.
+
+```sql
+SELECT regexp_match('there are 5 words here', '\[a-z]+') FROM source;
+['there', 'are', 'words', 'here']
+```
+
+### regexp_replace
+
+Replaces all matches of the regex in the string with the replacement string.
+
+```sql
+SELECT regexp_replace('this is a   sentence', '\s+', '_') FROM source;
+'this_is_a_sentence'
 ```
