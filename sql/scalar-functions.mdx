@@ -443,11 +443,13 @@ via a [Rust UDF](/sql/udfs).
 
 ### regexp_match
 
-Returns all matches of the regex in the string as an array of strings.
+Returns capture groups (parenthesized expressions) of the first match of a
+regular expression on the string as an array. If no capture groups are present,
+the entire match is returned.
 
 ```sql
-SELECT regexp_match('there are 5 words here', '\[a-z]+') FROM source;
-['there', 'are', 'words', 'here']
+SELECT regexp_match('https://www.example.com/page/path', '(https?)://(^[/]+)/(.*)') FROM source;
+['https', 'www.example.com', 'page/path']
 ```
 
 ### regexp_replace
