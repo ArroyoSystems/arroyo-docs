@@ -13,17 +13,30 @@ allowing Arroyo to resume an in-progress upload in the event of a failure.
 
 The file system sink is currently only configurable through SQL,
  using the [SQL DDL](/sql/ddl) syntax.
- The connector name is `filesystem` and there are several additional options
+ The connector name is `filesystem`, and there are several additional options
  
  ### Destination Options
-A destination is required to write to. This will either be a URI that points to a local or remote filesystem, 
-or a triple of S3 bucket, S3 directory, and AWS region. The latter will more reliably pick up your default AWS credentials.
- | Field | Description | Required | Example |
- | ----- | ----------- | -------- | ------- |
- | `path` | A URI to the target destination | No | `file:///test-data/my-cool-arroyo-pipeline`, `https://s3.us-west-2.amazonaws.com/awesome-arroyo-bucket/amazing-arroyo-dir` |
- | `s3_bucket` | The S3 bucket to write to | No | `awesome-arroyo-bucket` |
- | `s3_directory` | The S3 directory to write to | No | `amazing-arroyo-dir` |
- | `aws_region`| The AWS region to write to | No | `us-west-2` |
+A filesystem sink must have a `path` variable set in the `WITH` clause of the `CREATE TABLE` statement.
+The value is a URL pointing to the destination directory. The most common examples are shown below.
+ |  Description | Example |
+ |  ----------- | ------- |
+ | Local file | `file:///test-data/my-cool-arroyo-pipeline`|
+ | S3 Path | `s3://awesome-arroyo-bucket/amazing-arroyo-dir` |
+ | S3 HTTP Endpoint| `https://s3.us-west-2.amazonaws.com/awesome-arroyo-bucket/amazing-arroyo-dir`|
+ | Local MinIO installation | `s3://http://localhost:9123/local_bucket/sweet-dir` |
+
+### Additional Backend Configuration
+
+StorageBackends, Arroyo's generalization of an object store, can be passed additional arguments when instantiated.
+Currently this is only supported for S3-API based backends (including MinIO), and are namespaced with "storage." at the beginning.
+This allows you to pass in custom endpoints, credentials, and regions. The most common options are listed below.
+
+| Field | Description | Example |
+| ----- | ----------- | ------- |
+| `storage.aws_region` | Manually set the AWS region | `us-east-1` |
+| `storage.aws_endpoint` | Manually set the AWS endpoint | `https://s3-custom-endpoint.com` |
+| `storage.aws_secret_access_key` | Manually set the AWS secret access key | `your-secret-key` |
+| `storage.aws_access_key_id` | Manually set the AWS access key ID | `your-access-key-id` |
 
 ### Output File Options
 | Field | Description | Default | Example |
@@ -44,21 +57,44 @@ Parquet has a few supported options. Please reach out if you'd like to expand th
 | `parquet_row_batch_size` | The maximum number of rows to write per record batch | `10000` | `100`|
 | `parquet_row_group_size` | The maximum number of rows to write per row group | `1000000` | `100000` |
 
+### Partitioning Options
+Arroyo supports partitioning of outputs. There are two types of partitioning: event time-based and field-based.
+You can use either or both of these types of partitioning.
+If both are used, the time-based partitioning is placed prior to the field-based partitioning.
+
+#### Event Time-based Partitioning
+Event time partitioning uses each record's event_time, formatting it using a strftime-style formatting string.
+You can set the `time_partition_pattern` key in the sink to define the pattern.
+
+Example:
+`time_partition_pattern = '%Y/%m/%d/%H'`
+
+#### Field-based Partitioning
+Field-based formatting produces a string mirroring the Hive-style partition directories,
+so partitioning on field_1, field_2 will result in folders like `field_1=X/field_2=Y`.
+ You can set the `partition_fields` key in the sink to define the partition fields.
+
+Example:
+`partition_fields = 'field_1,field_2'`
 
 ## File System Sink DDL
 
-Here's an example for how to create a table to write parquet to S3:
+Here's an example for how to create a table to write parquet to S3 with partitioning:
 ```sql
 CREATE TABLE bids (
   auction bigint,
   bidder bigint,
   price bigint,
-  datetime timestamp
+  datetime timestamp,
+  region text,
+  account_id text
 ) WITH (
   connector = 'filesystem',
   path = 'https://s3.us-west-2.amazonaws.com/demo/s3-uri',
   format = 'parquet',
   parquet_compression = 'zstd',
-  rollover_seconds = '60'
+  rollover_seconds = '60',
+  time_partition_pattern = '%Y/%m/%d/%H',
+  partition_fields = 'region,account_id'
 );
 ```
