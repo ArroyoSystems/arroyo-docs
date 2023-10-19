@@ -37,7 +37,7 @@ A Kafka connection has several required and optional fields:
 | type | The type of table (either 'source' or 'sink') | Yes | `source` |
 | source.offset | The offset to start reading from (either 'earliest' or 'latest') | No | `earliest` |
 | source.read_mode | The read mode to use. 'read_committed' only reads committed Kafka messages, while 'read_uncommitted' will read all messages.  | No | `read_committed` |
-| group_id | For sources, sets the Kafka consumer group to use; note that using the same group for multiple pipelines will result in each pipeline seeing only a subset of the data | No | `my-group` |
+| source.group_id | For sources, sets the Kafka consumer group to use; note that using the same group for multiple pipelines will result in each pipeline seeing only a subset of the data | No | `my-group` |
 | sink.commit_mode | The commit mode to use (either 'exactly_once' or 'at_least_once') | No | `exactly_once` |
 
 
