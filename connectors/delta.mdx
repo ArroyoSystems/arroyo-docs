@@ -1,0 +1,19 @@
+---
+title: Delta Lake Sink
+description: "Write Parquet files to a Delta Lake Table"
+---
+
+Data from Arroyo can be written to a Delta Lake table using the `delta` sink.
+This sink shares most of its code with the [File System Sink](/connectors/filesystem),
+and as such, it supports all of the same configuration options.
+
+However, it has the following constraints:
+* The `format` option must be set to `parquet`, as Delta Lake only supports Parquet files.
+* Delta can only be used as a sink, not a source.
+* Partitioning not integrated with the delta log.
+
+## Commit Behavior
+Arroyo commits to Delta Lake tables using the same two-phase commit protocol as the File System Sink.
+This means that the data will only be visible to readers once the commit has completed successfully.
+Idempotence is ensured by validating the table version before appending and if different than expected checking all 
+intervining versions to ensure that the data was not already added.
