@@ -12,8 +12,23 @@ However, it has the following constraints:
 * Delta can only be used as a sink, not a source.
 * Partitioning not integrated with the delta log.
 
+## Example query
+```sql
+CREATE TABLE delta_sink (
+    id INTEGER,
+    name STRING,
+    age INTEGER
+) WITH (
+    'connector' = 'delta',
+    'path' = 's3://my_bucket/my_table',
+    'format' = 'parquet',
+    'filename.strategy' = 'uuid'
+);
+INSERT INTO delta_sink SELECT id, name, age FROM my_source;
+```
+
 ## Commit Behavior
 Arroyo commits to Delta Lake tables using the same two-phase commit protocol as the File System Sink.
-This means that the data will only be visible to readers once the commit has completed successfully.
-Idempotence is ensured by validating the table version before appending and if different than expected checking all 
-intervining versions to ensure that the data was not already added.
+The files to be written are staged and then committed after taking a reliable checkpoint.
+Idempotence is ensured by validating the table version before appending and, if different than expected,
+checking all intervining versions to ensure that the data was not already added.

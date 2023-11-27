@@ -49,6 +49,14 @@ only one of these, while others support both.
 See the individual connector docs for details on on their capabilities and how
 to configure them in Arroyo.
 
+## Connection Profiles
+For some connectors, Arroyo supports _connection profiles_,
+which allow you to define common connection details once and use it across multiple connections.
+Currently the [Kafka](/connectors/kafka),
+[Redis](/connectors/redis) and [Kinesis](/connectors/kinesis) connectors support connection profiles.
+In SQL, you can specify a connection profile via the `connection_profile` option in the `WITH` clause.
+Additionally, SQL users can manually specify the various options via the WITH clause.
+
 ## Connection formats
 
 Some connectors support arbitrary data formats, while others have a fixed format defined
