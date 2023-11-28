@@ -3,20 +3,18 @@ title: File System
 description: "Write Parquet and JSON to S3 and local filesystems"
 ---
 
-Arroyo provides the capability to write Parquet and JSON files to S3 and local filesystems.
-This will produce complete files in line with the checkpointing system.
+Arroyo provides the capability to read write Parquet and JSON files to S3 and local filesystems.
+When used as a sink arroyo will produce complete files in line with the checkpointing system.
 As such, the file system sinks write all data exactly once.
 This is done against S3 by tracking multi-part uploads within the state store, 
 allowing Arroyo to resume an in-progress upload in the event of a failure.
 
-## Configuring the File System Sink
+As a source Arroyo reads all files to completion, at which point the job will finish.
 
-The file system sink is currently only configurable through SQL,
- using the [SQL DDL](/sql/ddl) syntax.
- The connector name is `filesystem`, and there are several additional options
- 
- ### Destination Options
-A filesystem sink must have a `path` variable set in the `WITH` clause of the `CREATE TABLE` statement.
+## Common Configuration
+Both the source and sink versions of the connector make use of Arroyo's StorageBackend, 
+which is a generalization of an object store.
+The location within the StorageBackend is configured via the `path` variable in the `WITH` clause of the `CREATE TABLE` statement.
 The value is a URL pointing to the destination directory. The most common examples are shown below.
  |  Description | Example |
  |  ----------- | ------- |
@@ -27,7 +25,7 @@ The value is a URL pointing to the destination directory. The most common exampl
 
 ### Additional Backend Configuration
 
-StorageBackends, Arroyo's generalization of an object store, can be passed additional arguments when instantiated.
+The StorageBackend can be passed additional configuration options.
 Currently this is only supported for S3-API based backends (including MinIO), and are namespaced with "storage." at the beginning.
 This allows you to pass in custom endpoints, credentials, and regions. The most common options are listed below.
 
@@ -38,6 +36,11 @@ This allows you to pass in custom endpoints, credentials, and regions. The most 
 | `storage.aws_secret_access_key` | Manually set the AWS secret access key | `your-secret-key` |
 | `storage.aws_access_key_id` | Manually set the AWS access key ID | `your-access-key-id` |
 
+### Format
+Both sources and sinks require a format, and support `parquet` and `json`.
+
+## Sink Specific Configuration
+
 ### Output File Options
 | Field | Description | Default | Example |
 | ----- | ----------- | -------- | ------- |
@@ -46,7 +49,6 @@ This allows you to pass in custom endpoints, credentials, and regions. The most 
 | `max_parts` | Maximum number of multipart uploads | `1000` | `50` |
 | `rollover_seconds` | Number of seconds a file will be open before it is closed and a new file is opened | `30` | `3600` |
 | `inactivity_rollover_seconds` | Number of seconds a file will be open without any new data before it is closed and a new file is opened | `None` | `600` |
-| `format` | The format to write the data in. Supported values: `parquet`, `json` | Required | `json` |
 
 #### File Naming Options
 By default Arroyo writes sequential files, tracking a max_file_index as well as including the subtask.
@@ -87,6 +89,14 @@ so partitioning on field_1, field_2 will result in folders like `field_1=X/field
 Example:
 `partition_fields = 'field_1,field_2'`
 
+## Source Specific Configuration
+When using the file system source, the following options are available
+| Field | Description | Default | Example |
+| ----- | ----------- | -------- | ------- |
+| compression_format | The compression format of the files to read. Supported values: `none`, `zstd`, `gzip`. Only used for JSON input | `none` | `gzip` |
+| source.regex-pattern | A regex pattern to match files to read. If specified all files within the path will be evaluated against pattern. If not specified only files directly under the path will be read.  | None | `.*\.json` |
+
+
 ## File System Sink DDL
 
 Here's an example for how to create a table to write parquet to S3 with partitioning:
@@ -106,5 +116,24 @@ CREATE TABLE bids (
   rollover_seconds = '60',
   time_partition_pattern = '%Y/%m/%d/%H',
   partition_fields = 'region,account_id'
+);
+```
+
+## File System Source DDL
+
+Here's an example for how to create a table to read parquet from S3:
+```sql
+CREATE TABLE bids (
+  auction bigint,
+  bidder bigint,
+  price bigint,
+  datetime timestamp,
+  region text,
+  account_id text
+) WITH (
+  connector = 'filesystem',
+  path = 'https://s3.us-west-2.amazonaws.com/demo/s3-uri',
+  format = 'parquet',
+  'source.regex-pattern' = '.*\.parquet$'
 );
 ```
