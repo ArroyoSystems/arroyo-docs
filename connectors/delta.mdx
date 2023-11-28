@@ -31,4 +31,4 @@ INSERT INTO delta_sink SELECT id, name, age FROM my_source;
 Arroyo commits to Delta Lake tables using the same two-phase commit protocol as the File System Sink.
 The files to be written are staged and then committed after taking a reliable checkpoint.
 Idempotence is ensured by validating the table version before appending and, if different than expected,
-checking all intervining versions to ensure that the data was not already added.
+checking all intervening versions to ensure that the data was not already added.
