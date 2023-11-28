@@ -48,6 +48,16 @@ This allows you to pass in custom endpoints, credentials, and regions. The most 
 | `inactivity_rollover_seconds` | Number of seconds a file will be open without any new data before it is closed and a new file is opened | `None` | `600` |
 | `format` | The format to write the data in. Supported values: `parquet`, `json` | Required | `json` |
 
+#### File Naming Options
+By default Arroyo writes sequential files, tracking a max_file_index as well as including the subtask.
+However, there are several alternate naming schemes available.
+
+| Field | Description | Default | Example |
+| ----- | ----------- | -------- | ------- |
+| `filename.prefix` | Prefix that will be appended to the beginning of the file name, followed by a `-` | `None` | `my-prefix` |
+| `filename.suffix` | Suffix that will be appended to the end of the file name, preceded by a `-` | `None` | `my-suffix` |
+| `filename.strategy` | Filenaming strategy to use. Supported values: `serial`, `uuid` | `serial` | `uuid` |
+
 ### Parquet Options
 Parquet has a few supported options. Please reach out if you'd like to expand the settings allowed.
 
