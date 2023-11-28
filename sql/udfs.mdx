@@ -23,6 +23,28 @@ Once registered, this can be used in SQL queries:
 SELECT my_square(auction.bid) FROM nexmark
 ```
 
+## Dependencies
+
+UDFs can depend on external crates.
+To add dependencies, you can define a special comment in the UDF definition like this:
+```rust
+/*
+[dependencies]
+regex = "1.10.2"
+*/
+
+use regex::Regex;
+
+fn my_regex_matches(s: String) -> bool {
+    let re = Regex::new(r"test").unwrap();
+    re.is_match(&s)
+}
+```
+
+Internally, the contents of the `[dependencies]` comment are used to generate a `Cargo.toml` file for the UDF.
+See the [Cargo.toml reference](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html)
+for more details on the syntax.
+
 ## Nullability
 
 Nullability handling is controlled via the type signature of the UDF parameters and return types. If a parameter is

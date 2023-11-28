@@ -188,6 +188,11 @@ For example it's now possible to write a UDF that produces complex, nested JSON 
 Arroyo's table schemas can't represent. For example:
 
 ```rust
+/*
+[dependencies]
+serde_json = "1.0"
+*/
+
 fn my_to_json(f: f64) -> String {
     let v = serde_json::json!({
         "my_complex": {

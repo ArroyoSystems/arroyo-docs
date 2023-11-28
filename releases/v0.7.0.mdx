@@ -130,6 +130,12 @@ This relies on the following UDFs:
 <details>
 <summary>`fn parse_prom(s: String) -> Option<String>`</summary>
 ```rust
+/*
+[dependencies]
+regex = "1.10.2"
+serde_json = "1.0"
+*/
+
 fn parse_prom(s: String) -> Option<String> {
     let regex = regex::Regex::new(r"(?P<metric_name>\w+)\{(?P<labels>[^}]+)\}\s+(?P<metric_value>[\d.]+)").unwrap();
     let label_regex = regex::Regex::new(r##"(?P<label>[^,]+)="(?P<value>[^"]+)""##).unwrap();
