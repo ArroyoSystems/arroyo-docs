@@ -3,26 +3,24 @@ title: Architecture
 description: "Overview of the Arroyo architecture"
 ---
 
-## Architecture overview
-
 The Arroyo system architecture is composed of several services, as can be seen in the following diagram:
 
 ![Arroyo Architecture](/images/arroyo_arch.png)
 
-### web ui
+## Web UI
 
-The web ui is a single-page app written in react that interacts with the system via the [REST API](api-reference/overview).
+The Web UI is a single-page app written in react that interacts with the system via the [REST API](api-reference/overview).
 It allows users to configure the system, create pipelines, and monitor their statuses.
 
-### arroyo-api
+## Arroyo API
 
-The API server backs the web ui and handles all configuration operations and pipeline management via the [REST API](api-reference/overview).
+The API server backs the Web UI and handles all configuration operations and pipeline management via the [REST API](api-reference/overview).
 
 API operations, like creating a pipeline or updating its state operate soley by updating the configuration in
 the postgres database. This is asynchronously applied to the actual state of the environment by the controller. The API
 itself is stateless and does not communicate with the rest of the system except via the database.
 
-### arroyo-controller
+## Arroyo Controller
 
 The controller runs a control loop that continuously reconciles the desired state of the system (as defined in the database)
 with the actual state of the system, as determined by monitoring the environment. This is similar to a Kubernetes
@@ -36,33 +34,33 @@ The controller manages a state machine for each job, which is documented [here](
 for initiating checkpoints on the workers. Communication between the controller and workers is done via the gRPC API
 defined in [rpc.proto](https://github.com/ArroyoSystems/arroyo/blob/master/arroyo-rpc/proto/rpc.proto).
 
-### schedulers
+## Schedulers
 
 Arroyo supports multiple schedulers, which are responsible for running the workers that make up the dataflow engine.
 The scheduler can be set by setting the `SCHEDULER` environment variable for the controller.
 
-#### process
+### Process Scheduler
 
 The process scheduler is the default, and is most useful for local development. In this mode, the controller will spawn
 processes locally to run the workers.
 
-#### node
+### Node Scheduler
 
 Arroyo comes with a lightweight scheduler and node runtime for running distributed workers. In this mode, you must start
 some number of arroyo-node processes (for example, in an autoscaling group) and configure them with the controller's
 address. The controller will then schedule workers on these nodes.
 
-#### nomad
+### Nomad Scheduler
 
 Arroyo can also be configured to schedule workers on a [Nomad](https://www.nomadproject.io/) cluster. This is currently
 the recommended mode for production usage, and is what we run in production for [Arroyo Cloud](https://arroyo.dev/).
 
-#### kubernetes
+### Kubernetes Scheduler
 
 Arroyo can be deployed to [Kubernetes](https://kubernetes.io/) and configured to schedule workers on the cluster.
 See more details [here](/deployment/kubernetes).
 
-### arroyo-worker
+## Arroyo Worker
 
 Workers run the actual processing logic, making up the dataplane. Workers run a binary that is produced by linking
 Rust code generated from the SQL query with the arroyo-worker library. Workers within the same pipeline are connected
@@ -73,23 +71,23 @@ job of balancing the load across workers.
 The controller is responsible for scheduling the necessary number of workers to run a pipeline, initiating checkpoints,
 monitoring their health, and recovering from failures.
 
-### postgres
+## Postgres
 
 Arroyo uses Postgres to store configuration (sources, connections, sinks, pipelines, etc) and the status of the system.
 This drives the API, and is also used by the controller to drive the reconciliation loop.
 
-### prometheus
+## Prometheus
 
-Arroyo uses Prometheus for metrics collection. This powers the metrics dashboard in the web ui. It also relies on the
-prometheus pushgateway to collect metrics from workers.
+Arroyo uses Prometheus for metrics collection. This powers the metrics dashboard in the Web UI. It also relies on the
+Prometheus Pushgateway to collect metrics from workers.
 
-### S3
+## S3
 
 Checkpoints are stored on S3 for recovery.
 
 ## Job State Machine
 
-Jobs are managed via a statemachine that is implemented in the controller:
+Jobs are managed via a state machine that is implemented in the controller:
 
 ![Job State Machine](/images/diagrams/state_machine.d2.svg)
 
