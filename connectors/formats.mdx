@@ -46,9 +46,10 @@ Unstructured data is treated as a single column named `value` with type `TEXT`, 
 data applications. Avro is a schema-based format, and requires readers and writers to
 have access to the schema in order to read and write data.
 
-Avro is well-supported by the Kafka ecosystem and the
+Avro is well-supported by the Kafka ecosystem where the
 [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html),
-is a popular choice for storing and serving Avro schemas. Arroyo has deep support for the Schema Registry.
+is a popular choice for storing and serving Avro schemas. Aroryo is able to read and write
+Avro schemas from the Schema Registry.
 
 The following options are supported:
 
@@ -59,10 +60,10 @@ The following options are supported:
 | `avro.raw_datums` | Set to true to serialize and deserialize as raw Avro datums instead of complete Avro records | `false` |
 | `avro.into_unstructured_json` | Convert the avro record to JSON | `false` |
 
-Avro data can be serialized/deserilaized in two ways:
+Avro data can be serialized/deserialized in two ways:
 
-* As a complete Avro document, which includes the schema and metadata
 * As a raw Avro datum, which is just the data itself
+* As a complete Avro document, which includes the schema and metadata
 
 In the former mode, applications reading from the data will need to have access to the exact schema
 used to write the data. This is the mode used for Confluent Schema Registry, as that provides a mechanism
@@ -73,7 +74,7 @@ without additional context. However, this is fairly inefficient as the schema wi
 record.
 
 The `avro.into_unstructured_json` option, if set, will cause the Avro data to be deserialized and re-serialized
-to JSON, which can then be operated on using [SQL json functions](/sql/scalar-functions#json-functions) or UDFs.
+to JSON, which can then be operated on using [SQL json functions](/sql/scalar-functions#json-functions) or [UDFs](/sql/udfs).
 This can be useful if the Avro schema for the data may change, and offers flexibility in how the data is
 processed.
 
@@ -90,7 +91,7 @@ other applications that read from the same topic.
 
 Raw string data is treated as a single column named `value` with type `TEXT`,
 and can be operated on using
-[SQL string functions](/sql/scalar-functions#string-functions) or UDFs.
+[SQL string functions](/sql/scalar-functions#string-functions) or [UDFs](/sql/udfs).
 
 Raw string is supported for both deserialization (from sources) and serialization
 (to sinks). As a serialization format, it can be useful for generating data in formats
