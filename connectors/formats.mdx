@@ -98,6 +98,11 @@ Raw string is supported for both deserialization (from sources) and serializatio
 that Arroyo does not support natively, for example via UDFs:
 
 ```rust
+/*
+[dependencies]
+serde_json = "1.0"
+*/
+
 fn my_to_json(f: f64) -> String {
     let v = serde_json::json!({
         "my_complex": {
