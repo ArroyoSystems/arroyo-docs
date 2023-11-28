@@ -69,6 +69,7 @@
           "connectors/overview",
           "connectors/formats",
           "connectors/blackhole",
+          "connectors/delta",
           "connectors/filesystem",
           "connectors/fluvio",
           "connectors/impulse",
