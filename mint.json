@@ -67,6 +67,7 @@
       "group": "Connectors",
       "pages": [
           "connectors/overview",
+          "connectors/formats",
           "connectors/blackhole",
           "connectors/filesystem",
           "connectors/fluvio",
