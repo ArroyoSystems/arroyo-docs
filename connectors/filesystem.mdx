@@ -47,6 +47,7 @@ This allows you to pass in custom endpoints, credentials, and regions. The most 
 | `rollover_seconds` | Number of seconds a file will be open before it is closed and a new file is opened | `30` | `3600` |
 | `inactivity_rollover_seconds` | Number of seconds a file will be open without any new data before it is closed and a new file is opened | `None` | `600` |
 | `format` | The format to write the data in. Supported values: `parquet`, `json` | Required | `json` |
+
 #### File Naming Options
 by default Arroyo writes sequential files, tracking a max_file_index as well as including the subtask.
 However, there are several alternate naming schemes available.
