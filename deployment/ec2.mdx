@@ -57,14 +57,14 @@ in the [overview](/deployment/overview#storage).
 
 ### Prometheus
 
-Prometheus is required for the web UI metrics support. All arroyo services run a Prometheus exporter on their admin HTTP
+Prometheus is required for the Web UI metrics support. All Arroyo services run a Prometheus exporter on their admin HTTP
 port (8001 for the API, and 9191 for the controller) at `/metrics`.
 
 The workers rely on the Prometheus pushgateway to produce metrics. You will need to run a pushgateway instance on the
-nodes that run the arroyo workers at the default endpoint of `localhost:9091`, and you will need to configure your
+nodes that run the Arroyo workers at the default endpoint of `localhost:9091`, and you will need to configure your
 prometheus instance to scrape the pushgateways.
 
-## Scheduler
+## Schedulers
 
 ### arroyo-node
 
