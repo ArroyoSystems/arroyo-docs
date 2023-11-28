@@ -218,7 +218,7 @@ GROUP BY store_id, hop(interval '2 seconds', interval '10 seconds');
 ## Inserting into a Kafka sink
 
 There are two ways to create connections in Arroyo. Previously we created a
-Kafka source connection via the web UI, and now we're going to create a Kafka
+Kafka source connection via the Web UI, and now we're going to create a Kafka
 sink via SQL.
 
 Connections (sources and sinks) are modeled in SQL as tables, so we can create
@@ -295,4 +295,4 @@ $ bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic results
 ```
 
 When you're done, hit "Stop" to stop the pipeline. You may also want to stop
-the datagen connector, which you can do in the confluent web ui.
+the datagen connector, which you can do in the Confluent Web UI.
