@@ -5,7 +5,7 @@ description: "No-op sink that swallows all data"
 
 The Blackhole sink is a no-op sink that swallows all data. It is most useful
 for testing and benchmarking purposes, where the overhead of a real sink is
-undeseriable.
+undesirable.
 
 ## Configuring the Connection
 
@@ -13,13 +13,13 @@ Blackhole sinks can be created via the Web UI or directly in SQL.
 
 Blackhole connections have no options.
 
+As blackhole connections throw away the data, you can generally rely on
+[schema inference](/sql/ddl#schema-inference) when creating the table.
+
 For example, in SQL:
 
 ```sql
-CREATE TABLE blackhole (
-    id TEXT,
-    count BIGINT
-)
+CREATE TABLE blackhole
 WITH (
     connector = 'blackhole'
 );

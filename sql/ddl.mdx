@@ -36,16 +36,17 @@ CREATE TABLE orders (customer_id INT, order_id INT);
 ### CREATE TABLE (Connection)
 
 Connection tables allow Arroyo to read and write to external systems like Kafka
-clusters. Connections tables may be used as sources, sinks, or both depending on
+clusters. Connections tables may be used as sources or sinks depending on
 the type of connection. For details on all of the supported connectors, see the
 [Connectors](/connectors) docs. Connection tables can be created via the
 Connections tabs of the Web UI, or directly in SQL via the `CREATE TABLE`
 statement.
 
-Connection tables are created via special `CREATE TABLE` statements that
-include a `WITH` clause. The `WITH` clause specifies the connector, the format
-that the data is encoded with, and various other options that are specific to
-the connector. The general form of the statement is:
+Connection tables are created via special `CREATE TABLE` statements that include
+a `WITH` clause. The `WITH` clause specifies the connector, the
+[format](/connectors/formats) that the data is encoded with, and various other
+options that are specific to the connector, as documented on the individual
+connector pages. The general form of the statement is:
 
 ```sql
 CREATE TABLE <table name> (
@@ -53,6 +54,7 @@ CREATE TABLE <table name> (
 ) WITH (
   connector = '<connector name>',
   format = '<format name>',
+  [format options]
   [connection options]
 )
 ```
@@ -62,11 +64,8 @@ format is one of:
 
 * `json`
 * `debezium_json`
-* `protobuf`
 * `avro`
 * `raw_string`
-
-(note protobuf and avro support are still in progress).
 
 For example, to create a Kafka source for the topic `order_topic`:
 
@@ -87,6 +86,48 @@ CREATE TABLE orders (
   watermark_field = 'watermark'
 );
 ```
+
+#### Schema inference
+
+When creating a connection table, you can specify the schema explicitly by listing
+fields in the CREATE TABLE statement, or you can let Arroyo infer the schema from
+how it's used. This is mostly relevant for sinks, where the schema can be inferred
+from the query that writes to the table.
+
+For example, a Kafka sink could be created like this
+
+```sql
+CREATE TABLE results WITH (
+  connector = 'kafka',
+  format = 'json',
+  type = 'sink',
+  bootstrap_servers = 'localhost:9092',
+  topic = 'results'
+);
+```
+
+and written to like this
+
+```sql
+INSERT INTO results
+SELECT customer_id as customer_id, count(*) as count
+FROM orders
+GROUP BY customer_id, TUMBLE(INTERVAL '1' HOUR);
+```
+
+That will result in records like this being written to the `results` topic
+
+```json
+{"customer_id": 1, "count": 10}
+{"customer_id": 2, "count": 5}
+```
+
+Schema-inferred sinks can also be created in the Web UI by selecting the "infer schema"
+option when creating the table.
+
+Note that when relying on schema inference, the column names will be determined
+by the query, so you will generally want to alias them using `as` to ensure they
+are what you expect.
 
 
 #### Options
