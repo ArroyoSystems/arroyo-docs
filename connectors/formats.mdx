@@ -21,7 +21,7 @@ The following options are supported for both formats:
 
 | Option | Description | Default |
 | ------ | ----------- | ------- |
-| `format` | The format of the data. May be one of `json` or `debezium_json` | `json` |
+| `format` | The format of the data. Must be one of `json` or `debezium_json`. | `json` |
 | `json.confluent_schema_registry` | Set to true if data was produced by (or will be consumed via) a [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) connected source | `false` |
 | `json.include_schema` | Set to true to include the schema in the output, allowing it to be used with Kafka Connect connectors that require a schema | `false` |
 | `json.unstructured` | Set to true to treat the data as unstructured JSON, which will be parsed as a single column of type `TEXT` | `false` |

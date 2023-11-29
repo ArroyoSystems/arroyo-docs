@@ -1,8 +1,9 @@
 ---
-name: Release v0.7.0
+title: v0.7.0
 description: Release 0.7.0 of Arroyo
 ---
 
+*This release notes are also available on the [Arroyo blog](https://www.arroyo.dev/blog/arroyo-0-7-0).*
 
 # Overview
 
@@ -127,8 +128,6 @@ select sum(usage) from (
 
 This relies on the following UDFs:
 
-<details>
-<summary>`fn parse_prom(s: String) -> Option<String>`</summary>
 ```rust
 /*
 [dependencies]
@@ -161,10 +160,7 @@ fn parse_prom(s: String) -> Option<String> {
     }).to_string())
 }
 ```
-</details>
 
-<details>
-<summary>`fn rate(values: Vec<f32>) -> Option<f32>`</summary>
 ```rust
 fn rate(values: Vec<f32>) -> Option<f32> {
     let start = values.first()?;
@@ -173,7 +169,6 @@ fn rate(values: Vec<f32>) -> Option<f32> {
     Some((end - start) / 60.0)
 }
 ```
-</details>
 
 ---
 
@@ -368,8 +363,6 @@ open it, and includes a set of example queries to get you started. The example
 queries can be found by clicking the "book" icon in the top right of the
 create pipeline screen.
 
-<img src="/posts/arroyo-0-7-0/examples.png" />
-
 
 * Add example queries and short welcome tour by
   [@jbeisen](https://github.com/jbeisen) in
@@ -381,8 +374,6 @@ create pipeline screen.
 When writing Rust UDFs, it's easy to end up with compiler errors as you're developing. Arroyo
 now checks UDFs for errors before starting the pipeline, and will show you the errors in the
 console:
-
-<img src="/posts/arroyo-0-7-0/udf-error.png" />
 
 * Run cargo check on udfs by [@jbeisen](https://github.com/jbeisen) in [#359](https://github.com/ArroyoSystems/arroyo/pull/359)
 

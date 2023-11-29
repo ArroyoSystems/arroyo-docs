@@ -46,11 +46,21 @@ Each subtask may be scheduled independently. If two communicating subtasks are s
 dataflow is performed via in-memory queues; otherwise the dataflow is perofrmed via Arroyo's network stack which forms
 a logical NxN connection between every communicating subtask.
 
+## Streaming SQL
+
+Arroyo pipelines are written using analytical SQL with a few extensions to support streaming semantics. See
+our [What is streaming SQL?](https://www.arroyo.dev/blog/what-is-streaming-sql) blog post for a deep dive into
+the semantics of streaming SQL, and the [SQL docs](/sql) for a detailed description of the language.
+
+Arroyo's SQL support is built on top of the [Arrow DataFusion](https://arrow.apache.org/datafusion/) project,
+which is responsible for parsing and planning SQL before we compile it into a streaming dataflow for execution.
+
 ## Timely processing
 
-Arroyo supports timely processing, following the model described in the
-[Google Dataflow paper](https://research.google.com/pubs/pub43864.html). A brief overview of the model will be covered
-here, but a more in depth explanation can be found in
+Arroyo supports time-oriented processing, inspired by the model described in the
+[Google Dataflow paper](https://research.google.com/pubs/pub43864.html). A brief
+overview of the model will be covered here, but a more in depth explanation can
+be found in
 [this article](https://www.oreilly.com/radar/the-world-beyond-batch-streaming-101/).
 
 ### Event time
@@ -98,12 +108,3 @@ The algorithm for consistent checkpointing is based on the
 classic [Chandy-Lamport](https://en.wikipedia.org/wiki/Chandy-Lamport_algorithm) algorithm.
 
 Checkpoints are written to S3 so that we can recover from machine failures, and are stored in Parquet format.
-
-## SQL
-
-Arroyo runs pipelines written in SQL. Producing a dataflow from a SQL query involves several steps:
-
-1. First, the query is parsed and planned via [Datafusion](https://github.com/apache/arrow-datafusion)
-2. Next, the query plan is compiled into an Arroyo logical dataflow plan
-3. Then we generated Rust code representing the operations of that logical plan
-4. The Rust code is compiled into a binary that will run on the Arroyo worker nodes
