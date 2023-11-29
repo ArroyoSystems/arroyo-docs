@@ -12,7 +12,7 @@ not currently supported, please get in touch with the team on Discord or via Git
 | Name | Source | Sink | Availability |
 | ---- | ------ | ---- | ----|
 | [Blackhole](/connectors/blackhole) | No | Yes | OSS |
-| [Filesystem](/connectors/filesystem) | No | Yes | OSS |
+| [Filesystem](/connectors/filesystem) | Yes | Yes | OSS |
 | [Fluvio](/connectors/fluvio) | Yes | Yes | OSS |
 | [Impulse](/connectors/impulse) | Yes | No | OSS |
 | [Kafka](/connectors/kafka) | Yes | Yes | OSS |
@@ -107,15 +107,10 @@ schema definition, some of which are also associated with a particular data
 format:
 
 * [Json Schema](https://json-schema.org/)
-* [Avro](https://avro.apache.org/docs/current/spec.html) (in progress)
+* [Avro](https://avro.apache.org/docs/current/spec.html)
 * [Protobuf](https://developers.google.com/protocol-buffers) (in progress)
 
-JSON sources may also be configured as `Raw Json`, which means that the data
-will be available in SQL as a table with a single column called `value`, with
-type `TEXT`. This can then be parsed dynamically with the
-[SQL JSON functions](/sql/scalar-functions#json-functions).
-
-Schemas for Kafka topics can also be read automatically from
+Json and Avro Schemas for Kafka topics can also be read automatically from
 [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html).
 
 

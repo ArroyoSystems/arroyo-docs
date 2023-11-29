@@ -19,11 +19,11 @@ Arroyo can be self-hosted, or used via the [Arroyo Cloud](https://arroyo.dev/) s
 
 ## Features
 
-- SQL and Rust pipelines
+- Pipelines defined in SQL, with support for complex analytical queries
 - Scales up to millions of events per second
 - Stateful operations like windows and joins
-- State checkpointing for fault-tolerance and recovery of pipelines
-- Timely stream processing via the [Dataflow model](https://www.oreilly.com/radar/the-world-beyond-batch-streaming-101/)
+- State checkpointing for fault-tolerance and pipeline recovery
+- Event time processing with watermark support
 
 ## Use cases
 
@@ -67,16 +67,13 @@ any distributed runtimes.
 
 Arroyo can easily be run locally as well. Currently Linux and MacOS are well supported as development environments.
 
-To run Arroyo locally first follow the [dev setup instructions](/developing/dev-setup) to get a working dev environment.
-Then, you can start the API and Controller services:
+To run Arroyo locally follow the
+[dev setup instructions](/developing/dev-setup) to get set up your environment.
 
-```bash
-$ target/release/arroyo-controller
-# in another terminal
-$ target/release/arroyo-api
-```
+### In production
 
-Then you can navigate to the Web UI at http://localhost:8000.
+Arroyo supports several deployment targets for production use, including full support for Kubernetes. See the
+[deployment docs](/deployment/overview) for more information.
 
 #### Metrics
 
