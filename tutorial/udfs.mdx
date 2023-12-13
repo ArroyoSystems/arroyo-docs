@@ -68,10 +68,10 @@ Options:
 ## Generate some data
 
 Let's start by generating some sample data. We'll use StreamGen to generate a
-stream of CLF records, and send them to Arroyo via [Server-Sent Events](/connectors/sse).
+stream of CLF records, and send them to Arroyo via [Server-Sent Events](/connectors/server-sent-events).
 
 ```bash
-$ streamgen --output sse --port 9995 common-log
+$ streamgen common-log sse --port 9995
 ```
 
 This will start a server on port 9995 that will respond to SSE requests with a stream
