@@ -12,6 +12,7 @@ not currently supported, please get in touch with the team on Discord or via Git
 | Name | Source | Sink | Availability |
 | ---- | ------ | ---- | ----|
 | [Blackhole](/connectors/blackhole) | No | Yes | OSS |
+| [Confluent Cloud](/connectors/confluent) | Yes | Yes | OSS |
 | [Filesystem](/connectors/filesystem) | Yes | Yes | OSS |
 | [Fluvio](/connectors/fluvio) | Yes | Yes | OSS |
 | [Impulse](/connectors/impulse) | Yes | No | OSS |
@@ -116,7 +117,7 @@ Json and Avro Schemas for Kafka topics can also be read automatically from
 
 ## Source idleness
 
-Paritioned sources (like Kafka or Kinesis) may experience periods when some
+Partitioned sources (like Kafka or Kinesis) may experience periods when some
 partitions are active but others are idle due to the way that they are keyed.
 This can cause issues in Arroyo due to how [watermarks](/concepts/#watermarks) are
 calculated: as the minimum of the watermarks of all partitions.

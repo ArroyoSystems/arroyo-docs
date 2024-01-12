@@ -65,26 +65,31 @@
       ]
     },
     {
-      "group": "Connectors",
+      "group": "Sources and Sinks",
       "pages": [
           "connectors/overview",
           "connectors/formats",
-          "connectors/blackhole",
-          "connectors/delta",
-          "connectors/filesystem",
-          "connectors/fluvio",
-          "connectors/impulse",
-          "connectors/kafka",
-          "connectors/kinesis",
-          "connectors/mysql",
-          "connectors/polling-http",
-          "connectors/postgres",
-          "connectors/redis",
-          "connectors/redpanda",
-          "connectors/server-sent-events",
-          "connectors/state",
-          "connectors/webhook",
-          "connectors/websocket"
+          {
+            "group": "Connectors",
+            "pages": [
+                "connectors/blackhole",
+                "connectors/delta",
+                "connectors/filesystem",
+                "connectors/fluvio",
+                "connectors/impulse",
+                "connectors/kafka",
+                "connectors/kinesis",
+                "connectors/mysql",
+                "connectors/polling-http",
+                "connectors/postgres",
+                "connectors/redis",
+                "connectors/redpanda",
+                "connectors/server-sent-events",
+                "connectors/state",
+                "connectors/webhook",
+                "connectors/websocket"
+            ]
+          }
       ]
     },
     {
