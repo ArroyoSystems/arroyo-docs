@@ -6,13 +6,13 @@ description: "Write Parquet and JSON to S3 and local filesystems"
 Arroyo provides the capability to read and write Parquet and JSON files to/from S3 and local filesystems.
 When used as a sink, Arroyo will produce complete files in line with the checkpointing system.
 As such, the file system sinks write all data exactly once.
-This is done against S3 by tracking multi-part uploads within the state store, 
+This is done against S3 by tracking multi-part uploads within the state store,
 allowing Arroyo to resume an in-progress upload in the event of a failure.
 
 As a source Arroyo reads all files to completion, at which point the job will finish.
 
 ## Common Configuration
-Both the source and sink versions of the connector make use of Arroyo's StorageBackend, 
+Both the source and sink versions of the connector make use of Arroyo's StorageBackend,
 which is a generalization of an object store.
 The location within the StorageBackend is configured via the `path` variable in the `WITH` clause of the `CREATE TABLE` statement.
 The value is a URL pointing to the destination directory. The most common examples are shown below.
@@ -110,6 +110,7 @@ CREATE TABLE bids (
   account_id text
 ) WITH (
   connector = 'filesystem',
+  type = 'sink',
   path = 'https://s3.us-west-2.amazonaws.com/demo/s3-uri',
   format = 'parquet',
   parquet_compression = 'zstd',
@@ -132,6 +133,7 @@ CREATE TABLE bids (
   account_id text
 ) WITH (
   connector = 'filesystem',
+  type = 'source',
   path = 'https://s3.us-west-2.amazonaws.com/demo/s3-uri',
   format = 'parquet',
   'source.regex-pattern' = '.*\.parquet$'
