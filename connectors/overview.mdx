@@ -95,6 +95,29 @@ CREATE TABLE my_source (
 )
 ```
 
+## Bad Data
+
+The `bad_data` option allows you to configure how Arroyo handles records that fail
+to parse.
+
+- `fail`: fail the job (default)
+- `drop`: drop the record and continue processing
+
+You can configure it in the Web UI when creating a connection:
+
+<img src="/images/bad_data.png" alt="Bad data dropdown" />
+
+Or in SQL:
+
+```sql
+CREATE TABLE my_source (
+    value TEXT
+) WITH (
+    ...
+    bad_data = 'drop'
+)
+```
+
 ## Connection schemas
 
 Connections in Arroyo must have associated schemas to allow them to be used in
