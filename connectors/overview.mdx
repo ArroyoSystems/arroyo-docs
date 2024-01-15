@@ -163,3 +163,30 @@ able to read data.
 
 To address this, source tasks with no work assigned to them will mark themselves as idle
 immediately.
+
+## Environment variable substitution
+
+Some fields in the connection configurations can use environment variables to substitute values
+at runtime. This is useful for secrets or other values that you don't want to hard-code.
+Currently, environment variable substitution is supported for fields containing API keys,
+usernames, passwords, and HTTP headers.
+
+You can use double curly braces (`{{ }}`) to indicate a substitution.
+
+For example, in the Web UI:
+
+<img src="/images/env_var.png" alt="Environment variable subtitution" />
+
+Or directly in SQL like this:
+
+```sql
+CREATE TABLE data (
+    value TEXT
+) WITH (
+    connector = 'polling_http',
+    endpoint = 'https://mywebserver.com/api/data',
+    method = 'GET',
+    headers = 'Authorization: bearer {{ MY_TOKEN }}',
+    format = 'json'
+);
+```
