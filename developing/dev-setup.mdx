@@ -121,7 +121,7 @@ The api serves the frontend on http://localhost:8000 and provides a GRPC server 
 ### arroyo-compiler-service
 Start this service with
 ```bash
-OUTPUT_DIR=target  cargo run --bin arroyo-compiler-service start
+OUTPUT_DIR=target ARTIFACT_URL=file:///tmp/artifacts  cargo run --bin arroyo-compiler-service start
 ```
 The compiler service compiles the custom crate for each pipeline.
 Because Rust can take a while to compile, it reuses the same directory across compilations.
