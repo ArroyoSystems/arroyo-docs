@@ -73,6 +73,7 @@
             "group": "Connectors",
             "pages": [
                 "connectors/blackhole",
+                "connectors/confluent",
                 "connectors/delta",
                 "connectors/filesystem",
                 "connectors/fluvio",
