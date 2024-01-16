@@ -49,10 +49,24 @@ CREATE TABLE mastodon (
 ) WITH (
     connector = 'sse',
     format = 'json',
-    endpoint = 'https://mstdn.party/api/v1/streaming/public',
+    endpoint = 'http://mastodon.arroyo.dev/api/v1/streaming/public',
     events = 'update'
 );
 ```
+
+<Tip>
+Arroyo runs a mirror of the mastodon firehose, hosted at http://mastodon.arroyo.dev, which
+does not require authentication. However you are free to use another mastodon server for
+which you have an auth token, in which case you would use the `headers` option to set the
+auth token, like
+
+```
+WITH (
+  ...
+  headers = 'Authorization: Bearer <auth_token>'
+)
+```
+</Tip>
 
 Then we can read from it, to get a sense of the data:
 
@@ -77,7 +91,7 @@ hash tags for us like this:
   "tags": [
     {
       "name": "arroyostreaming",
-      "url": "https://mstdn.party/tags/arroyostreaming"
+      "url": "https://mastodon.social/tags/arroyostreaming"
     }
   ],
 }
@@ -92,7 +106,7 @@ CREATE TABLE mastodon (
 ) WITH (
     connector = 'sse',
     format = 'raw_string',
-    endpoint = 'https://mstdn.party/api/v1/streaming/public',
+    endpoint = 'http://mastodon.arroyo.dev/api/v1/streaming/public',
     events = 'update'
 );
 ```
@@ -176,7 +190,7 @@ CREATE TABLE mastodon (
 ) WITH (
     connector = 'sse',
     format = 'raw_string',
-    endpoint = 'https://mstdn.party/api/v1/streaming/public',
+    endpoint = 'http://mastodon.arroyo.dev/api/v1/streaming/public',
     events = 'update'
 );
 
