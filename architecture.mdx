@@ -16,7 +16,7 @@ It allows users to configure the system, create pipelines, and monitor their sta
 
 The API server backs the Web UI and handles all configuration operations and pipeline management via the [REST API](api-reference/overview).
 
-API operations, like creating a pipeline or updating its state operate soley by updating the configuration in
+API operations, like creating a pipeline or updating its state, operate solely by updating the configuration in
 the postgres database. This is asynchronously applied to the actual state of the environment by the controller. The API
 itself is stateless and does not communicate with the rest of the system except via the database.
 
