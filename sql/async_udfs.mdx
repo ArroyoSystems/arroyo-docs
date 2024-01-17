@@ -32,7 +32,7 @@ similar to dependencies, under a `[udfs]` header.
 Async UDFs can optionally define a `Context` struct that will be passed to each execution of the UDF.
 This can be used to store resources that should be shared across executions of the UDF.
 
-The `Context` struct must implement a pre-defined trait, `arroyo_types::UdfContext`.
+The `Context` struct must implement a pre-defined trait, `types::UdfContext`.
 The trait is defined as follows:
 
 ```rust
@@ -84,7 +84,7 @@ impl Context {
 }
 
 #[async_trait]
-impl arroyo_types::UdfContext for Context {
+impl types::UdfContext for Context {
     async fn init(&self) {
         let conn_str = "host=localhost user=arroyo password=arroyo dbname=my_db";
 
