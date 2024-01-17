@@ -33,7 +33,6 @@ CREATE TABLE slack (
 ) WITH (
     connector = 'webhook',
     endpoint = 'https://hooks.slack.com/services/XXXXX/XXXXX/XXXXX',
-    method = 'POST',
     headers = 'Content-Type:application/json',
     format = 'json'
 );

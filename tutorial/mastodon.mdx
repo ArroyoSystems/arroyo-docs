@@ -55,10 +55,11 @@ CREATE TABLE mastodon (
 ```
 
 <Tip>
-Arroyo runs a mirror of the mastodon firehose, hosted at http://mastodon.arroyo.dev, which
-does not require authentication. However you are free to use another mastodon server for
-which you have an auth token, in which case you would use the `headers` option to set the
-auth token, like
+Arroyo runs a mirror of the mastodon firehose, hosted at
+`http://mastodon.arroyo.dev/api/v1/streaming/public`, which does not require
+authentication. However you can also use another mastodon server for which
+you have an auth token, in which case you would use the `headers` option to set
+the auth token, like
 
 ```
 WITH (
