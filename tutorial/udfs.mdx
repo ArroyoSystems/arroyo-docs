@@ -71,14 +71,14 @@ Let's start by generating some sample data. We'll use StreamGen to generate a
 stream of CLF records, and send them to Arroyo via [Server-Sent Events](/connectors/server-sent-events).
 
 ```bash
-$ streamgen common-log sse --port 9995
+$ streamgen --format string common-log sse --port 9563
 ```
 
-This will start a server on port 9995 that will respond to SSE requests with a stream
+This will start a server on port 9563 that will respond to SSE requests with a stream
 of CLF records. You can test it out by running:
 
 ```bash
-$ curl -N http://localhost:9995/sse
+$ curl -N http://localhost:9563/sse
 ```
 
 which should produce a stream of output like:
@@ -106,7 +106,7 @@ We'll start by defining our source, with a simple `select *` query.
 
 ```sql
 create table logs (
-    id INT NOT NULL
+    value TEXT
 ) with (
     connector = 'sse',
     endpoint = 'http://host.docker.internal:9563/sse',
@@ -254,7 +254,7 @@ create table logs (
     value TEXT,
     parsed TEXT GENERATED ALWAYS AS (parse_log(value)),
     event_time TIMESTAMP GENERATED ALWAYS AS
-        (CAST(extract_json_string(parse_log(value), '$.timestamp') as TIMESTAMP))
+        (CAST(extract_json_string(parse_log(value), '$.date') as TIMESTAMP))
 ) with (
     connector = 'sse',
     endpoint = 'http://host.docker.internal:9563/sse',
@@ -311,8 +311,7 @@ CREATE TABLE block (
   attempts INT
 ) WITH (
   connector = 'webhook',
-  url = '<your webhook URL here>',
-  method = 'POST',
+  endpoint = '<your webhook URL here>',
   format = 'json'
 );
 
