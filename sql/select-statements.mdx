@@ -59,9 +59,18 @@ FROM from_item
 The `JOIN` clause allows you to join multiple tables together.
 By default it will be an inner join, but you can also specify `LEFT`, `RIGHT`, or `FULL` joins.
 Joins must include an `ON` clause specifying the join condition.
+
 ```sql
 SELECT * FROM bids join auctions on bids.auction = auctions.id;
 ```
+
+Joins in Arroyo are flexible, and depending on exactly how they are structured may be either _append_ or _updating_.
+The _append_ mode is the basic output mode for streaming and will be used when the operator is able to only emit _final_ results.
+
+This will happen when the left and right inputs are non-updating and either the join is an inner join or the join is over an event time window.
+
+Otherwise, the join will be _updating_ and will be a combination of appends (add a row), updates (change a row), and retractions (remove a row).
+Updating tables will need to be emitted to a sink that supports updates, currently Kafka with `format = 'debezium_json'` and the Console sink.
 
 ### WHERE clause
 The `WHERE` clause allows you to filter the data with a boolean condition.
