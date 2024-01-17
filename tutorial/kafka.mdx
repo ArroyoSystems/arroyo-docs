@@ -80,13 +80,13 @@ Find Kafka in the list of connectors, and click "Create."
 Next we will need to configure the connection information for the Kafka cluster. This is stored separately from the
 table configuration so that it can be shared across many different connections.
 
-Under the Cluster config box, click "Create new". How you configure the connection will depend on how you're
+At the bottom left, click "Create new". How you configure the connection will depend on how you're
 running Arroyo.
 
 For each method, you will use the following settings:
 
 - Name: `local-confluent`
-- Authentication: `None`
+- Boostrap Servers:
 
 <Card>
     <Tabs>
@@ -139,18 +139,29 @@ For each method, you will use the following settings:
     </Tabs>
 </Card>
 
+- Authentication: `None`
+- Schema Registry: `Confluent Schema Registry`
+  - Endpoint: `http://localhost:8081`, `http://host.docker.internal:8081`, or
+`http://<GATEWAY IP>:8081` similarly to how you configured the bootstrap servers
+above)
+
+Click "Validate", and "Create".
+
 ### Configuring source table
 
-Once the cluster config is created, we will need to configure the source table. Enter the following:
+Once the cluster config is created, we will need to configure the source table.
+Select your newly created connection profile, then click "Continue".
+
+At the "Configure table" stage, enter:
 
 * Topic: `orders`
-* Table Type: `Source`
-* Offset: `latest`
 
 This will configure the table as a source, reading from the `orders` topic, and
-starting from the latest offset. Click next to continue.
+starting from the latest offset.
 
 <img src="/images/kafka_tutorial_create_source.png" alt="Configuring the Kafka source" />
+
+The other options can be left as default. Click "Next" to continue.
 
 Arroyo sources need to have a defined format and schema so that data can be
 deserialized and used in SQL queries. The Kafka data generator is configured to
@@ -160,17 +171,14 @@ We also configured the generator to use the
 [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html),
 so we can use that to configure the schema automatically.
 
-Under "Schema type," select `Confluent Schema Registry`, then enter the URL for the schema registry, by default
-`http://localhost:8081`. Click "Fetch Schema" to pull in the json-schema, and then continue.
+Set the following options in the "Define schema" section:
 
-Currently json-schema is the only
-supported format. Also supported is the Confluent Schema Registry, which can be used to store and manage schemas. Since
-the topic we generated has an associated schema in the schema registry, choose that option and click "Continue".
+- Data format: `JSON`
+- Schema type: `Confluent Schema Registry`
 
-Enter the URL for the schema registry (this will be either
-`http://localhost:8081`, `http://host.docker.internal:8081`, or
-`http://<GATEWAY IP>:8081` similarly to how you configured the bootstrap servers
-above). Click "Fetch Schema" to pull in the json-schema, and then continue.
+Currently, json-schema is the only supported format.
+Also supported is the Confluent Schema Registry, which can be used to store and manage schemas. Since
+the topic we generated has an associated schema in the schema registry, we'll use that.
 
 <Tip>
     When Kafka uses the schema registry, it uses a
