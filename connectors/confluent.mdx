@@ -8,7 +8,7 @@ Arroyo provides sources and sinks to read and write from
 topics, with support for exactly-once semantics.
 
 
-## Configuring the Connection
+## Setup
 
 To connect to Confluent Cloud, you may create a connection either in the Web UI
 or directly via. SQL.
@@ -102,7 +102,7 @@ everything is set up correctly, you should see a success message and
 can click “Create” to save the connection.
 
 
-## Creating the table
+### Creating the table
 
 Once you've told Arroyo how to connect to your Confluent Cloud account, you can
 create source and sink tables that use that configuration.
@@ -128,7 +128,6 @@ Finally, give the table a name (which you will use to reference it in SQL) and
 click “Test Connection.” This will verify that your connection is properly set
 up and we are able to connect to your Confluent cluster successfully. Once
 everything has been validated, click “Create.”
-
 
 ## Configuration
 
@@ -194,3 +193,61 @@ CREATE TABLE orders (
   'source.read_mode' = 'read_committed'
 );
 ```
+
+## Schema Registry integration
+
+Arroyo supports the Confluent Schema Registry for both JSON and Avro schemas. To use the Schema Registry
+for a table, you must have configured the connection profile with the schema registry endpoint and
+credentials. Then, it will be available as an option when setting the schema for the table.
+
+How Arroyo handles schemas depends on whether the table is a source or a sink and the format.
+
+### Source tables
+
+For source tables, Arroyo will read the schema from the schema registry at the time the table is created.
+This JSON or Avro schema is converted into a SQL table schema, as if it had been defined directly in SQL.
+
+#### JSON
+
+Because SQL has a less flexible type system than JSON schema, not all JSON schema features are supported
+directly. For any fields that cannot be converted to a SQL type, Arroyo will create a column of type `JSON`
+and store the raw JSON value in that column. The JSON value can then be processed via SQL JSON functions.
+
+The schema is read from the schema registry at the time the table is created, which for tables created via the UI
+is when the table is saved; for tables created via SQL it is when the pipeline is started. The schema is
+cached for the lifetime of the table, so if the schema in the schema registry is updated or deleted, reads
+from the table will continue to use the original schema.
+
+#### Avro
+
+For Avro, there are some features that cannot be converted to SQL types:
+
+* Unions (aside from unions that are a single type and `null`, which are converted to `nullable` columns)
+* Maps
+* Arrays
+
+Fields with these types will be re-encoded as JSON and stored in a `JSON` column, in which form they
+can be processed via SQL JSON functions.
+
+At table creation time (when the table is saved in the UI or when the pipeline
+is started via SQL for SQL-defined tables), Arroyo will read the schema from the schema registry and
+convert it to a SQL schema. That schema is used as the "reader" schema for the lifetime of the table
+and determines what fields are available. If the schema in the schema registry is updated or deleted,
+reads from the table will continue to use the original schema.
+
+When using the schema registry, Arroyo will also look at the schema ID for each
+message, and if it encounters a new schema ID, it will fetch the schema from the
+schema registry and use it as the "writer" schema. Messages are then decoded
+using the writer schema and then evolved to conform to the reader schema. This
+ensures that we are able to read the data, so long as the schema in the schema
+registry is compatible with the reader schema. Arroyo supports
+[all types of schema evolution](https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html#compatibility-types),
+with the caveat that fields marked required—NOT NULL in SQL—cannot be removed.
+
+## Sink tables
+
+For sink tables, Arroyo will write the schema to the schema registry at the time the pipeline is created. This
+schema is determined by the SQL schema of the table, and is converted to JSON or Avro as appropriate.
+
+If there's an existing schema in the schema registry, the new schema must be compatible for it to be
+written.
