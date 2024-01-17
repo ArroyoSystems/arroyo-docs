@@ -66,6 +66,90 @@
         }
       }
     },
+    "/v1/connection_profiles/test": {
+      "post": {
+        "tags": [
+          "connection_profiles"
+        ],
+        "summary": "Test connection profile",
+        "description": "Test connection profile",
+        "operationId": "test_connection_profile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionProfilePost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Result of testing connection profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestSourceMessage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/connection_profiles/{id}": {
+      "delete": {
+        "tags": [
+          "connection_profiles"
+        ],
+        "summary": "Delete a Connection Profile",
+        "description": "Delete a Connection Profile",
+        "operationId": "delete_connection_profile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Connection Profile id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted connection profile"
+          }
+        }
+      }
+    },
+    "/v1/connection_profiles/{id}/autocomplete": {
+      "get": {
+        "tags": [
+          "connection_profiles"
+        ],
+        "summary": "Get autocomplete suggestions for a connection profile",
+        "description": "Get autocomplete suggestions for a connection profile",
+        "operationId": "get_connection_profile_autocomplete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Connection Profile id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Autocomplete suggestions for connection profile"
+          }
+        }
+      }
+    },
     "/v1/connection_tables": {
       "get": {
         "tags": [
@@ -133,48 +217,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ConnectionTable"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/connection_tables/schemas/confluent": {
-      "get": {
-        "tags": [
-          "connection_tables"
-        ],
-        "summary": "Get a Confluent Schema",
-        "description": "Get a Confluent Schema",
-        "operationId": "get_confluent_schema",
-        "parameters": [
-          {
-            "name": "topic",
-            "in": "query",
-            "description": "Confluent topic name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "endpoint",
-            "in": "query",
-            "description": "Confluent schema registry endpoint",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Got Confluent Schema",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConfluentSchema"
                 }
               }
             }
@@ -416,38 +458,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/QueryValidationResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/pipelines/validate_udfs": {
-      "post": {
-        "tags": [
-          "pipelines"
-        ],
-        "summary": "Validate UDFs",
-        "description": "Validate UDFs",
-        "operationId": "validate_udfs",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ValidateUdfsPost"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Validated query",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UdfValidationResult"
                 }
               }
             }
@@ -864,12 +874,170 @@
           }
         }
       }
+    },
+    "/v1/udfs": {
+      "get": {
+        "tags": [
+          "udfs"
+        ],
+        "summary": "Get Global UDFs",
+        "description": "Get Global UDFs",
+        "operationId": "get_udfs",
+        "responses": {
+          "200": {
+            "description": "List of UDFs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalUdfCollection"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "udfs"
+        ],
+        "summary": "Create a global UDF",
+        "description": "Create a global UDF",
+        "operationId": "create_udf",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UdfPost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created UDF",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Udf"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/udfs/validate": {
+      "post": {
+        "tags": [
+          "udfs"
+        ],
+        "summary": "Validate UDFs",
+        "description": "Validate UDFs",
+        "operationId": "validate_udf",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateUdfPost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Validated query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UdfValidationResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/udfs/{id}": {
+      "delete": {
+        "tags": [
+          "udfs"
+        ],
+        "summary": "Delete UDF",
+        "description": "Delete UDF",
+        "operationId": "delete_udf",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "UDF id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted UDF"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
       "AvroFormat": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "confluentSchemaRegistry": {
+            "type": "boolean"
+          },
+          "intoUnstructuredJson": {
+            "type": "boolean"
+          },
+          "rawDatums": {
+            "type": "boolean"
+          },
+          "readerSchema": {
+            "type": "string",
+            "readOnly": true
+          },
+          "schemaId": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true,
+            "nullable": true,
+            "minimum": 0
+          }
+        }
+      },
+      "BadData": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "fail"
+            ],
+            "properties": {
+              "fail": {
+                "type": "object"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "drop"
+            ],
+            "properties": {
+              "drop": {
+                "type": "object"
+              }
+            }
+          }
+        ]
       },
       "Checkpoint": {
         "type": "object",
@@ -950,14 +1118,20 @@
           "committing"
         ]
       },
-      "ConfluentSchema": {
+      "ConnectionAutocompleteResp": {
         "type": "object",
         "required": [
-          "schema"
+          "values"
         ],
         "properties": {
-          "schema": {
-            "type": "string"
+          "values": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         }
       },
@@ -1023,6 +1197,14 @@
           "fields"
         ],
         "properties": {
+          "badData": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BadData"
+              }
+            ],
+            "nullable": true
+          },
           "definition": {
             "allOf": [
               {
@@ -1051,6 +1233,10 @@
                 "$ref": "#/components/schemas/Framing"
               }
             ],
+            "nullable": true
+          },
+          "inferred": {
+            "type": "boolean",
             "nullable": true
           },
           "structName": {
@@ -1331,6 +1517,59 @@
           }
         ]
       },
+      "GlobalUdf": {
+        "type": "object",
+        "required": [
+          "id",
+          "prefix",
+          "name",
+          "createdAt",
+          "updatedAt",
+          "definition"
+        ],
+        "properties": {
+          "createdAt": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "definition": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "GlobalUdfCollection": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GlobalUdf"
+            }
+          }
+        }
+      },
       "Job": {
         "type": "object",
         "required": [
@@ -1474,6 +1713,12 @@
           },
           "includeSchema": {
             "type": "boolean"
+          },
+          "schemaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "minimum": 0
           },
           "timestampFormat": {
             "$ref": "#/components/schemas/TimestampFormat"
@@ -2099,35 +2344,46 @@
       "Udf": {
         "type": "object",
         "required": [
-          "language",
+          "definition"
+        ],
+        "properties": {
+          "definition": {
+            "type": "string"
+          }
+        }
+      },
+      "UdfPost": {
+        "type": "object",
+        "required": [
+          "prefix",
           "definition"
         ],
         "properties": {
           "definition": {
             "type": "string"
           },
-          "language": {
-            "$ref": "#/components/schemas/UdfLanguage"
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "prefix": {
+            "type": "string"
           }
         }
       },
-      "UdfLanguage": {
-        "type": "string",
-        "enum": [
-          "rust"
-        ]
-      },
       "UdfValidationResult": {
         "type": "object",
+        "required": [
+          "errors"
+        ],
         "properties": {
           "errors": {
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
-          "udfsRs": {
+          "udfName": {
             "type": "string",
             "nullable": true
           }
@@ -2151,13 +2407,13 @@
           }
         }
       },
-      "ValidateUdfsPost": {
+      "ValidateUdfPost": {
         "type": "object",
         "required": [
-          "udfsRs"
+          "definition"
         ],
         "properties": {
-          "udfsRs": {
+          "definition": {
             "type": "string"
           }
         }
