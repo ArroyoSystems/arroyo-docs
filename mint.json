@@ -104,7 +104,8 @@
         "sql/aggregate-functions",
         "sql/window-functions",
         "sql/udfs",
-        "sql/udafs"
+        "sql/udafs",
+        "sql/async_udfs"
       ]
     },
     {
