@@ -7,23 +7,31 @@ description: "Set up your environment to develop Arroyo"
 
 To build Arroyo, you will need to install some dependencies.
 
-### Ubuntu
+<Card>
+<Tabs>
+
+<Tab title="Ubuntu">
+
+Follow these command to get the necessary dependencies to build Arroyo on Ubuntu:
 
 ```bash
-$ sudo apt-get install pkg-config build-essential libssl-dev openssl cmake curl postgresql postgresql-client
+$ sudo apt-get install pkg-config build-essential \
+  libssl-dev openssl cmake curl postgresql postgresql-client
 $ sudo systemctl start postgresql
 $ wget https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-linux-x86_64.zip
 $ unzip protoc-21.8-linux-x86_64.zip
 $ sudo mv bin/protoc /usr/local/bin
 $ curl https://sh.rustup.rs -sSf | sh -s -- -y
-$ cargo install wasm-pack
 $ cargo install refinery_cli
 $ curl -fsSL https://get.pnpm.io/install.sh | sh -
 $ pnpm install --global @openapitools/openapi-generator-cli
 ```
+</Tab>
 
-### MacOS
-First, install [Homebrew](https://brew.sh/). Then, run the following commands:
+<Tab title="MacOS">
+
+First, install [Homebrew](https://brew.sh/) if it's not already installed. Then,
+run the following commands:
 
 ```bash
 $ brew install postgresql
@@ -32,7 +40,7 @@ $ brew install pnpm
 $ brew install cmake
 ```
 
-Then install Rust
+Next install Rust:
 
 ```bash
 $ curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -41,13 +49,21 @@ $ curl https://sh.rustup.rs -sSf | sh -s -- -y
 Finally, install the following packages:
 
 ```bash
-$ cargo install wasm-pack
 $ cargo install refinery_cli
 $ cargo install cargo-nextest
 $ pnpm install --global @openapitools/openapi-generator-cli
 ```
+</Tab>
+</Tabs>
+</Card>
 
+## Get the source
 
+The Arroyo source can be checked out from GitHub with:
+
+```
+$ git clone https://github.com/ArroyoSystems/arroyo.git
+```
 
 ## Postgres
 
@@ -57,7 +73,7 @@ can be changed by setting the following environment variables:
 
 * `DATABASE_NAME`
 * `DATABASE_HOST`
-* `DATABSE_PORT`
+* `DATABASE_PORT`
 * `DATABASE_USER`
 * `DATABASE_PASSWORD`
 
@@ -77,7 +93,7 @@ $ createdb arroyo
 
 
 Migrations are managed using [refinery](https://github.com/rust-db/refinery). Once Postgres is
-set up, you can initalize it with
+set up, you can initialize it with
 
 ```bash
 $ refinery setup # follow the prompts
@@ -89,127 +105,159 @@ We use [cornucopia](https://github.com/cornucopia-rs/cornucopia) for typed-check
 to automatically re-generate the rust code for those queries on build, so you will need a DB set up for compilation
 as well.
 
-## Building the services
-
-Arroyo is built via Cargo, the Rust build tool. To build all of the services in release mode, you can run
-
-```
-$ cargo build --release
-```
-
-The control plane services (api, controller, and compiler) are not resource-intensive, and can be run without issue in
-debug mode for development:
-
-```
-$ cargo run --bin {package}
-```
-
-where `{package}` is one of `arroyo-api`, `arroyo-controller`, or `arroyo-compiler-service`.
-
-## Running rust services locally
-Arroyo comes with a default ProcessScheduler which runs pipelines from the controller as a local process.
-The recommended development environment involves running three services:
-arroyo-api, arroyo-compiler-service, arroyo-controller.
-
-### arroyo-api
-Start this service with
-```bash
-cargo run  --bin arroyo-api
-```
-The api serves the frontend on http://localhost:8000 and provides a GRPC server for interacting through the UI.
-
-### arroyo-compiler-service
-Start this service with
-```bash
-OUTPUT_DIR=target ARTIFACT_URL=file:///tmp/artifacts  cargo run --bin arroyo-compiler-service start
-```
-The compiler service compiles the custom crate for each pipeline.
-Because Rust can take a while to compile, it reuses the same directory across compilations.
-By default pipelines are compiled with `--release`,
-but if you're just doing feature development you can set `DEBUG=true`.
-This can reduce compile times by a factor of 5x,
-but the resulting pipeline will be notably slower.
-
-### arroyo-controller
-Start this service with
-```bash
-REMOTE_COMPILER_ENDPOINT=http://localhost:9000 cargo run --bin arroyo-controller
-```
-This will manage the execution of pipelines.
-
-<Tip>
-  On MacOS, you may see this error in the controller logs when trying to run a job:
-  ```
-  Child ("/tmp/arroyo-process/m2lgldjw") exited with status Ok(ExitStatus(unix_wait_status(9)))
-  ```
-  This means that MacOS gatekeeper is killing the pipeline binary. To allow the pipeline to run,
-  type this command in your terminal:
-  ```
-  $ sudo spctl --master-disable
-  ```
-  Note that this does disable a security feature, so you may want to revert it when you're done:
-  ```
-  $ sudo spctl --master-enable
-  ````
-</Tip>
-
-
 ## Building the frontend
 
-We use pnpm and vite for frontend development.
-
-Then you should be able to run the console in dev mode like this:
+We use pnpm and vite for frontend development. Once pnpm is installed (following the OS-specific) instructions
+above, you should be able to build the console like this:
 
 ```
-$ cd arroyo-console
+$ cd webui
 $ pnpm install
-$ pnpm dev
-```
-
-This will launch a dev server at http://localhost:5173 (note the api must
-also be running locally for this to be functional).
-
-To build the console (necessary before deploying for the hosted version to work) you
-can run
-
-```
 $ pnpm build
 ```
 
-## Running the services
+This must be done before running the services, as the API service will expect to find the compiled webui source
+so it can serve it.
 
-Arroyo requires running at least two services: arroyo-api and arroyo-controller. See [here](/architecture) for an
-overview of the services and what they do.
+## Building the services
 
-The services can be run with cargo:
+Arroyo is built via Cargo, the Rust build tool. All services are built into a single binary, arroyo-bin, which
+can be built with
 
-```bash
-$ cargo run --bin arroyo-controller
-# in a separate terminal
-$ cargo run --bin arroyo-api
+```
+$ cargo build --package arroyo-bin
 ```
 
-To get faster compilation of pipelines, you can also run the compile service:
+<Tip>
+By default, Cargo builds in _debug mode_ which gives you shorter build times in exchange for slower execution
+speeds. This is great for development, but you should make sure to always build in release mode (`cargo build --release`)
+before deploying or benchmarking.
+</Tip>
 
-```bash
-$ cargo run --bin arroyo-compiler-service
+This will build the binary in target/debug/arroyo-bin. Running that you should see the available subcommands:
+
+```
+$ target/debug/arroyo-bin
+Usage: arroyo-bin <COMMAND>
+
+Commands:
+  api         Starts an Arroyo API server
+  controller  Starts an Arroyo Controller
+  cluster     Starts a complete Arroyo cluster
+  worker      Starts an Arroyo worker
+  compiler    Starts an Arroyo compiler
+  node        Starts an Arroyo node server
+  migrate     Runs database migrations on the configure Postgres database
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
 ```
 
-then set the `REMOTE_COMPILER_ENDPOINT` environment variable when running the controller like this:
+### Running a cluster
 
-```bash
-$ REMOTE_COMPILER_ENDPOINT=http://localhost:9000 cargo run --bin arroyo-controller
+All of the services can be run together in a single cluster, or individually. For development,
+it's most typical to run them together using the `cluster` subcommand:
+
+```
+$ target/debug/arroyo-bin cluster
 ```
 
-## Compiling objects for the frontend
+This will start a new Arroyo cluster with the default "process" scheduler, which runs each pipeline
+as a separate process on the same node.
+
+You can then open http://localhost:8000 to use your new cluster.
+
+Cargo also allows combining the build-run process into a single step, with the `cargo run` command, for example:
+
+```
+$ cargo run --bin arroyo-bin -- cluster
+```
+
+<Tip>
+  On MacOS, you may see this error in the controller logs when trying to run a job:
+
+  ```
+  Child ("/tmp/arroyo-process/m2lgldjw") exited with status Ok(ExitStatus(unix_wait_status(9)))
+  ```
+
+  This means that MacOS gatekeeper is killing the pipeline binary. To allow the pipeline to run,
+  open System Settings and navigate to Privacy & Security -> Developer Tools. In the list, add and
+  enable your terminal (for example Terminal.app or iTerm).
+</Tip>
+
+## Front-end development
+
+When developing the frontend, you can take advantage of vite's dev server to shorten the dev cycle:
+
+```
+$ cd webui
+$ pnpm run dev
+```
+
+Then visit http://localhost:5173/. This requires the cluster is running on http://localhost:8000.
+
+### Updating frontend definitions
 
 After altering protobuf definitions in `arroyo-rpc` you need to regenerate the Typescript code used by the frontend:
 
 ```bash
 $ pnpm run generate
 ```
+
 Similarly, after altering REST API types in `arroyo-api` you need to run:
 
 ```bash
 $ pnpm run openapi
 ```
+
+## Testing
+
+Arroyo includes a large suite of tests covering most parts of the system. We use the standard Rust test framework,
+which can be invoked via
+
+```
+$ cargo test
+```
+
+We also recommend [cargo-nextest](https://nexte.st/), which provides a better UX on top of the standard test runner.
+
+```
+$ cargo nextest run
+```
+
+See the nextest docs for all options.
+
+Connector tests may require a running local instance of that system to pass; for example the full test suite currently
+requires kafka and an mqtt broker.
+
+## Building docker
+
+The Arroyo repo includes a
+[Dockerfile](https://github.com/ArroyoSystems/arroyo/blob/master/docker/Dockerfile)
+to package Arroyo for development and deployment via Kubernetes or Docker
+Compose.
+
+For efficiency, we use _targets_ to build images for different purposes. The available targets are
+
+* `arroyo` -- includes only the Arroyo binary; most useful for deploying on Kubernetes or in Docker Compose
+* `arroyo-full` -- also includes a Rust compile environment; this is needed for building UDFs within the Web UI; the
+  compiler service will dynamically fetch the necessary dependencies, but you may choose to use arroyo-full if you're
+  running in an environment that does not allow external internet access
+* `arroyo-single` -- includes all dependencies needed to run a complete Arroyo cluster, including postgres and
+  prometheus.
+
+To build a particular target, run
+
+```
+$ docker build . -f docker/Dockerfile -t {target} --target {target}
+```
+
+for example,
+
+```
+$ docker build . -f docker/Dockerfile -t arroyo-single --target arroyo-single
+```
+
+Note that this requires a fairly recent version of Docker that supports buildx.

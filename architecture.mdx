@@ -7,14 +7,20 @@ The Arroyo system architecture is composed of several services, as can be seen i
 
 ![Arroyo Architecture](/images/arroyo_arch.png)
 
+These services can be run in a single process for a simple deployment, or separately for a fully scaleable,
+fault-tolerant system.  ALl components of the system are compiled into a single binary (called arroyo-bin)
+which provides sub-commands to run specific services or an entire Arroyo cluster.
+
+This document will cover the subsystems that make up an Arroyo cluster.
+
 ## Web UI
 
-The Web UI is a single-page app written in react that interacts with the system via the [REST API](api-reference/overview).
+The Web UI is a single-page app written in react that interacts with the system via the [REST API](/api-reference/overview).
 It allows users to configure the system, create pipelines, and monitor their statuses.
 
 ## Arroyo API
 
-The API server backs the Web UI and handles all configuration operations and pipeline management via the [REST API](api-reference/overview).
+The API server backs the Web UI and handles all configuration operations and pipeline management via the [REST API](/api-reference/overview).
 
 API operations, like creating a pipeline or updating its state, operate solely by updating the configuration in
 the postgres database. This is asynchronously applied to the actual state of the environment by the controller. The API
@@ -44,16 +50,16 @@ The scheduler can be set by setting the `SCHEDULER` environment variable for the
 The process scheduler is the default, and is most useful for local development. In this mode, the controller will spawn
 processes locally to run the workers.
 
+### Embedded Scheduler
+
+The embedded scheduler runs pipelines within the same process as the controller. This is most useful for development
+on Arroyo itself and is not recommended for production use.
+
 ### Node Scheduler
 
 Arroyo comes with a lightweight scheduler and node runtime for running distributed workers. In this mode, you must start
 some number of arroyo-node processes (for example, in an autoscaling group) and configure them with the controller's
 address. The controller will then schedule workers on these nodes.
-
-### Nomad Scheduler
-
-Arroyo can also be configured to schedule workers on a [Nomad](https://www.nomadproject.io/) cluster. This is currently
-the recommended mode for production usage, and is what we run in production for [Arroyo Cloud](https://arroyo.dev/).
 
 ### Kubernetes Scheduler
 

@@ -19,7 +19,7 @@ Find Nexmark in the list of connectors and click "Create." Then set the desired
 event rate. For this tutorial, 100 messages/sec should suffice. Leave the other
 fields blank.
 
-Click next, and finally give name the source "nexmark," and click "Test
+Click next, and finally give name the source `nexmark`, and click "Test
 Connection," then "Create" to finish creating the source.
 
 ## Creating a pipeline
@@ -27,7 +27,7 @@ Connection," then "Create" to finish creating the source.
 Now that we've created a source to query, we can start to build pipelines by writing SQL. Navigate to the Pipelines page
 on the left sidebar, then click "Create Pipeline."
 
-This opens up the SQL editor. On the left is a list of tables that we can query (our catalogue). The main UI consists
+This opens up the SQL editor. On the left is a list of tables that we can query (our catalog). The main UI consists
 of a text editor where we can write SQL, and actions we can take with that query, like previewing it on our data set.
 
 ### First query
@@ -41,8 +41,7 @@ SELECT bid FROM nexmark WHERE bid IS NOT NULL;
 and hit "Start Preview."
 
 This will simply dump out all of our data from our source that fits the filter criteria, which can be useful to get
-a handle on our data before we start to build more sophisticated queries. Note that the first query may take some time
-to compile, although subsequent queries should be much faster.
+a handle on our data before we start to build more sophisticated queries.
 
 Once the query runs, you should start to see outputs in the Results tab. Since we did a simple pass-through query,
 each input event will result in a single output line.
@@ -72,7 +71,7 @@ of the Nexmark benchmark, which asks us to find the top 5 auctions by the number
 Arroyo, that query looks like this:
 
 ```sql
-SELECT * FROM (
+SELECT auction, row_num FROM (
     SELECT *, ROW_NUMBER() OVER (
         PARTITION BY window
         ORDER BY count DESC) AS row_num

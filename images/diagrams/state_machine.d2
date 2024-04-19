@@ -1,13 +1,11 @@
 direction:right
 u:"updating" {
-    Compiling -> Scheduling
-    Recovering -> Compiling
+    Recovering -> Scheduling
     Rescaling -> Scheduling
     Rescaling -> Stopping
-    Recovering -> Compiling
 }
 
-Created -> u.Compiling
+Created -> u.Scheduling
 u.Scheduling -> r.Running
 
 r:"running" {
@@ -27,7 +25,7 @@ s:"stopping" {
     Finishing -> Finished
 }
 
-s.Stopped -> u.Compiling
+s.Stopped -> u.Scheduling
 
 Failed
 Failed.style.fill: "#f08981"
