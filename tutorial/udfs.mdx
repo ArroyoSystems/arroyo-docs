@@ -166,11 +166,13 @@ serde_json = "1"
 chrono = "0.4"
 */
 
+use arroyo_udf_plugin::udf;
 use regex::Regex;
 use serde_json::json;
 use chrono::DateTime;
 use std::str::FromStr;
 
+#[udf]
 fn parse_log(s: String) -> Option<String> {
     // use OnceLock to prevent re-compilation of the regexes on every request
     use std::sync::OnceLock;

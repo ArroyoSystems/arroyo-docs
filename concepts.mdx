@@ -43,7 +43,7 @@ This logical dataflow may be executed as a physical dataflow that looks like thi
 where `source [0]` and `source [1]` represents two subtasks of the source task (and similarly for the join).
 
 Each subtask may be scheduled independently. If two communicating subtasks are scheduled on the same worker, the
-dataflow is performed via in-memory queues; otherwise the dataflow is perofrmed via Arroyo's network stack which forms
+dataflow is performed via in-memory queues; otherwise the dataflow is performed via Arroyo's network stack which forms
 a logical NxN connection between every communicating subtask.
 
 ## Streaming SQL
@@ -55,7 +55,7 @@ the semantics of streaming SQL, and the [SQL docs](/sql) for a detailed descript
 Arroyo's SQL support is built on top of the [Arrow DataFusion](https://arrow.apache.org/datafusion/) project,
 which is responsible for parsing and planning SQL before we compile it into a streaming dataflow for execution.
 
-## Timely processing
+## Time-oriented processing
 
 Arroyo supports time-oriented processing, inspired by the model described in the
 [Google Dataflow paper](https://research.google.com/pubs/pub43864.html). A brief
@@ -76,7 +76,7 @@ the same output.
 ### Watermarks
 
 Stream processing operates over unbounded streams of data. This means that the data is never complete. And in real world
-systems, events may be arrive in any order and may be arbitrary delayed. But we still need to be able to compute reuslts,
+systems, events may be arrive in any order and may be arbitrary delayed. But we still need to be able to compute results,
 and can't wait indefinitely to be sure that all of the data has arrived.
 
 To solve this problem, Arroyo uses _watermarks_ to track the progress of the dataflow. A watermark is an estimate of
@@ -84,7 +84,7 @@ completeness of the data stream; it represents a claim that no more events with 
 will arrive in the future.
 
 Watermarks are produced by the source based on its understanding of the characteristics of the data. Currently this is
-a fixed offset from the last event timestamp, but in the future we will support more sophisticated watermking approaches
+a fixed offset from the last event timestamp, but in the future we will support more sophisticated watermarking approaches
 that provide a statistical estimate of completeness. Once produced by the source, watermarks are propagated through the
 dataflow, and are used to determine when to perform operations such as closing windows.
 
@@ -108,3 +108,7 @@ The algorithm for consistent checkpointing is based on the
 classic [Chandy-Lamport](https://en.wikipedia.org/wiki/Chandy-Lamport_algorithm) algorithm.
 
 Checkpoints are written to S3 so that we can recover from machine failures, and are stored in Parquet format.
+
+For more detail on how all of this works, see our
+[what is stateful stream processing?](https://www.arroyo.dev/blog/stateful-stream-processing)
+explainer.
