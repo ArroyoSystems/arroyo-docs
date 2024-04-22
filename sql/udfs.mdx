@@ -1,6 +1,6 @@
 ---
-title: User-defined functions
-description: 'Implement custom business logic with UDFs'
+title: UDFs
+description: User-defined functions
 ---
 
 Arroyo SQL can be extended with user-defined functions. Currently, only Rust
@@ -11,7 +11,7 @@ UDFs are defined as Rust functions. The parameters and return type of the UDF
 are determined by the definition of the function. All types must be valid
 [SQL data types](/sql/data-types).
 
-Arroyo UDFs are annotated with the `#[udf]` in the arroyo_udf_plugin crate.w
+Arroyo UDFs are annotated with the `#[udf]` in the arroyo_udf_plugin crate.
 
 Here's an example of a simple UDF that squares an integer:
 
@@ -52,7 +52,7 @@ Nullability handling is controlled via the type signature of the UDF parameters 
 an `Option` type (for example `Option<i64>`), then it will be called with all inputs, even if they are `NULL`. If the
 parameter is not an `Option` type (for example `i64`), then it will only be called with non-`NULL` inputs.
 
-Similarly, if the return type is an `Option` type, then the output type is nullable, otherwise it is non-nullable. If
+Similarly, if the return type is an `Option` type, then the output type is nullable, otherwise it is non-nullable.
 
 In table form:
 
@@ -105,6 +105,16 @@ drop down.
 <img src="/images/globalize_udf.png" alt="The process of making a global UDF" />
 
 Global UDFs are available in all pipelines, but will be shadowed by local UDFs with the same name.
+
+## Performance considerations
+
+UDFs are expected to run and return quickly (think microseconds, not milliseconds). This means they
+shouldn't do any blocking work (like making network requests) or CPU-intensive computations. Within
+the Arroyo dataflow, UDFs are treated as normal scalar functions. They run serially against a batch of
+data, and while they run forward progress is blocked.
+
+If you need to use IO, CPU-intensive computations, or other usecases for long-running UDFs, see
+[async UDFs](/sql/async-udfs).
 
 ## Debugging UDFs
 
