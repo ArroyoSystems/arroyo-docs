@@ -50,7 +50,7 @@ SELECT * FROM (
         GROUP BY 1, 2)) where row_number = 1;
 ```
 
-Note that this is distinct feature from Arroyo's
+Note that this is a distinct feature from Arroyo's
 [streaming windows](/sql/windows), like `hop` and `slide`. Streaming windows
 allow aggregating over records with a time bound, while SQL window functions
 allow you to reference other rows without aggregating.
