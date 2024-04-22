@@ -100,7 +100,22 @@
         "sql/select-statements",
         "sql/ddl",
         "sql/windows",
-        "sql/scalar-functions",
+        {
+          "group": "Scalar Functions",
+          "pages": [
+            "sql/scalar-functions/math",
+            "sql/scalar-functions/conditional",
+            "sql/scalar-functions/string",
+            "sql/scalar-functions/binary-string",
+            "sql/scalar-functions/regex",
+            "sql/scalar-functions/json",
+            "sql/scalar-functions/time-and-date",
+            "sql/scalar-functions/array",
+            "sql/scalar-functions/struct",
+            "sql/scalar-functions/hashing",
+            "sql/scalar-functions/other"
+          ]
+        },
         "sql/aggregate-functions",
         "sql/window-functions",
         "sql/udfs",

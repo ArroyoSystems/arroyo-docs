@@ -1,0 +1,28 @@
+---
+title: JSON functions
+description: Scalar functions for manipulating JSON
+---
+
+
+The JSON functions provide basic json parsing functions using
+[JsonPath](https://goessner.net/articles/JsonPath/), an evolving standard for
+querying JSON objects.
+
+### extract_json
+
+Returns the JSON elements in the first argument that match the JsonPath in the second argument.
+The returned value is an array of json strings.
+
+```sql
+SELECT extract_json('{"a": 1, "b": 2, "c": 3}', '$.a') FROM source;
+['1']
+```
+
+### extract_json_string
+
+Returns an unescaped String for the first item matching the JsonPath, if it is a string.
+
+```sql
+SELECT extract_json_string('{"a": "a", "b": 2, "c": 3}', '$.a') FROM source;
+'a'
+```
