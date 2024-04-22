@@ -120,4 +120,4 @@ If you need to use IO, CPU-intensive computations, or other usecases for long-ru
 
 If UDFs panic, they will produce log lines in the worker logs. These are not currently forwarded to the Web UI, so you
 will need to find the logs where the workers are running. For the default `process` scheduler, this will be in the
-controller logs. For `kubernetes` and `nomad` schedulers, this will be within the actual worker pods.
+controller logs. For the `kubernetes` scheduler, this will be within the actual worker pods.
