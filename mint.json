@@ -80,13 +80,13 @@
                 "connectors/impulse",
                 "connectors/kafka",
                 "connectors/kinesis",
+                "connectors/mqtt",
                 "connectors/mysql",
                 "connectors/polling-http",
                 "connectors/postgres",
                 "connectors/redis",
                 "connectors/redpanda",
                 "connectors/server-sent-events",
-                "connectors/state",
                 "connectors/webhook",
                 "connectors/websocket"
             ]
@@ -113,8 +113,7 @@
       "pages": [
         "deployment/overview",
         "deployment/ec2",
-        "deployment/kubernetes",
-        "deployment/nomad"
+        "deployment/kubernetes"
       ]
     },
     {
