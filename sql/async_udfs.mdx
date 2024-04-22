@@ -6,11 +6,12 @@ description: 'Run Async UDFs'
 Arroyo's UDFs can be asynchronous.
 This is useful for UDFs that need to make network requests or perform other asynchronous operations,
 and therefore should not block processing. Since asynchronous UDFs are executed in parallel,
-we can maintain high throughput even with longer-running UDFs.
+the system can maintain high throughput even with longer-running UDFs.
 
-Note that async UDFs, like all Rust async functions,
-should not block as this will prevent execution of other tasks and can stall execution of the pipeline.
-Instead, they should use asynchronous libraries (calling `.await` instead of blocking) or make use of
+Note that async UDFs, like all Rust async functions, should not block or do
+CPU-intensive work as that will block execution of other instances of the UDF.
+Instead, they should use async libraries (calling `.await` instead of
+blocking) or make use of
 [spawn_blocking](https://docs.rs/tokio/latest/tokio/task/fn.spawn_blocking.html).
 
 To define an asynchronous UDF, use the `async` keyword in the function definition.

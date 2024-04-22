@@ -74,8 +74,8 @@ CREATE TABLE orders (
   customer_id INT,
   order_id INT,
   date_string TEXT,
-  event_time TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP)),
-  watermark TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP) - INTERVAL '15' SECOND
+  event_time TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP)) STORED,
+  watermark TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP) - INTERVAL '15' SECOND) STORED
 ) WITH (
   connector = 'kafka',
   format = 'json',
@@ -150,7 +150,7 @@ of the supported options, refer to the [Connector](/connectors) docs.
 #### Virtual Fields
 
 Virtual fields can be created within the `CREATE TABLE` statement.
-These are done using the `GENERATED ALWAYS AS (expression)` syntax.
+These are done using the `GENERATED ALWAYS AS (expression) STORED` syntax.
 `expression` must be a valid Arroyo SQL expression that only depends on non-virtual fields within the table.
 These will primarily be used to specify event time and watermark fields,
 as most other use cases can be handled by the `SELECT` statement.

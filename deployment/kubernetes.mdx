@@ -9,11 +9,11 @@ Arroyo control plane. This is the easiest way to get a production quality Arroyo
 This guide assumes a working Kubernetes cluster. This may be a local
 installation (like [minikube](https://minikube.sigs.k8s.io/docs/)) or a cloud
 provider (like [Amazon EKS](https://aws.amazon.com/eks/) or
-[Google Kubenretes Engine](https://cloud.google.com/kubernetes-engine)). All
+[Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine)). All
 stable Kubernetes versions are supported (currently >=1.25) but older versions
 will likely work as well.
 
-A complete working Arroyo cluster involves a number of compents (as described in more detail in the
+A complete working Arroyo cluster involves a number of components (as described in more detail in the
 [architecture guide](/architecture)):
 
 - arroyo-compiler
@@ -58,7 +58,7 @@ The most important options are:
   instance to be available with the connection settings determined by `postgresql.externalDatabase` configurations
   (by default: postgres://arroyo:arroyo@localhost:5432/arroyo).
 - `prometheus.deploy`: Whether to deploy a new Prometheus instance. If set to `false`, the chart will expect a
-  Prometheus instance to be availble at the URL determined by `prometheus.endpoint` (by default: http://localhost:9090).
+  Prometheus instance to be available at the URL determined by `prometheus.endpoint` (by default: http://localhost:9090).
   Prometheus is not required for operation of the system, but is needed for the Arroyo UI metrics to function. By
   default Arroyo expects you to have a scrape interval of 5s. If you have a higher scrape interval (for example, the
   default 1m) you will need to update the `prometheus.queryRate` configuration to at least 4x the scrape interval.
