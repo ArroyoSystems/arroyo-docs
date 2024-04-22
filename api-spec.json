@@ -1440,6 +1440,17 @@
                 "$ref": "#/components/schemas/StructType"
               }
             }
+          },
+          {
+            "type": "object",
+            "required": [
+              "list"
+            ],
+            "properties": {
+              "list": {
+                "$ref": "#/components/schemas/SourceField"
+              }
+            }
           }
         ]
       },
@@ -1525,7 +1536,8 @@
           "name",
           "createdAt",
           "updatedAt",
-          "definition"
+          "definition",
+          "dylibUrl"
         ],
         "properties": {
           "createdAt": {
@@ -1539,6 +1551,9 @@
           "description": {
             "type": "string",
             "nullable": true
+          },
+          "dylibUrl": {
+            "type": "string"
           },
           "id": {
             "type": "string"
@@ -1860,13 +1875,9 @@
         "required": [
           "operatorId",
           "timestamp",
-          "key",
           "value"
         ],
         "properties": {
-          "key": {
-            "type": "string"
-          },
           "operatorId": {
             "type": "string"
           },
@@ -2035,9 +2046,13 @@
         "required": [
           "nodeId",
           "operator",
+          "description",
           "parallelism"
         ],
         "properties": {
+          "description": {
+            "type": "string"
+          },
           "nodeId": {
             "type": "string"
           },
