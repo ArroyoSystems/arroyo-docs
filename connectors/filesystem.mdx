@@ -3,11 +3,13 @@ title: File System
 description: "Write Parquet and JSON to S3 and local filesystems"
 ---
 
-Arroyo provides the capability to read and write Parquet and JSON files to/from S3 and local filesystems.
+Arroyo provides the capability to read and write Parquet and JSON files to/from object stores and local filesystems.
 When used as a sink, Arroyo will produce complete files in line with the checkpointing system.
 As such, the file system sinks write all data exactly once.
 This is done against S3 by tracking multi-part uploads within the state store,
 allowing Arroyo to resume an in-progress upload in the event of a failure.
+
+The FileSystem connector supports local filesystem, S3 (including S3-compatible stores like MinIO), and GCS.
 
 As a source Arroyo reads all files to completion, at which point the job will finish.
 
