@@ -5,7 +5,7 @@ description: "Setting up an Arroyo cluster on EC2"
 
 This document will cover how to run an Arroyo cluster on raw EC2 instances. This requires a good understanding of the
 Arroyo architecture. For an easier approach to running a production-quality Arroyo cluster, see the docs for running
-on top of [nomad](/deployment/nomad). Kubernetes support is also coming soon.
+on top of [Kubernetes](/deployment/kubernetes).
 
 Before starting this guide, follow the common setup steps in the [deployment overview](/deployment/overview) guide.
 
@@ -29,8 +29,7 @@ $ refinery migrate -p arroyo-api/migrations
 ## Running the services
 
 There are two options for running a distributed cluster. You can either use Arroyo's built-in scheduler and nodes, or
-you can use [nomad](https://www.nomadproject.io/). Nomad is currently the recommended option, for production usecases.
-The Arroyo services can be run via Nomad, or separately on VMs.
+you can use Kubernetes. Kubernetes is currently the recommended option for production use-cases.
 
 ### Arroyo Services
 
@@ -64,9 +63,8 @@ The workers rely on the Prometheus pushgateway to produce metrics. You will need
 nodes that run the Arroyo workers at the default endpoint of `localhost:9091`, and you will need to configure your
 prometheus instance to scrape the pushgateways.
 
-## Schedulers
 
-### arroyo-node
+## arroyo-node
 
 Arroyo comes with a simple option for running clusters, via the arroyo-node binary. This can be run however you choose
 (for example on raw ec2 instances or within docker). The processes need to be configured with the controller's gRPC
@@ -75,12 +73,3 @@ endpoint via `CONTROLLER_ADDR`, for example `CONTROLLER_ADDR=http://arroyo-contr
 As mentioned above, you will also need to run a prometheus pushgateway on the nodes that run the workers.
 
 To use the arroyo-node scheduler, the controller should be run with `SCHEDULER=node`,
-
-### Nomad
-
-Nomad is well supported as a scheduler, and provides a number of benefits including a robust foundation, a web UI, and
-resource isolation via cgroups. It is the recommended option for production use.
-
-To use Nomad as the scheduler, start the controller with `SCHEDULER=nomad`. The controller will also need to be
-configured with the nomad API endpoint via the `NOMAD_ENDPOINT` environment variable. This can point to either a single
-nomad server, or a load balancer that points to multiple servers for high availability.
