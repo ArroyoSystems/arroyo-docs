@@ -254,9 +254,9 @@ via _virtual columns_.
 ```sql
 create table logs (
     value TEXT,
-    parsed TEXT GENERATED ALWAYS AS (parse_log(value)),
+    parsed TEXT GENERATED ALWAYS AS (parse_log(value)) STORED,
     event_time TIMESTAMP GENERATED ALWAYS AS
-        (CAST(extract_json_string(parse_log(value), '$.date') as TIMESTAMP))
+        (CAST(extract_json_string(parse_log(value), '$.date') as TIMESTAMP)) STORED
 ) with (
     connector = 'sse',
     endpoint = 'http://host.docker.internal:9563/sse',

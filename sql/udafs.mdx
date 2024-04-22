@@ -3,23 +3,31 @@ title: User-defined Aggregate Functions (UDAFs)
 description: 'Implement custom aggregation logic in Arroyo SQL with UDAFs'
 ---
 
-Arroyo SQL supports User-Defined Aggregate Functions, allowing you to extend the system's capabilities with custom aggregation logic written in Rust. 
-UDAFs can be registered via the SQL API call or the Web UI.
+Arroyo SQL supports User-Defined Aggregate Functions, allowing you to extend the
+system's capabilities with custom aggregation logic written in Rust. UDAFs are
+deployed and managed in the same way as scalar UDFs; see the [/sql/udfs](UDF
+docs) for details.
 
-## How to Define a UDAF
+## Defining a UDAF
 
-In Rust, UDAFs are defined as functions that take some number of `Vec<T>` as an argument, where `T` is any valid [SQL data type](/sql/data-types). 
+UDAFs are defined as functions that take some number of `Vec<T>` as an
+argument, where `T` is any valid [SQL data type](/sql/data-types).
 
 ### Example
 
 Here's a simple UDAF for calculating the median of a set of integers:
 
 ```rust
+use arroyo_sql_plugin::udf;
+
+#[udf]
 fn my_median(mut args: Vec<i64>) -> Option<f64> {
     if args.is_empty() {
         return None;
     }
-        args.sort();
+
+    args.sort();
+
     let mid = args.len() / 2;
     if args.len() % 2 == 0 {
         Some((args[mid] + args[mid - 1]) as f64 / 2.0)
@@ -29,29 +37,24 @@ fn my_median(mut args: Vec<i64>) -> Option<f64> {
 }
 ```
 
-You can then use this UDAF within an SQL query:
+Once defined, a UDAF can be used within a SQL query like the built-in aggregate
+functions:
 
 ```sql
-SELECT my_median(bid.price), bid.auction, session(interval '10 second') as session 
+SELECT my_median(bid.price), bid.auction, session(interval '10 second') as session
 FROM nexmark
 GROUP BY 2,3
 ```
 
 ## Nullability
 
-If a UDAF argument type is an `Option` (e.g., `Vec<Option<i64>>`), the UDAF will be invoked with all inputs, including `NULL`s.
-Otherwise, only non-null arguments will be passed down to the UDAF.
-Unlike UDFs, UDAFs will always be invoked, although possibly with empty input vectors.
+If a UDAF argument type is an `Option` (e.g., `Vec<Option<i64>>`), the UDAF will
+be invoked with all inputs, including `NULL`s. Otherwise, only non-null
+arguments will be passed down to the UDAF. Unlike UDFs, UDAFs will always be
+invoked, although possibly with empty input vectors.
 
 ## Debugging
 
-If a UDAF encounters a panic while, diagnostic information is logged to the worker logs. 
+If a UDAF encounters a panic while, diagnostic information is logged to the worker logs.
 Note that these logs are not currently accessible via the Web UI.
 If the UDAF fails to compile this will show up in the compilation service.
-
-## Future Work
-
-UDAF support is still in its early stages. Here are some features we plan to add in the future:
-* Support for ORDER BY clauses within the UDAF SQL expression.
-* Support for UDAFs in non-windowed aggregations.
-* Support for incrementally computed UDAFs.

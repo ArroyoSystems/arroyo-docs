@@ -3,47 +3,48 @@ title: User-defined functions
 description: 'Implement custom business logic with UDFs'
 ---
 
-Arroyo SQL can be extended with user-defined functions. Currently, only Rust UDFs are supported. UDFs can be defined
-as part of the SQL API call, or via the Web UI.
+Arroyo SQL can be extended with user-defined functions. Currently, only Rust
+UDFs are supported. UDFs can be defined as part of the SQL API call, or via the
+Web UI.
 
-UDFs are defined as Rust functions. The parameters and return type of the UDF are determined by the definition of the
-function. All types must be valid [SQL data types](/sql/data-types).
+UDFs are defined as Rust functions. The parameters and return type of the UDF
+are determined by the definition of the function. All types must be valid
+[SQL data types](/sql/data-types).
+
+Arroyo UDFs are annotated with the `#[udf]` in the arroyo_udf_plugin crate.w
 
 Here's an example of a simple UDF that squares an integer:
 
 ```rust
+use arroyo_udf_plugin::udf;
+
+#[udf]
 fn my_square(x: i64) -> i64 {
   x * x
 }
 ```
 
-Once registered, this can be used in SQL queries:
+Once registered, this UDF can be used in SQL queries:
 
 ```sql
-SELECT my_square(auction.bid) FROM nexmark
+SELECT my_square(auction.bid)
+FROM nexmark;
 ```
 
-## Dependencies
+## Creating UDFs
 
-UDFs can depend on external crates.
-To add dependencies, you can define a special comment in the UDF definition like this:
-```rust
-/*
-[dependencies]
-regex = "1.10.2"
-*/
+UDFs are developed and managed in the Web UI, within the Pipeline editor. To create a new UDF,
+navigate to the UDFs tab and click "New."
 
-use regex::Regex;
+<img src="/images/creating_udfs.png" alt="The UDF creation interface" />
 
-fn my_regex_matches(s: String) -> bool {
-    let re = Regex::new(r"test").unwrap();
-    re.is_match(&s)
-}
-```
+The name for the UDF is determined automatically from the function name that is annotated
+with `#[udf]`. You may include helper functions, structs, and other definitions so
+long as only one function has the `#[udf]` annotation.
 
-Internally, the contents of the `[dependencies]` comment are used to generate a `Cargo.toml` file for the UDF.
-See the [Cargo.toml reference](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html)
-for more details on the syntax.
+As you're developing, you may make use of the "Check" button to validate the UDF
+definition. Any Rust compilation errors will be included in the errors box at
+the bottom of the UI.
 
 ## Nullability
 
@@ -65,6 +66,45 @@ In table form:
 | Non-null | `Option<T>` | `T` | All values | Non-null |
 | Non-null | `T` | `Option<T>` | All values | Nullable |
 | Non-null | `Option<T>` | `Option<T>` | All values | Nullable |
+
+
+## Dependencies
+
+UDFs can depend on external crates. To add dependencies, you can define a
+special comment in the UDF definition like this:
+
+```rust
+/*
+[dependencies]
+regex = "1.10.2"
+*/
+
+use arroyo_udf_plugin::udf;
+use regex::Regex;
+
+#[udf]
+fn my_regex_matches(s: String) -> bool {
+    let re = Regex::new(r"test").unwrap();
+    re.is_match(&s)
+}
+```
+
+Internally, the contents of the `[dependencies]` comment are used to generate a `Cargo.toml` file for the UDF.
+See the [Cargo.toml reference](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html)
+for more details on the syntax.
+
+## Global UDFs
+
+UDFs may be either _local_—associated with a particular pipeline—or _global_, in which case they are stored
+in the database and may be used in any pipeline.
+
+All UDFs begin as local. If you've written a UDF that will benefit from being globally available, you can
+make it global by hovering over the tab containing the UDF, and clicking the "Globalize" button in the
+drop down.
+
+<img src="/images/globalize_udf.png" alt="The process of making a global UDF" />
+
+Global UDFs are available in all pipelines, but will be shadowed by local UDFs with the same name.
 
 ## Debugging UDFs
 
