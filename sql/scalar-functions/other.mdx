@@ -1,0 +1,85 @@
+---
+title: Other functions
+description: Miscellaneous scalar functions
+---
+
+{/*
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+ */}
+
+_Arroyo's Scalar function implementations are based on
+[Apache DataFusion](https://arrow.apache.org/datafusion/) and these docs are derived from
+the DataFusion function reference._
+
+### `arrow_cast`
+
+Casts a value to a specific Arrow data type:
+
+```
+arrow_cast(expression, datatype)
+```
+
+**Arguments**
+
+- **expression**: Expression to cast.
+  Can be a constant, column, or function, and any combination of arithmetic or
+  string operators.
+- **datatype**: [Arrow data type](https://docs.rs/arrow/latest/arrow/datatypes/enum.DataType.html) name
+  to cast to, as a string. The format is the same as that returned by [`arrow_typeof`]
+
+#### Example
+
+```
+> select arrow_cast(-5, 'Int8') as a,
+  arrow_cast('foo', 'Dictionary(Int32, Utf8)') as b,
+  arrow_cast('bar', 'LargeUtf8') as c,
+  arrow_cast('2023-01-02T12:53:02', 'Timestamp(Microsecond, Some("+08:00"))') as d
+  ;
++----+-----+-----+---------------------------+
+| a  | b   | c   | d                         |
++----+-----+-----+---------------------------+
+| -5 | foo | bar | 2023-01-02T12:53:02+08:00 |
++----+-----+-----+---------------------------+
+1 row in set. Query took 0.001 seconds.
+```
+
+### `arrow_typeof`
+
+Returns the name of the underlying [Arrow data type](https://docs.rs/arrow/latest/arrow/datatypes/enum.DataType.html) of the expression:
+
+```
+arrow_typeof(expression)
+```
+
+**Arguments**
+
+- **expression**: Expression to evaluate.
+  Can be a constant, column, or function, and any combination of arithmetic or
+  string operators.
+
+#### Example
+
+```
+> select arrow_typeof('foo'), arrow_typeof(1);
++---------------------------+------------------------+
+| arrow_typeof(Utf8("foo")) | arrow_typeof(Int64(1)) |
++---------------------------+------------------------+
+| Utf8                      | Int64                  |
++---------------------------+------------------------+
+1 row in set. Query took 0.001 seconds.
+```
