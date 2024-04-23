@@ -1,30 +1,223 @@
 ---
 title: Window Functions
-description: 'SQL Window Functions in Arroyo'
+description: 'SQL Window Functions'
 ---
 
-In SQL, window functions are a powerful tool for producing calculations that are dependent on data in other rows.
+{/*
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
 
-They allow you to attach data to the record without having to perform complex aggregations and joins.
+    http://www.apache.org/licenses/LICENSE-2.0
 
-In general, window functions are performed across a partition of records and return some computation about the
-record relative to the partition overall.
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+ */}
 
-Currently, Arroyo supports the `ROW_NUMBER()` window function,
- and requires the partition include a time window so that there is a guarantee of completeness.
+_Arroyo's window function implementations are based on
+[Apache DataFusion](https://arrow.apache.org/datafusion/) and these docs are
+derived from the DataFusion function reference._
 
- For example, to calculate the most common auction in a dataset over the last 10 minutes every second,
- you could use the following query:
+A _window function_ performs a calculation across a set of table rows that are
+somehow related to the current row. This is comparable to the type of
+calculation that can be done with an aggregate function. However, window
+functions do not cause rows to become grouped into a single output row like
+non-window aggregate calls would. Instead, the rows retain their separate
+identities. Behind the scenes, the window function is able to access more than
+just the current row of the query result.
+
+For example, to calculate the most common auction in a dataset over the last 10 minutes every second,
+you could use the following query:
 
 ```sql
 SELECT * FROM (
     SELECT ROW_NUMBER()  OVER (
         PARTITION BY window
-        ORDER BY count DESC) as row_number, auction, count 
+        ORDER BY count DESC) as row_number, auction, count
     FROM (
       SELECT auction,
-             hop(INTERVAL '1' second, INTERVAL '10' minute ) as window,
+             hop(INTERVAL '1' second, INTERVAL '10' minute) as window,
              count(*) as count
         FROM bids
-        GROUP BY 1, 2)) where row_number = 1
+        GROUP BY 1, 2)) where row_number = 1;
 ```
+
+Note that this is a distinct feature from Arroyo's
+[streaming windows](/sql/windows), like `hop` and `slide`. Streaming windows
+allow aggregating over records with a time bound, while SQL window functions
+allow you to reference other rows without aggregating.
+
+A window function call always contains an OVER clause directly following the
+window function's name and argument(s). This is what syntactically distinguishes
+it from a normal function or non-window aggregate. The OVER clause determines
+exactly how the rows of the query are split up for processing by the window
+function. The PARTITION BY clause within OVER divides the rows into groups, or
+partitions, that share the same values of the PARTITION BY expression(s). For
+each row, the window function is computed across the rows that fall into the
+same partition as the current row. The previous example showed how to count the
+average of a column per partition.
+
+You can also control the order in which rows are processed by window functions
+using ORDER BY within OVER. (The window ORDER BY does not even have to match the
+order in which the rows are output.)
+
+Note that currently window functions must contain a streaming window in the
+PARTITION BY.
+
+## Syntax
+
+The syntax for the OVER-clause is
+
+```
+function([expr])
+  OVER(
+    [PARTITION BY expr[, …]]
+    [ORDER BY expr [ ASC | DESC ][, …]]
+    )
+```
+
+## Aggregate functions
+
+All [aggregate functions](/sql/aggregate-functions) can be used as window functions.
+
+## Ranking functions
+
+- [row_number](#row_number)
+- [rank](#rank)
+- [dense_rank](#dense_rank)
+- [ntile](#ntile)
+
+### `row_number`
+
+Number of the current row within its partition, counting from 1.
+
+```sql
+row_number()
+```
+
+### `rank`
+
+Rank of the current row with gaps; same as row_number of its first peer.
+
+```sql
+rank()
+```
+
+### `dense_rank`
+
+Rank of the current row without gaps; this function counts peer groups.
+
+```sql
+dense_rank()
+```
+
+### `ntile`
+
+Integer ranging from 1 to the argument value, dividing the partition as equally as possible.
+
+```sql
+ntile(expression)
+```
+
+**Arguments**
+
+- **expression**: An integer describing the number groups the partition should be split into
+
+## Analytical functions
+
+- [cume_dist](#cume_dist)
+- [percent_rank](#percent_rank)
+- [lag](#lag)
+- [lead](#lead)
+- [first_value](#first_value)
+- [last_value](#last_value)
+- [nth_value](#nth_value)
+
+### `cume_dist`
+
+Relative rank of the current row: (number of rows preceding or peer with current row) / (total rows).
+
+```sql
+cume_dist()
+```
+
+### `percent_rank`
+
+Relative rank of the current row: (rank - 1) / (total rows - 1).
+
+```sql
+percent_rank()
+```
+
+### `lag`
+
+Returns value evaluated at the row that is offset rows before the current row within the partition; if there is no such row, instead return default (which must be of the same type as value). Both offset and default are evaluated with respect to the current row. If omitted, offset defaults to 1 and default to null.
+
+```sql
+lag(expression, offset, default)
+```
+
+**Arguments**
+
+- **expression**: Expression to operate on
+- **offset**: Integer. Specifies how many rows back the value of _expression_ should be retrieved. Defaults to 1.
+- **default**: The default value if the offset is not within the partition. Must be of the same type as _expression_.
+
+### `lead`
+
+Returns value evaluated at the row that is offset rows after the current row within the partition; if there is no such row, instead return default (which must be of the same type as value). Both offset and default are evaluated with respect to the current row. If omitted, offset defaults to 1 and default to null.
+
+```sql
+lead(expression, offset, default)
+```
+
+**Arguments**
+
+- **expression**: Expression to operate on
+- **offset**: Integer. Specifies how many rows forward the value of _expression_ should be retrieved. Defaults to 1.
+- **default**: The default value if the offset is not within the partition. Must be of the same type as _expression_.
+
+### `first_value`
+
+Returns value evaluated at the row that is the first row of the window frame.
+
+```sql
+first_value(expression)
+```
+
+**Arguments**
+
+- **expression**: Expression to operate on
+
+### `last_value`
+
+Returns value evaluated at the row that is the last row of the window frame.
+
+```sql
+last_value(expression)
+```
+
+**Arguments**
+
+- **expression**: Expression to operate on
+
+### `nth_value`
+
+Returns value evaluated at the row that is the nth row of the window frame (counting from 1); null if no such row.
+
+```sql
+nth_value(expression, n)
+```
+
+**Arguments**
+
+- **expression**: The name the column of which nth value to retrieve
+- **n**: Integer. Specifies the _n_ in nth
