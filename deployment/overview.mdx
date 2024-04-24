@@ -28,11 +28,13 @@ mounted on all nodes is sufficient, but for production you will likely want to u
 We also support S3-compatible object stores like MinIO and Localstack; endpoints can be set via the `s3::` prefix
 or the `AWS_ENDPOINT_URL` environment variable.
 
-The storage backedn is configured via two environment variables:
+The storage backend is configured via two environment variables:
 
-* `ARTIFACT_URL` controls where pipeline artifacts (i.e., binaries) are stored; this needs to be set on the compiler
-  service if using, or the controller if not
-* `CHECKPOINT_URL` controls where checkpoint data is stored; this needs to be set on the controller
+* `CHECKPOINT_URL` configures where checkpoints are written; for
+  high-availability this should be an object store, but may be a local directory
+  for testing and developing
+* `ARTIFACT_URL` controls where pipeline artifacts (like compiled UDF libs) are stored
+
 
 The values for these variables are URLs that specify the storage location. We support a number of ways of specifying
 these, for example:

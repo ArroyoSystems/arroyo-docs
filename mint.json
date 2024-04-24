@@ -127,8 +127,8 @@
       "group": "Deployment",
       "pages": [
         "deployment/overview",
-        "deployment/ec2",
-        "deployment/kubernetes"
+        "deployment/kubernetes",
+        "deployment/vm"
       ]
     },
     {
