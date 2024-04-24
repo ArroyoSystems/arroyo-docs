@@ -25,7 +25,7 @@ Aggregating data without a window will result in an updating output.
 This will emit an insert the first time data is processed for a group and subsequent data 
 will retract the prior value and then insert the new value.
 Aggregates are buffered in the operator, occasionally flushing. By default flushing happens every 1 second,
-but can be overridden with the UPDATE_AGGREGATE_FLUSH_MICROS environment variable.
+but can be overridden with the UPDATE_AGGREGATE_FLUSH_MS environment variable.
 
 For instance, the following query
 ```
