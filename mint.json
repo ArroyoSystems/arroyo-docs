@@ -100,6 +100,7 @@
         "sql/select-statements",
         "sql/ddl",
         "sql/windows",
+        "sql/updating-tables",
         {
           "group": "Scalar Functions",
           "pages": [
