@@ -1,0 +1,50 @@
+---
+title: Updating Tables
+description: 'Semantics for updating tables in Arroyo SQL'
+---
+
+In addition to handling real-time data using windows and watermarks, 
+Arroyo SQL also supports updating tables. This is done by splitting rows into _inserts_ and _deletes_.
+Inserts are new rows that have been added to the table, while deletes are rows that have been removed.
+
+#### Reading from updating sources
+Source connectors such as [kafka](/connectors/kafka) can specify the format as `'debezium_json'` to read [Debezium](https://debezium.io/)
+formatted messages. Messages with an op value of `'c'` (create) and `'r'` (read) are treated as an insert,
+an op value of `'d'` (delete) is treated as a delete, 
+and an op value of `'u'` (update) is unrolled as a delete followed by an insert.
+
+#### Manipulating updating data in SQL
+Updating data can be `SELECT`ed over and filtered, however, it cannot be joined or aggregated.
+
+#### Writing to updating sinks
+Debezium data can be written to sinks with the `debezium_json` format. 
+This will convert inserts into a `'c'` (create) operation, deletes into a `'d'` (delete) operation.
+
+#### Non-windowed aggregates
+Aggregating data without a window will result in an updating output. 
+This will emit an insert the first time data is processed for a group and subsequent data 
+will retract the prior value and then insert the new value.
+Aggregates are buffered in the operator, occasionally flushing. By default flushing happens every 1 second,
+but can be overridden with the UPDATE_AGGREGATE_FLUSH_MICROS environment variable.
+
+For instance, the following query
+```
+CREATE TABLE impulse WITH (
+    'connector' = 'impulse',
+    event_rate = '100'
+);
+SELECT count(*) as rows
+FROM impulse;
+```
+will produce output data like the following:
+
+|before | after | op |
+|-------|-------|----|
+|null |` { "rows": 300}`| `"c"`|
+|`{ "rows": 200 }`| null | `"d"`|
+|null |	`{ "rows": 200 }`|	`"c"`|
+|`{ "rows": 100 }`| null | `"d"`|
+|null |`{ "rows": 100 }`| `"c"`|
+
+
+For examples of manipulating updating data, see the [Debezium Terminal](/tutorial/debezium).
