@@ -57,7 +57,7 @@ regexp_like(str, regexp[, flags])
   - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
   - **U**: swap the meaning of x* and x*?
 
-### Example
+**Example**
 
 ```sql
 select regexp_like('Köln', '[a-zA-Z]ö[a-zA-Z]{2}');
@@ -98,7 +98,7 @@ regexp_match(str, regexp[, flags])
   - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
   - **U**: swap the meaning of x* and x*?
 
-### Example
+**Example**
 
 ```sql
 select regexp_match('Köln', '[a-zA-Z]ö[a-zA-Z]{2}');
@@ -142,7 +142,7 @@ regexp_replace(str, regexp, replacement[, flags])
   - **R**: enables CRLF mode: when multi-line mode is enabled, \r\n is used
   - **U**: swap the meaning of x* and x*?
 
-### Example
+**Example**
 
 ```sql
 SELECT regexp_replace('foobarbaz', 'b(..)', 'X\\1Y', 'g');
