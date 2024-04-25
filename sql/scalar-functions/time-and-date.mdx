@@ -88,7 +88,7 @@ date_trunc(precision, expression)
 - **expression**: Time expression to operate on.
   Can be a constant, column, or function.
 
-### Aliases
+**Aliases**
 
 - datetrunc
 
@@ -127,7 +127,7 @@ date_part(part, expression)
 - **expression**: Time expression to operate on.
   Can be a constant, column, or function.
 
-### Aliases
+**Aliases**
 
 - datepart
 
@@ -169,7 +169,7 @@ make_date(year, month, day)
 - **day**: Day to use when making the date.
   Can be a constant, column or function, and any combination of arithmetic operators.
 
-### Example
+**Example**
 
 ```
 > select make_date(2023, 1, 31);
@@ -205,7 +205,7 @@ to_char(expression, format)
   date, time, timestamp or duration.
 - **format**: A [Chrono format] string to use to convert the expression.
 
-### Example
+**Example**
 
 ```
 > > select to_char('2023-03-01'::date, '%d-%m-%Y');
@@ -220,7 +220,7 @@ Additional examples can be found [here]
 
 [here]: https://github.com/apache/datafusion/blob/main/datafusion-examples/examples/to_char.rs
 
-### Aliases
+**Aliases**
 
 - date_format
 
@@ -250,7 +250,7 @@ to_timestamp(expression[, ..., format_n])
 
 [chrono format]: https://docs.rs/chrono/latest/chrono/format/strftime/index.html
 
-### Example
+**Example**
 
 ```
 > select to_timestamp('2023-01-31T09:26:56.123456789-05:00');
@@ -289,7 +289,7 @@ to_timestamp_millis(expression[, ..., format_n])
   they appear with the first successful one being returned. If none of the formats successfully parse the expression
   an error will be returned.
 
-### Example
+**Example**
 
 ```
 > select to_timestamp_millis('2023-01-31T09:26:56.123456789-05:00');
@@ -328,7 +328,7 @@ to_timestamp_micros(expression[, ..., format_n])
   they appear with the first successful one being returned. If none of the formats successfully parse the expression
   an error will be returned.
 
-### Example
+**Example**
 
 ```
 > select to_timestamp_micros('2023-01-31T09:26:56.123456789-05:00');
@@ -367,7 +367,7 @@ to_timestamp_nanos(expression[, ..., format_n])
   they appear with the first successful one being returned. If none of the formats successfully parse the expression
   an error will be returned.
 
-### Example
+**Example**
 
 ```
 > select to_timestamp_nanos('2023-01-31T09:26:56.123456789-05:00');
@@ -406,7 +406,7 @@ to_timestamp_seconds(expression[, ..., format_n])
   they appear with the first successful one being returned. If none of the formats successfully parse the expression
   an error will be returned.
 
-### Example
+**Example**
 
 ```
 > select to_timestamp_seconds('2023-01-31T09:26:56.123456789-05:00');
