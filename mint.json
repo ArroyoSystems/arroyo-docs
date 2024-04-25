@@ -82,6 +82,7 @@
                 "connectors/kinesis",
                 "connectors/mqtt",
                 "connectors/mysql",
+                "connectors/nats",
                 "connectors/polling-http",
                 "connectors/postgres",
                 "connectors/redis",
