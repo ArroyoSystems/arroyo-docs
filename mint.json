@@ -222,5 +222,15 @@
     "ga4": {
       "measurementId": "G-YV6B37JRYM"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/sql/async_udfs",
+      "destination": "/sql/async-udfs"
+    },
+    {
+      "source": "/deployment/ec2",
+      "destination": "/deployment/vm"
+    }
+  ]
 }

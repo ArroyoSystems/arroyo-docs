@@ -40,7 +40,7 @@ array_append(array, element)
   Can be a constant, column, or function, and any combination of array operators.
 - **element**: Element to append to the array.
 
-### Example
+**Example**
 
 ```
 > select array_append([1, 2, 3], 4);
@@ -51,7 +51,7 @@ array_append(array, element)
 +--------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - array_push_back
 - list_append
@@ -72,7 +72,7 @@ array_sort(array, desc, nulls_first)
 - **desc**: Whether to sort in descending order(`ASC` or `DESC`).
 - **nulls_first**: Whether to sort nulls first(`NULLS FIRST` or `NULLS LAST`).
 
-### Example
+**Example**
 
 ```
 > select array_sort([3, 1, 2]);
@@ -83,7 +83,7 @@ array_sort(array, desc, nulls_first)
 +-----------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_sort
 
@@ -102,7 +102,7 @@ array_resize(array, size, value)
 - **size**: New size of given array.
 - **value**: Defines new elements' value or empty if value is not set.
 
-### Example
+**Example**
 
 ```
 > select array_resize([1, 2, 3], 5, 0);
@@ -113,7 +113,7 @@ array_resize(array, size, value)
 +-------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_resize
 
@@ -135,7 +135,7 @@ array_concat(array[, ..., array_n])
   Can be a constant, column, or function, and any combination of array operators.
 - **array_n**: Subsequent array column or literal array to concatenate.
 
-### Example
+**Example**
 
 ```
 > select array_concat([1, 2], [3, 4], [5, 6]);
@@ -146,7 +146,7 @@ array_concat(array[, ..., array_n])
 +---------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - array_cat
 - list_cat
@@ -171,7 +171,7 @@ array_has(array, element)
 - **element**: Scalar or Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Aliases
+**Aliases**
 
 - list_has
 
@@ -190,7 +190,7 @@ array_has_all(array, sub-array)
 - **sub-array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Aliases
+**Aliases**
 
 - list_has_all
 
@@ -209,7 +209,7 @@ array_has_any(array, sub-array)
 - **sub-array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Aliases
+**Aliases**
 
 - list_has_any
 
@@ -226,7 +226,7 @@ array_dims(array)
 - **array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_dims([[1, 2, 3], [4, 5, 6]]);
@@ -237,7 +237,7 @@ array_dims(array)
 +---------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_dims
 
@@ -254,7 +254,7 @@ array_distinct(array)
 - **array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_distinct([1, 3, 2, 3, 1, 2, 4]);
@@ -265,7 +265,7 @@ array_distinct(array)
 +---------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_distinct
 
@@ -283,7 +283,7 @@ array_element(array, index)
   Can be a constant, column, or function, and any combination of array operators.
 - **index**: Index to extract the element from the array.
 
-### Example
+**Example**
 
 ```
 > select array_element([1, 2, 3, 4], 3);
@@ -294,7 +294,7 @@ array_element(array, index)
 +-----------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - array_extract
 - list_element
@@ -357,7 +357,7 @@ array_intersect(array1, array2)
 - **array2**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_intersect([1, 2, 3, 4], [5, 6, 3, 4]);
@@ -376,7 +376,7 @@ array_intersect(array1, array2)
 
 ---
 
-### Aliases
+**Aliases**
 
 - list_intersect
 
@@ -398,7 +398,7 @@ array_length(array, dimension)
   Can be a constant, column, or function, and any combination of array operators.
 - **dimension**: Array dimension.
 
-### Example
+**Example**
 
 ```
 > select array_length([1, 2, 3, 4, 5]);
@@ -409,7 +409,7 @@ array_length(array, dimension)
 +---------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_length
 
@@ -426,7 +426,7 @@ array_ndims(array, element)
 - **array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_ndims([[1, 2, 3], [4, 5, 6]]);
@@ -437,7 +437,7 @@ array_ndims(array, element)
 +----------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_ndims
 
@@ -455,7 +455,7 @@ array_prepend(element, array)
 - **array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_prepend(1, [2, 3, 4]);
@@ -466,7 +466,7 @@ array_prepend(element, array)
 +---------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - array_push_front
 - list_prepend
@@ -485,7 +485,7 @@ array_pop_front(array)
 - **array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_pop_front([1, 2, 3]);
@@ -496,7 +496,7 @@ array_pop_front(array)
 +-------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_pop_front
 
@@ -513,7 +513,7 @@ array_pop_back(array)
 - **array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_pop_back([1, 2, 3]);
@@ -524,7 +524,7 @@ array_pop_back(array)
 +-------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_pop_back
 
@@ -544,7 +544,7 @@ array_position(array, element, index)
 - **element**: Element to search for position in the array.
 - **index**: Index at which to start searching.
 
-### Example
+**Example**
 
 ```
 > select array_position([1, 2, 2, 3, 1, 4], 2);
@@ -555,7 +555,7 @@ array_position(array, element, index)
 +----------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - array_indexof
 - list_indexof
@@ -575,7 +575,7 @@ array_positions(array, element)
   Can be a constant, column, or function, and any combination of array operators.
 - **element**: Element to search for positions in the array.
 
-### Example
+**Example**
 
 ```
 > select array_positions([1, 2, 2, 3, 1, 4], 2);
@@ -586,7 +586,7 @@ array_positions(array, element)
 +-----------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_positions
 
@@ -612,7 +612,7 @@ array_repeat(element, count)
   Can be a constant, column, or function, and any combination of array operators.
 - **count**: Value of how many times to repeat the element.
 
-### Example
+**Example**
 
 ```
 > select array_repeat(1, 3);
@@ -632,7 +632,7 @@ array_repeat(element, count)
 +------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_repeat
 
@@ -650,7 +650,7 @@ array_remove(array, element)
   Can be a constant, column, or function, and any combination of array operators.
 - **element**: Element to be removed from the array.
 
-### Example
+**Example**
 
 ```
 > select array_remove([1, 2, 2, 3, 2, 1, 4], 2);
@@ -661,7 +661,7 @@ array_remove(array, element)
 +----------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_remove
 
@@ -680,7 +680,7 @@ array_remove_n(array, element, max)
 - **element**: Element to be removed from the array.
 - **max**: Number of first occurrences to remove.
 
-### Example
+**Example**
 
 ```
 > select array_remove_n([1, 2, 2, 3, 2, 1, 4], 2, 2);
@@ -691,7 +691,7 @@ array_remove_n(array, element, max)
 +---------------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_remove_n
 
@@ -709,7 +709,7 @@ array_remove_all(array, element)
   Can be a constant, column, or function, and any combination of array operators.
 - **element**: Element to be removed from the array.
 
-### Example
+**Example**
 
 ```
 > select array_remove_all([1, 2, 2, 3, 2, 1, 4], 2);
@@ -720,7 +720,7 @@ array_remove_all(array, element)
 +--------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_remove_all
 
@@ -739,7 +739,7 @@ array_replace(array, from, to)
 - **from**: Initial element.
 - **to**: Final element.
 
-### Example
+**Example**
 
 ```
 > select array_replace([1, 2, 2, 3, 2, 1, 4], 2, 5);
@@ -750,7 +750,7 @@ array_replace(array, from, to)
 +--------------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_replace
 
@@ -770,7 +770,7 @@ array_replace_n(array, from, to, max)
 - **to**: Final element.
 - **max**: Number of first occurrences to replace.
 
-### Example
+**Example**
 
 ```
 > select array_replace_n([1, 2, 2, 3, 2, 1, 4], 2, 5, 2);
@@ -781,7 +781,7 @@ array_replace_n(array, from, to, max)
 +-------------------------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_replace_n
 
@@ -800,7 +800,7 @@ array_replace_all(array, from, to)
 - **from**: Initial element.
 - **to**: Final element.
 
-### Example
+**Example**
 
 ```
 > select array_replace_all([1, 2, 2, 3, 2, 1, 4], 2, 5);
@@ -811,7 +811,7 @@ array_replace_all(array, from, to)
 +------------------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_replace_all
 
@@ -828,7 +828,7 @@ array_reverse(array)
 - **array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_reverse([1, 2, 3, 4]);
@@ -839,7 +839,7 @@ array_reverse(array)
 +------------------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_reverse
 
@@ -861,7 +861,7 @@ array_slice(array, begin, end)
   If negative, it counts backward from the end of the array.
 - **stride**: Stride of the array slice. The default is 1.
 
-### Example
+**Example**
 
 ```
 > select array_slice([1, 2, 3, 4, 5, 6, 7, 8], 3, 6);
@@ -872,7 +872,7 @@ array_slice(array, begin, end)
 +--------------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - list_slice
 
@@ -890,7 +890,7 @@ array_to_string(array, delimiter)
   Can be a constant, column, or function, and any combination of array operators.
 - **delimiter**: Array element separator.
 
-### Example
+**Example**
 
 ```
 > select array_to_string([[1, 2, 3, 4], [5, 6, 7, 8]], ',');
@@ -901,7 +901,7 @@ array_to_string(array, delimiter)
 +----------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - array_join
 - list_join
@@ -922,7 +922,7 @@ array_union(array1, array2)
 - **array2**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_union([1, 2, 3, 4], [5, 6, 3, 4]);
@@ -941,7 +941,7 @@ array_union(array1, array2)
 
 ---
 
-### Aliases
+**Aliases**
 
 - list_union
 
@@ -960,7 +960,7 @@ array_except(array1, array2)
 - **array2**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select array_except([1, 2, 3, 4], [5, 6, 3, 4]);
@@ -979,7 +979,7 @@ array_except(array1, array2)
 
 ---
 
-### Aliases
+**Aliases**
 
 - list_except
 
@@ -996,7 +996,7 @@ cardinality(array)
 - **array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select cardinality([[1, 2, 3, 4], [5, 6, 7, 8]]);
@@ -1020,7 +1020,7 @@ empty(array)
 - **array**: Array expression.
   Can be a constant, column, or function, and any combination of array operators.
 
-### Example
+**Example**
 
 ```
 > select empty([1]);
@@ -1031,7 +1031,7 @@ empty(array)
 +------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - array_empty,
 - list_empty
@@ -1050,7 +1050,7 @@ generate_series(start, stop, step)
 - **end**: end of the range (included)
 - **step**: increase by step (can not be 0)
 
-### Example
+**Example**
 
 ```
 > select generate_series(1,3);
@@ -1227,7 +1227,7 @@ _Alias of [empty](#empty)._
   Can be a constant, column, or function, and any combination of arithmetic or
   string operators.
 
-### Example
+**Example**
 
 ```
 > select make_array(1, 2, 3, 4, 5);
@@ -1238,7 +1238,7 @@ _Alias of [empty](#empty)._
 +----------------------------------------------------------+
 ```
 
-### Aliases
+**Aliases**
 
 - make_list
 
@@ -1261,7 +1261,7 @@ starts_with(str, delimiter[, null_str])
 - **delimiter**: Delimiter string to split on.
 - **null_str**: Substring values to be replaced with `NULL`
 
-### Aliases
+**Aliases**
 
 - string_to_list
 
@@ -1326,92 +1326,6 @@ are not allowed
 - **end**: end of the range (not included)
 - **step**: increase by step (can not be 0)
 
-### Aliases
+**Aliases**
 
 - generate_series
-
-## Struct Functions
-
-## `struct`
-
-Returns an Arrow struct using the specified input expressions optionally named.
-Fields in the returned struct use the optional name or the `cN` naming convention.
-For example: `c0`, `c1`, `c2`, etc.
-
-```
-struct(expression1[, ..., expression_n])
-```
-
-For example, this query converts two columns `a` and `b` to a single column with
-a struct type of fields `field_a` and `c1`:
-
-```
-select * from t;
-+---+---+
-| a | b |
-+---+---+
-| 1 | 2 |
-| 3 | 4 |
-+---+---+
-
--- use default names `c0`, `c1`
-> select struct(a, b) from t;
-+-----------------+
-| struct(t.a,t.b) |
-+-----------------+
-| {c0: 1, c1: 2}  |
-| {c0: 3, c1: 4}  |
-+-----------------+
-
--- name the first field `field_a`
-select struct(a as field_a, b) from t;
-+--------------------------------------------------+
-| named_struct(Utf8("field_a"),t.a,Utf8("c1"),t.b) |
-+--------------------------------------------------+
-| {field_a: 1, c1: 2}                              |
-| {field_a: 3, c1: 4}                              |
-+--------------------------------------------------+
-```
-
-**Arguments**
-
-- **expression_n**: Expression to include in the output struct.
-  Can be a constant, column, or function, any combination of arithmetic or
-  string operators, or a named expression of previous listed .
-
-## `named_struct`
-
-Returns an Arrow struct using the specified name and input expressions pairs.
-
-```
-named_struct(expression1_name, expression1_input[, ..., expression_n_name, expression_n_input])
-```
-
-For example, this query converts two columns `a` and `b` to a single column with
-a struct type of fields `field_a` and `field_b`:
-
-```
-select * from t;
-+---+---+
-| a | b |
-+---+---+
-| 1 | 2 |
-| 3 | 4 |
-+---+---+
-
-select named_struct('field_a', a, 'field_b', b) from t;
-+-------------------------------------------------------+
-| named_struct(Utf8("field_a"),t.a,Utf8("field_b"),t.b) |
-+-------------------------------------------------------+
-| {field_a: 1, field_b: 2}                              |
-| {field_a: 3, field_b: 4}                              |
-+-------------------------------------------------------+
-```
-
-**Arguments**
-
-- **expression_n_name**: Name of the column field.
-  Must be a constant string.
-- **expression_n_input**: Expression to include in the output struct.
-  Can be a constant, column, or function, and any combination of arithmetic or
-  string operators.
