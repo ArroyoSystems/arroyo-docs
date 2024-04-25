@@ -116,7 +116,7 @@ Now we can pull out the tags using the `extract_json` function:
 
 ```sql
 SELECT tag FROM (
-    SELECT extract_json_string(value, '$.tags[*].name') AS tag
+    SELECT extract_json(value, '$.tags[*].name') AS tag
     FROM mastodon)
     WHERE tag IS NOT NULL;
 ```
@@ -131,7 +131,7 @@ easier to work with:
 
 ```sql
 CREATE VIEW tags AS (
-    SELECT unnest(tags) as tag FROM (
+    SELECT btrim(unnest(tags), '"') as tag FROM (
         SELECT extract_json(value, '$.tags[*].name') AS tags
         FROM mastodon)
 );
@@ -139,7 +139,8 @@ CREATE VIEW tags AS (
 
 We've also added a call to [`unnest`](https://doc.arroyo.dev/sql/select-statements#unnest-operator), which is a
 special operator that is able to "unroll" lists into individual records. This lets us handle all of the tags
-in a single message.
+in a single message. Then we've wrapped that in `btrim`, as extract_json returns encoded strings like `"tag"`—
+btrim removes the leading and trailing `"`s so we just get `tag`.
 
 ## Counting Hashtags
 
@@ -147,8 +148,6 @@ The next step is to find the count of each hashtag over a window of time.  We'll
 that's 15 minutes wide (in other words, that looks back that far in the data stream) with a 5 second slide
 (in other words, that updates every 5 seconds). In SQL, we can introduce a sliding window with the `hop`
 function.
-
-We'll also turn our tag query into a view to make it easier to work with:
 
 ```sql
 SELECT tag, count(*) AS count
@@ -204,7 +203,7 @@ CREATE TABLE mastodon (
 );
 
 CREATE VIEW tags AS (
-    SELECT unnest(tags) as tag FROM (
+    SELECT btrim(unnest(tags), '"') as tag FROM (
         SELECT extract_json(value, '$.tags[*].name') AS tags
      FROM mastodon)
 );

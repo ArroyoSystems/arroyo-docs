@@ -173,13 +173,13 @@ Once everything is running, you should be able to access the Arroyo UI.
 If you're running locally on linux, you can use connect directly to the pod with
 
 ```sh
-$ open "http://$(kubectl get service/arroyo-api -o jsonpath='{.spec.clusterIP}')"
+$ open "http://$(kubectl get service/arroyo -o jsonpath='{.spec.clusterIP}')"
 ```
 
 If you're running on MacOS or in EKS, you can proxy the service to your local machine with
 
 ```sh
-$ kubectl port-forward service/arroyo-api 8000:80
+$ kubectl port-forward service/arroyo 8000:80
 ```
 
 Then you can access the UI at https://localhost:8000.
