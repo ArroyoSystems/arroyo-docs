@@ -24,7 +24,6 @@ $ sudo mv bin/protoc /usr/local/bin
 $ curl https://sh.rustup.rs -sSf | sh -s -- -y
 $ cargo install refinery_cli
 $ curl -fsSL https://get.pnpm.io/install.sh | sh -
-$ pnpm install --global @openapitools/openapi-generator-cli
 ```
 </Tab>
 
@@ -51,7 +50,6 @@ Finally, install the following packages:
 ```bash
 $ cargo install refinery_cli
 $ cargo install cargo-nextest
-$ pnpm install --global @openapitools/openapi-generator-cli
 ```
 </Tab>
 </Tabs>
@@ -77,7 +75,7 @@ can be changed by setting the following environment variables:
 * `DATABASE_USER`
 * `DATABASE_PASSWORD`
 
-On Ubuntu, you can setup a compatible database like this:
+On Ubuntu, you can set up a compatible database like this:
 
 ```bash
 $ sudo -u postgres psql -c "CREATE USER arroyo WITH PASSWORD 'arroyo' SUPERUSER;"
@@ -98,7 +96,7 @@ set up, you can initialize it with
 ```bash
 $ refinery setup # follow the prompts
 $ mv refinery.toml ~/
-$ refinery migrate -c ~/refinery.toml -p arroyo-api/migrations
+$ refinery migrate -c ~/refinery.toml -p crates/arroyo-api/migrations
 ```
 
 We use [cornucopia](https://github.com/cornucopia-rs/cornucopia) for typed-checked SQL queries. Our build is set up
