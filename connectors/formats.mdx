@@ -89,9 +89,24 @@ other applications that read from the same topic.
 
 ## Raw string
 
-Raw string data is treated as a single column named `value` with type `TEXT`,
-and can be operated on using
-[SQL string functions](/sql/scalar-functions#string-functions) or [UDFs](/sql/udfs).
+To ingest or emit arbitrary string data (encoded as UTF-8), you can use the
+`raw_string` format. Raw string tables have a single column named `value` with
+type `TEXT`, for example:
+
+```sql
+CREATE TABLE logs (
+    value TEXT
+) with (
+    format = 'raw_string',
+    ...
+);
+```
+
+
+
+Raw string data can be operated on using
+[SQL string functions](/sql/scalar-functions#string-functions) or
+[UDFs](/sql/udfs).
 
 Raw string is supported for both deserialization (from sources) and serialization
 (to sinks). As a serialization format, it can be useful for generating data in formats
@@ -113,6 +128,36 @@ fn my_to_json(f: f64) -> String {
     serde_json::to_string(&v).unwrap()
 }
 ```
+
+Similarly, for sources it can be used with a UDF to parse unsupported textual formats, as can
+be seen in the [logfmt parsing tutorial](/tutorial/udfs).
+
+## Raw bytes
+
+The raw bytes format allows users to ingest and emit arbitrary binary data. Together with a
+[UDFs](/sql/udfs), this allows you to implement binary formats that are internal or otherwise
+not supported natively by Arroyo.
+
+Raw bytes tables have a single column named `value` with type `BYTEA`:
+
+```sql
+CREATE TABLE events (
+    value BYTEA
+) with (
+    format = 'raw_bytes',
+    ...
+);
+```
+
+UDFs that operate on raw_bytes will take in an argument of type `&[u8]`, for example:
+
+```rust
+#[udf]
+fn parse_string(data: &[u8]) -> Option<String> {
+    Some(String::from_utf8(data.to_owned()).ok()?)
+}
+```
+
 
 ## Parquet
 

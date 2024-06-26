@@ -243,8 +243,6 @@ For efficiency, we use _targets_ to build images for different purposes. The ava
 * `arroyo-full` -- also includes a Rust compile environment; this is needed for building UDFs within the Web UI; the
   compiler service will dynamically fetch the necessary dependencies, but you may choose to use arroyo-full if you're
   running in an environment that does not allow external internet access
-* `arroyo-single` -- includes all dependencies needed to run a complete Arroyo cluster, including postgres and
-  prometheus.
 
 To build a particular target, run
 

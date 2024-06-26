@@ -10,9 +10,9 @@ DataFusion is in turn a part of the [Apache Arrow](https://arrow.apache.org/) pr
 a cross-language data format for columnar in-memory computation.
 
 Depending on which part of the system you're working with one or more of these will be relevant.
-For basic SQL users you should only need to deal with the SQL types. 
+For basic SQL users you should only need to deal with the SQL types.
 
-These types can also be inserted as literals in sql. 
+These types can also be inserted as literals in sql.
 For types like INT vs BIGINT it will infer the type based on context.
 |Arroyo type| Rust Type | Arrow DataType| Sql Types                      | Example Literals      |
 |-----------|------------|-----------|-----------------------------------|-----------------------|
@@ -25,4 +25,4 @@ For types like INT vs BIGINT it will infer the type based on context.
 |`Float64`  |`f64`       |`Float64`  |`DOUBLE`                           |`0.0`, `-2.4`, `1E-35` |
 |`String`   |`String`    |`Utf8`     |`VARCHAR`, `CHAR`, `TEXT`, `STRING`|`"hello"`, `"world"`   |
 |`Timestamp`|`SystemTime`|`Timestamp`|`TIMESTAMP`                        |`'2020-01-01'` `'2023-05-17T22:16:00.648662+00:00'`|
-|`Bytes`    |`Vec<u8>`   |`Binary`   |`BYTEA`                            |Unsupported            |
+|`Bytes`    |`Vec<u8>`   |`Binary`   |`BYTEA`                   |`X'A123'` (hex)            |

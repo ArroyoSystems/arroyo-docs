@@ -173,7 +173,7 @@ use chrono::DateTime;
 use std::str::FromStr;
 
 #[udf]
-fn parse_log(s: String) -> Option<String> {
+fn parse_log(s: &str) -> Option<String> {
     // use OnceLock to prevent re-compilation of the regexes on every request
     use std::sync::OnceLock;
     static REGEX: OnceLock<Regex> = OnceLock::new();
@@ -182,7 +182,7 @@ fn parse_log(s: String) -> Option<String> {
     });
 
     // try to parse the log, returning None if it fails
-    let captures = regex.captures(&s)?;
+    let captures = regex.captures(s)?;
 
     // try parsing the timestamp using the chrono library
     let date = DateTime::parse_from_str(captures.get(4).unwrap().as_str(), "%d/%b/%Y:%H:%M:%S %z").ok()?;
@@ -207,7 +207,7 @@ A few things to note here, if you're not familiar with Rust and Arroyo UDFs:
    a Cargo.toml file.
 2. UDFs are Rust functions that take some number of arguments and return a
    value. The arguments and return value must be a supported SQL type. In this
-   case, we're taking a String as input and returning an `Option<String>`, which
+   case, we're taking a &str (string reference) as input and returning an `Option<String>`, which
    allows us to filter out invalid records that fail parsing. If you instead
    wanted to fail processing on invalid records, you could return a `String`
    instead and use `unwrap()` instead of `?` to handle errors.
