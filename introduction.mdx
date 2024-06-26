@@ -75,29 +75,6 @@ To run Arroyo locally follow the
 Arroyo supports several deployment targets for production use, including full support for Kubernetes. See the
 [deployment docs](/deployment/overview) for more information.
 
-#### Metrics
-
-The metrics exposed in the UI rely on Prometheus and the Prometheus pushgateway. You will need to run these services
-and configure prometheus to read from the push gateway.
-
-Download prometheus and pushgateway for your platform from https://prometheus.io/download/. Then, create a prometheus.yml
-file that looks like this:
-
-```yaml
-global:
-  scrape_interval: 5s
-scrape_configs:
-  - job_name: pushgateway
-    static_configs:
-      - targets: ['localhost:9091']
-```
-
-Finally, start both prometheus and the pushgateway:
-
-```bash
-$ ./pushgateway
-$ ./prometheus --config.file=prometheus.yml
-```
 
 ### Next steps
 

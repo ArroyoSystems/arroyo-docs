@@ -11,6 +11,10 @@ UDFs are defined as Rust functions. The parameters and return type of the UDF
 are determined by the definition of the function. All types must be valid
 [SQL data types](/sql/data-types).
 
+For String and Binary types (`TEXT` `BYTEA` in SQL), UDFs use the reference type
+(`&str` and `&[u8]`) for arguments and the owned types (`String` and `Vec<u8>`)
+for return values.
+
 Arroyo UDFs are annotated with the `#[udf]` in the arroyo_udf_plugin crate.
 
 Here's an example of a simple UDF that squares an integer:
@@ -30,6 +34,9 @@ Once registered, this UDF can be used in SQL queries:
 SELECT my_square(auction.bid)
 FROM nexmark;
 ```
+
+For a complete example of how to use UDFs to solve a real-world problem of custom
+format parsing, see the [UDF tutorial](/tutorial/udfs).
 
 ## Creating UDFs
 
@@ -83,9 +90,9 @@ use arroyo_udf_plugin::udf;
 use regex::Regex;
 
 #[udf]
-fn my_regex_matches(s: String) -> bool {
+fn my_regex_matches(s: &str) -> bool {
     let re = Regex::new(r"test").unwrap();
-    re.is_match(&s)
+    re.is_match(s)
 }
 ```
 

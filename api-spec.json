@@ -20,7 +20,6 @@
           "connection_profiles"
         ],
         "summary": "List all connection profiles",
-        "description": "List all connection profiles",
         "operationId": "get_connection_profiles",
         "responses": {
           "200": {
@@ -40,7 +39,6 @@
           "connection_profiles"
         ],
         "summary": "Create connection profile",
-        "description": "Create connection profile",
         "operationId": "create_connection_profile",
         "requestBody": {
           "content": {
@@ -72,7 +70,6 @@
           "connection_profiles"
         ],
         "summary": "Test connection profile",
-        "description": "Test connection profile",
         "operationId": "test_connection_profile",
         "requestBody": {
           "content": {
@@ -104,7 +101,6 @@
           "connection_profiles"
         ],
         "summary": "Delete a Connection Profile",
-        "description": "Delete a Connection Profile",
         "operationId": "delete_connection_profile",
         "parameters": [
           {
@@ -130,7 +126,6 @@
           "connection_profiles"
         ],
         "summary": "Get autocomplete suggestions for a connection profile",
-        "description": "Get autocomplete suggestions for a connection profile",
         "operationId": "get_connection_profile_autocomplete",
         "parameters": [
           {
@@ -145,7 +140,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Autocomplete suggestions for connection profile"
+            "description": "Autocomplete suggestions for connection profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionAutocompleteResp"
+                }
+              }
+            }
           }
         }
       }
@@ -156,7 +158,6 @@
           "connection_tables"
         ],
         "summary": "List all connection tables",
-        "description": "List all connection tables",
         "operationId": "get_connection_tables",
         "parameters": [
           {
@@ -198,7 +199,6 @@
           "connection_tables"
         ],
         "summary": "Create a new connection table",
-        "description": "Create a new connection table",
         "operationId": "create_connection_table",
         "requestBody": {
           "content": {
@@ -230,7 +230,6 @@
           "connection_tables"
         ],
         "summary": "Test a Connection Schema",
-        "description": "Test a Connection Schema",
         "operationId": "test_schema",
         "requestBody": {
           "content": {
@@ -255,7 +254,6 @@
           "connection_tables"
         ],
         "summary": "Test a Connection Table",
-        "description": "Test a Connection Table",
         "operationId": "test_connection_table",
         "requestBody": {
           "content": {
@@ -280,7 +278,6 @@
           "connection_tables"
         ],
         "summary": "Delete a Connection Table",
-        "description": "Delete a Connection Table",
         "operationId": "delete_connection_table",
         "parameters": [
           {
@@ -306,7 +303,6 @@
           "connectors"
         ],
         "summary": "List all connectors",
-        "description": "List all connectors",
         "operationId": "get_connectors",
         "responses": {
           "200": {
@@ -328,7 +324,6 @@
           "jobs"
         ],
         "summary": "Get all jobs",
-        "description": "Get all jobs",
         "operationId": "get_jobs",
         "responses": {
           "200": {
@@ -350,7 +345,6 @@
           "ping"
         ],
         "summary": "Ping endpoint",
-        "description": "Ping endpoint",
         "operationId": "ping",
         "responses": {
           "200": {
@@ -365,7 +359,6 @@
           "pipelines"
         ],
         "summary": "List all pipelines",
-        "description": "List all pipelines",
         "operationId": "get_pipelines",
         "parameters": [
           {
@@ -407,8 +400,8 @@
           "pipelines"
         ],
         "summary": "Create a new pipeline",
-        "description": "Create a new pipeline\n\nThe API will create a single job for the pipeline.",
-        "operationId": "post_pipeline",
+        "description": "The API will create a single job for the pipeline.",
+        "operationId": "create_pipeline",
         "requestBody": {
           "content": {
             "application/json": {
@@ -429,6 +422,57 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pipelines/preview": {
+      "post": {
+        "tags": [
+          "pipelines"
+        ],
+        "summary": "Create a new preview pipeline",
+        "operationId": "create_preview_pipeline",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewPost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created pipeline and job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pipeline"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResp"
+                }
+              }
+            }
           }
         }
       }
@@ -438,8 +482,7 @@
         "tags": [
           "pipelines"
         ],
-        "summary": "Get a pipeline graph",
-        "description": "Get a pipeline graph",
+        "summary": "Validate a query and return pipeline graph",
         "operationId": "validate_query",
         "requestBody": {
           "content": {
@@ -471,7 +514,6 @@
           "pipelines"
         ],
         "summary": "Get a single pipeline",
-        "description": "Get a single pipeline",
         "operationId": "get_pipeline",
         "parameters": [
           {
@@ -502,7 +544,6 @@
           "pipelines"
         ],
         "summary": "Delete a pipeline",
-        "description": "Delete a pipeline",
         "operationId": "delete_pipeline",
         "parameters": [
           {
@@ -526,7 +567,6 @@
           "pipelines"
         ],
         "summary": "Update a pipeline",
-        "description": "Update a pipeline",
         "operationId": "patch_pipeline",
         "parameters": [
           {
@@ -569,7 +609,6 @@
           "pipelines"
         ],
         "summary": "List a pipeline's jobs",
-        "description": "List a pipeline's jobs",
         "operationId": "get_pipeline_jobs",
         "parameters": [
           {
@@ -602,7 +641,6 @@
           "pipelines"
         ],
         "summary": "Restart a pipeline",
-        "description": "Restart a pipeline",
         "operationId": "restart_pipeline",
         "parameters": [
           {
@@ -645,7 +683,6 @@
           "jobs"
         ],
         "summary": "List a job's checkpoints",
-        "description": "List a job's checkpoints",
         "operationId": "get_job_checkpoints",
         "parameters": [
           {
@@ -687,7 +724,6 @@
           "jobs"
         ],
         "summary": "Get a checkpoint's details",
-        "description": "Get a checkpoint's details",
         "operationId": "get_checkpoint_details",
         "parameters": [
           {
@@ -740,7 +776,6 @@
           "jobs"
         ],
         "summary": "List a job's error messages",
-        "description": "List a job's error messages",
         "operationId": "get_job_errors",
         "parameters": [
           {
@@ -804,7 +839,6 @@
           "jobs"
         ],
         "summary": "Get a job's metrics",
-        "description": "Get a job's metrics",
         "operationId": "get_operator_metric_groups",
         "parameters": [
           {
@@ -846,7 +880,6 @@
           "jobs"
         ],
         "summary": "Subscribe to a job's output",
-        "description": "Subscribe to a job's output",
         "operationId": "get_job_output",
         "parameters": [
           {
@@ -881,7 +914,6 @@
           "udfs"
         ],
         "summary": "Get Global UDFs",
-        "description": "Get Global UDFs",
         "operationId": "get_udfs",
         "responses": {
           "200": {
@@ -901,7 +933,6 @@
           "udfs"
         ],
         "summary": "Create a global UDF",
-        "description": "Create a global UDF",
         "operationId": "create_udf",
         "requestBody": {
           "content": {
@@ -933,7 +964,6 @@
           "udfs"
         ],
         "summary": "Validate UDFs",
-        "description": "Validate UDFs",
         "operationId": "validate_udf",
         "requestBody": {
           "content": {
@@ -965,7 +995,6 @@
           "udfs"
         ],
         "summary": "Delete UDF",
-        "description": "Delete UDF",
         "operationId": "delete_udf",
         "parameters": [
           {
@@ -1417,6 +1446,17 @@
           }
         }
       },
+      "ErrorResp": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
       "FieldType": {
         "oneOf": [
           {
@@ -1497,6 +1537,17 @@
             "properties": {
               "raw_string": {
                 "$ref": "#/components/schemas/RawStringFormat"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "raw_bytes"
+            ],
+            "properties": {
+              "raw_bytes": {
+                "$ref": "#/components/schemas/RawBytesFormat"
               }
             }
           }
@@ -1769,7 +1820,7 @@
         ],
         "properties": {
           "name": {
-            "$ref": "#/components/schemas/MetricNames"
+            "$ref": "#/components/schemas/MetricName"
           },
           "subtasks": {
             "type": "array",
@@ -1779,14 +1830,16 @@
           }
         }
       },
-      "MetricNames": {
+      "MetricName": {
         "type": "string",
         "enum": [
           "bytes_recv",
           "bytes_sent",
           "messages_recv",
           "messages_sent",
-          "backpressure"
+          "backpressure",
+          "tx_queue_size",
+          "tx_queue_rem"
         ]
       },
       "NewlineDelimitedFraming": {
@@ -1874,20 +1927,35 @@
         "type": "object",
         "required": [
           "operatorId",
-          "timestamp",
-          "value"
+          "subtaskIdx",
+          "timestamps",
+          "startId",
+          "batch"
         ],
         "properties": {
+          "batch": {
+            "type": "string"
+          },
           "operatorId": {
             "type": "string"
           },
-          "timestamp": {
+          "startId": {
             "type": "integer",
             "format": "int64",
             "minimum": 0
           },
-          "value": {
-            "type": "string"
+          "subtaskIdx": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "timestamps": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
           }
         }
       },
@@ -2099,6 +2167,12 @@
           "parallelism"
         ],
         "properties": {
+          "checkpointIntervalMicros": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "minimum": 0
+          },
           "name": {
             "type": "string"
           },
@@ -2106,10 +2180,6 @@
             "type": "integer",
             "format": "int64",
             "minimum": 0
-          },
-          "preview": {
-            "type": "boolean",
-            "nullable": true
           },
           "query": {
             "type": "string"
@@ -2132,34 +2202,57 @@
           }
         }
       },
+      "PreviewPost": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "enableSinks": {
+            "type": "boolean"
+          },
+          "query": {
+            "type": "string"
+          },
+          "udfs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Udf"
+            },
+            "nullable": true
+          }
+        }
+      },
       "PrimitiveType": {
         "type": "string",
         "enum": [
-          "int32",
-          "int64",
-          "u_int32",
-          "u_int64",
-          "f32",
-          "f64",
-          "bool",
-          "string",
-          "bytes",
-          "unix_millis",
-          "unix_micros",
-          "unix_nanos",
-          "date_time",
-          "json"
+          "Int32",
+          "Int64",
+          "UInt32",
+          "UInt64",
+          "F32",
+          "F64",
+          "Bool",
+          "String",
+          "Bytes",
+          "UnixMillis",
+          "UnixMicros",
+          "UnixNanos",
+          "DateTime",
+          "Json"
         ]
       },
       "QueryValidationResult": {
         "type": "object",
+        "required": [
+          "errors"
+        ],
         "properties": {
           "errors": {
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "graph": {
             "allOf": [
@@ -2170,6 +2263,9 @@
             "nullable": true
           }
         }
+      },
+      "RawBytesFormat": {
+        "type": "object"
       },
       "RawStringFormat": {
         "type": "object"
