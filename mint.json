@@ -138,21 +138,33 @@
       "pages": [
         "api-reference/overview",
         {
-          "group": "Pipelines",
+          "group": "connectors",
           "pages": [
-            "api-reference/pipelines/list-all-pipelines",
-            "api-reference/pipelines/create-a-new-pipeline",
-            "api-reference/pipelines/get-a-pipeline-graph",
-            "api-reference/pipelines/validate-udfs",
-            "api-reference/pipelines/get-a-single-pipeline",
-            "api-reference/pipelines/delete-a-pipeline",
-            "api-reference/pipelines/update-a-pipeline",
-            "api-reference/pipelines/list-a-pipelines-jobs",
-            "api-reference/pipelines/restart-a-pipeline"
+            "api-reference/connectors/list-all-connectors"
           ]
         },
         {
-          "group": "Jobs",
+          "group": "connection_profiles",
+          "pages": [
+            "api-reference/connection_profiles/list-all-connection-profiles",
+            "api-reference/connection_profiles/create-connection-profile",
+            "api-reference/connection_profiles/test-connection-profile",
+            "api-reference/connection_profiles/delete-a-connection-profile",
+            "api-reference/connection_profiles/get-autocomplete-suggestions-for-a-connection-profile"
+          ]
+        },
+        {
+          "group": "connection_tables",
+          "pages": [
+            "api-reference/connection_tables/list-all-connection-tables",
+            "api-reference/connection_tables/create-a-new-connection-table",
+            "api-reference/connection_tables/test-a-connection-schema",
+            "api-reference/connection_tables/test-a-connection-table",
+            "api-reference/connection_tables/delete-a-connection-table"
+          ]
+        },
+        {
+          "group": "jobs",
           "pages": [
             "api-reference/jobs/get-all-jobs",
             "api-reference/jobs/list-a-jobs-checkpoints",
@@ -163,31 +175,30 @@
           ]
         },
         {
-          "group": "Connectors",
+          "group": "pipelines",
           "pages": [
-            "api-reference/connectors/list-all-connectors"
+            "api-reference/pipelines/list-all-pipelines",
+            "api-reference/pipelines/create-a-new-pipeline",
+            "api-reference/pipelines/create-a-new-preview-pipeline",
+            "api-reference/pipelines/validate-a-query-and-return-pipeline-graph",
+            "api-reference/pipelines/get-a-single-pipeline",
+            "api-reference/pipelines/delete-a-pipeline",
+            "api-reference/pipelines/update-a-pipeline",
+            "api-reference/pipelines/list-a-pipelines-jobs",
+            "api-reference/pipelines/restart-a-pipeline"
           ]
         },
         {
-          "group": "Connection Profiles",
+          "group": "udfs",
           "pages": [
-            "api-reference/connection_profiles/list-all-connection-profiles",
-            "api-reference/connection_profiles/create-connection-profile"
+            "api-reference/udfs/get-global-udfs",
+            "api-reference/udfs/create-a-global-udf",
+            "api-reference/udfs/validate-udfs",
+            "api-reference/udfs/delete-udf"
           ]
         },
         {
-          "group": "Connection Tables",
-          "pages": [
-            "api-reference/connection_tables/list-all-connection-tables",
-            "api-reference/connection_tables/create-a-new-connection-table",
-            "api-reference/connection_tables/get-a-confluent-schema",
-            "api-reference/connection_tables/test-a-connection-schema",
-            "api-reference/connection_tables/test-a-connection-table",
-            "api-reference/connection_tables/delete-a-connection-table"
-          ]
-        },
-        {
-          "group": "Ping",
+          "group": "ping",
           "pages": [
             "api-reference/ping/ping-endpoint"
           ]
