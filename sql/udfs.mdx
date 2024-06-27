@@ -100,6 +100,15 @@ Internally, the contents of the `[dependencies]` comment are used to generate a 
 See the [Cargo.toml reference](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html)
 for more details on the syntax.
 
+Dependencies may also include environment variables, which will be substituted at compile time:
+
+```
+/*
+[dependencies]
+my-repo = { git = "https://{{ GITHUB_USER }}:{{ GITHUB_TOKEN }}@github.com/{{ GITHUB_ORG }}/my-repo.git" }
+*/
+```
+
 ## Global UDFs
 
 UDFs may be either _local_—associated with a particular pipeline—or _global_, in which case they are stored

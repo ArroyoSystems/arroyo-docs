@@ -1,0 +1,242 @@
+---
+title: Configuration
+description: Customizing the system behavior
+---
+
+## Overview
+
+Arroyo has a flexible and powerful configuration system that allows options to
+be set via files (in TOML or Yaml format) and environment variables.
+
+The system will look for configuration in the following places, from highest to lowest priority:
+
+1. `ARROYO__*` environment variables
+2. Config file specified via the `--config` option
+3. Any *.toml or *.yaml files in the `--config-dir` directory
+4. `arroyo.toml` in the current directory
+5. `$(user conf dir)/arroyo/config.{toml,yaml}` — (this is `~/.config/arroyo` on Linux and `~/Library/Application Support/arroyo` on MacOS)
+6. [Default configuration](https://github.com/ArroyoSystems/arroyo/blob/master/crates/arroyo-rpc/default.toml)
+
+### Config files
+
+In TOML or YAML, nested configurations are specified as tables under the given key name, for example:
+
+```toml
+checkpoint-url = 's3://my-bucket/checkpoints'
+
+[controller]
+scheduler = 'node'
+
+[database]
+type = "postgres"
+```
+
+### Environment variables
+
+All configuration options can be set as environment variables as well. To convert a config name into an
+environment variable, the following rule are applied:
+
+1. Start with `ARROYO__`
+2. Replace all dots (i.e., layers of nesting) with `__` (double underscore)
+3. Replace all `-` with `_` (single underscore)
+4. Uppercase all letters
+
+Some examples:
+
+* `checkpoint-url` => `ARROYO__CHECKPOINT_URL`
+* `pipeline.compaction.enabled` => `ARROYO__COMPACTION__ENABLED`
+* `api.bind-address` => `API__BIND_ADDRESS`
+
+Reasonable type conversions will be applied for values specified as environment variable, for example
+numbers and booleans will be parsed into the correct type.
+
+## Options
+
+Here we list all of the available configuration options by the key they are nested under. So for example,
+the option in the Pipeline section listed as `source-batch-size` would be specified in the config file as
+`pipeline.source-batch-size` or as a table
+
+```
+[pipeline]
+source-batch-size = 128
+```
+
+Top-level options:
+
+| Name                        | Description                                                        | Default Value              |
+|-----------------------------|--------------------------------------------------------------------|----------------------------|
+| `checkpoint-url`            | URL of an object store or filesystem for storing checkpoints; in a distributed cluster this must be a location available to all nodes       | `/tmp/arroyo/checkpoints`  |
+| `default-checkpoint-interval` | Default checkpointing interval                                 | `10s`                      |
+| `api-endpoint`              | Endpoint of the API, used by other services to connect to it |   _inferred_    |
+| `query`                     | Default query for `arroyo run`                                      |   `None`               |
+| `disable-telemetry`         | Disable open-source telemetry                                       |   false   |
+
+### Pipeline
+
+Configuration that applies to individual pipelines.
+
+Key: `pipeline`
+
+| Name                            | Description                                    | Default Value   |
+|---------------------------------|------------------------------------------------|-----------------|
+| `source-batch-size`             | Max size of source batches                         | `512`           |
+| `source-batch-linger`           | Batch linger time (how long to wait before flushing)                 | `100ms`         |
+| `update-aggregate-flush-interval`| How often to flush aggregates           | `1s`            |
+| `allowed-restarts`              | How many restarts to allow before moving to failed (-1 for infinite)       `20`            |
+| `worker-heartbeat-timeout`      | Number of seconds to wait for a worker heartbeat before considering it dead                   | `30s`           |
+| `healthy-duration`              | After this amount of time, we consider the job to be healthy and reset the restarts counter                     | `2m`            |
+| `worker-startup-time`           | Amount of time to wait for workers to start up before considering them failed                       | `10m`           |
+| `task-startup-time`             | Amount of time to wait for tasks to startup before considering it failed                         | `2m`            |
+| `compaction.enabled`            | Whether to enable compaction for checkpoints                  | `false`         |
+| `compaction.checkpoints-to-compact`        | The number of outstanding checkpoints that will trigger compaction               | `4`             |
+
+
+### API
+
+Configuration for the API service
+
+Key: `api`
+
+| Name            | Description                       | Default Value |
+|-----------------|-----------------------------------|---------------|
+| `bind-address`  | The host the API service should bind to   | `0.0.0.0`     |
+| `http-port`     | The HTTP port for the API service     | `8000`        |
+| `run-http-port`     | The HTTP port for the API service in run mode; defaults to a random port     | `8000`        |
+
+### Controller
+
+Configuration for the controller service
+
+Key: `controller`
+
+| Name            | Description                              | Default Value |
+|-----------------|------------------------------------------|---------------|
+| `bind-address`  | The host the controller should bind to   | `0.0.0.0`     |
+| `rpc-port`      | The RPC port for the controller      | `9190`        |
+| `scheduler`     | The scheduler to use; one of `process`, `kubernetes`, `node`, or `embedded`    | `process`     |
+
+### Compiler
+
+Configuration for the UDF compiler service.
+
+Key: `compiler`
+
+| Name              | Description                               | Default Value                 |
+|-------------------|-------------------------------------------|-------------------------------|
+| `bind-address`    | Bind address for the compiler      | `0.0.0.0`                     |
+| `rpc-port`        | Port for the Compiler RPC service         | `9191`                        |
+| `install-clang`   | Whether the compiler should attempt to install clang if it's not already installed                  | `true`                        |
+| `install-rustc`   | Whether the compiler should attempt to install rustc if it's not already installed          | `true`                        |
+| `artifact-url`    | Where to store compilation artifacts, in a distributed cluster this must be a location available to all nodes        | `/tmp/arroyo/artifacts`       |
+| `build-dir`       | Directory for build files                 | `/tmp/arroyo/build-dir`       |
+| `use-local-udf-crate` | Whether to use a local version of the UDF library or the published crate (only enable in development environments) | `false`                       |
+
+
+### Admin
+
+Configuration for the Admin service
+
+Key: `admin`
+
+| Name            | Description                          | Default Value |
+|-----------------|--------------------------------------|---------------|
+| `bind-address`  | Address to bind the Admin service    | `0.0.0.0`     |
+| `http-port`     | Port for the Admin HTTP service      | `8001`        |
+
+
+### Node
+
+Configuration for the Node service
+
+Key: `node`
+
+| Name            | Description                          | Default Value |
+|-----------------|--------------------------------------|---------------|
+| `bind-address`  | Address to bind the Node service     | `0.0.0.0`     |
+| `rpc-port`      | Port for the Node RPC service        | `9192`        |
+| `task-slots`    | Number of task slots for the Node    | `16`          |
+
+
+
+### Worker
+
+Configuration for pipeline workers
+
+Key: `worker`
+
+| Name            | Description                              | Default Value |
+|-----------------|------------------------------------------|---------------|
+| `bind-address`  | Address to bind the Worker service       | `0.0.0.0`     |
+| `rpc-port`      | RPC port for the worker to listen on; set to 0 to use a random available port          | `0`           |
+| `data-port`     | Data port for the worker to listen on; set to 0 to use a random available port         | `0`           |
+| `task-slots`    | Number of task slots for the Worker      | `16`          |
+| `queue-size`    | Size of the queues between nodes in the dataflow graph                 | `8192`        |
+
+
+### Schedulers
+
+Configuration for the various [schedulers](/architecture#schedulers)
+
+#### Process Scheduler
+
+Key: `process-scheduler`
+
+| Name                | Description                                | Default Value |
+|---------------------|--------------------------------------------|---------------|
+| `slots-per-process` | Number of slots per process in the scheduler | `16`          |
+
+#### Kubernetes Scheduler
+
+Key: `kubernetes-scheduler`
+
+Some values for the kubernetes scheduler are complete Kubernetes object, for
+example, the `worker.resources` object can be specified as a
+[Kubernetes resource object](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#resources).
+
+When specifying these via environment variables they should be encoded as Yaml.
+
+See the [Kubernetes deployment docs](/deployment/kubernetes) for more details.
+
+There are two modes for allocating resources for Kubernetes, specified as the `kubernetes-scheduler.resource-mode`:
+
+* In `per-slot` mode, tasks are packed onto workers up to the `task-slots`
+  config, and for each slot the amount of resources specified in `resources` is
+  provided. This can be much more efficient for diversely-sized pipelines
+* In `per-pod` mode, every pod has exactly `task-slots` slots, and exactly the
+  resources in `resources`, even if it is scheduled for fewer slots. This
+  is the behavior from before 0.11.
+
+
+
+| Name                  | Description                                      | Default Value             |
+|-----------------------|--------------------------------------------------|---------------------------|
+| `namespace`           | Kubernetes namespace for the scheduler           | `default`                 |
+| `resource-mode`       | Resource allocation mode; `per-slot` or `per-pod`                         | `per-slot`                |
+| `worker.name-prefix`  | Prefix for worker names                          | `arroyo`                  |
+| `worker.image`        | Docker image for workers                         | `ghcr.io/arroyosystems/arroyo:latest` |
+| `worker.image-pull-policy` | Image pull policy for worker containers     | `IfNotPresent`            |
+| `worker.service-account-name` | Service account name for worker containers | `default`                 |
+| `worker.resources.requests` | Kubernetes resource object representing the requests for the worker pods    | `{cpu: "900m", memory: "500Mi"}`                 |
+| `worker.resources.limits` | Kubernetes resource object representing the limits for the worker pods | none                 |
+| `worker.task-slots`   | Number of task slots per worker                  | `16`                      |
+| `worker.command`      | Command to start worker containers               | `/app/arroyo worker`      |
+
+
+### Database
+
+| Name                      | Description                                | Default Value             |
+|---------------------------|--------------------------------------------|---------------------------|
+| `type`                    | Type of the database (either `sqlite` or `postgres`)   | `sqlite`                  |
+| `sqlite.path`             | Path to the database file                    | $(user config dir)/arroyo/config.sqlite |
+| `postgres.database-name`  | Name of the Postgres database              | `arroyo`                  |
+| `postgres.host`           | Host of the Postgres database              | `localhost`               |
+| `postgres.port`           | Port of the Postgres database              | `5432`                    |
+| `postgres.user`           | User for the Postgres database             | `arroyo`                  |
+| `postgres.password`       | Password for the Postgres database         | `arroyo`                  |
+
+### Logging
+
+| Name       | Description                  | Default Value |
+|------------|------------------------------|---------------|
+| `format`   | Set the log format (one of `json`, `logfmt`, or `plaintext`)  | `plaintext`          |
+

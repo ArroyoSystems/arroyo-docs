@@ -35,6 +35,7 @@ A Kafka connection has several required and optional fields:
 | auth.password | The password to use for SASL authentication | No | `password` |
 | topic | The name of the Kafka topic to read from or write to | Yes |
 | type | The type of table (either 'source' or 'sink') | Yes | `source` |
+| value.subject | Configures the value subject read from the schema registry, if enabled | No | `logs-value` |
 | source.offset | The offset to start reading from (either 'earliest' or 'latest') | No | `earliest` |
 | source.read_mode | The read mode to use. 'read_committed' only reads committed Kafka messages, while 'read_uncommitted' will read all messages.  | No | `read_committed` |
 | source.group_id | For sources, sets the Kafka consumer group to use; note that using the same group for multiple pipelines will result in each pipeline seeing only a subset of the data | No | `my-group` |

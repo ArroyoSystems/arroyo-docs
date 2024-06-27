@@ -14,26 +14,32 @@ on Discord with any questions.
 
 ## Common Setup
 
-### Postgres
+### Database
 
-Arroyo relies on a postgres database to store configuration data and metadata. You will need to create a database
-(by default called `arroyo`, but this can be configured).
+The Arroyo control plane relies on a database to store its configuration and metadata (like the set of existing
+tables, the pipelines that are meant to be running, etc.) and to power the API and Web UI. As of 0.11, two
+databases are supported: Sqlite and Postgres.
+
+Sqlite is recommended for local use and single-node deployments, while postgres should be used for scaled-out
+production deployments on Kubernetes.
+
+See the [database configuration options](/configuration#database).
 
 ### Storage
 
 You will need a place to store pipeline artifacts (binaries) and checkpoint data. This needs to be accessible to
-all nodes in your cluster, including Arroyo services (controller, compiler service) and pipeline workers. Arroyo
-supports several storage backends, including S3, GCS, and local filesystem. For local testing, a filesystem that's3
+all nodes in your cluster, including Arroyo the control plane and pipeline workers. Arroyo
+supports several storage backends, including S3, GCS, ABS, and local filesystem. For local testing, a filesystem that's3
 mounted on all nodes is sufficient, but for production you will likely want to use an object store like S3 or GCS.
 We also support S3-compatible object stores like MinIO and Localstack; endpoints can be set via the `s3::` prefix
 or the `AWS_ENDPOINT_URL` environment variable.
 
-The storage backend is configured via two environment variables:
+The storage backend is configured by the following [config properties](/configuration):
 
-* `CHECKPOINT_URL` configures where checkpoints are written; for
+* `checkpoint-url` (env var: `ARROYO__CHECKPOINT_URL`) configures where checkpoints are written; for
   high-availability this should be an object store, but may be a local directory
   for testing and developing
-* `ARTIFACT_URL` controls where pipeline artifacts (like compiled UDF libs) are stored
+* `compiler.artifact-url` (env var: `ARROYO__ARTIFACT_URL`) controls where compiled UDF libs are stored
 
 
 The values for these variables are URLs that specify the storage location. We support a number of ways of specifying

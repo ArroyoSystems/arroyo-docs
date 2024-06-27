@@ -19,11 +19,11 @@ A complete working Arroyo cluster involves a number of components (as described 
 - arroyo-compiler
 - arroyo-controller
 - arroyo-api
-- prometheus
 - postgres
 
-We provide a Helm chart to configure all of these components. You may choose to use an existing Postgres database
-and prometheus instance, or have the helm chart deploy cluster-specific instances.
+We provide a Helm chart to configure all of these components. You may choose to
+use an existing Postgres database, or have the helm chart deploy
+cluster-specific instances.
 
 ## Set up the Helm repository
 
@@ -57,11 +57,6 @@ The most important options are:
 - `postgresql.deploy`: Whether to deploy a new Postgres instance. If set to `false`, the chart will expect a Postgres
   instance to be available with the connection settings determined by `postgresql.externalDatabase` configurations
   (by default: postgres://arroyo:arroyo@localhost:5432/arroyo).
-- `prometheus.deploy`: Whether to deploy a new Prometheus instance. If set to `false`, the chart will expect a
-  Prometheus instance to be available at the URL determined by `prometheus.endpoint` (by default: http://localhost:9090).
-  Prometheus is not required for operation of the system, but is needed for the Arroyo UI metrics to function. By
-  default Arroyo expects you to have a scrape interval of 5s. If you have a higher scrape interval (for example, the
-  default 1m) you will need to update the `prometheus.queryRate` configuration to at least 4x the scrape interval.
 - `artifactUrl` and `checkpointUrl`: Configures where pipeline artifacts and
   checkpoints are stored. See the [overview](/deployment/overview#storage) for
   more details on how these are configured. If this is set to a local directory
@@ -162,7 +157,6 @@ arroyo-compiler-ccd6b7bdb-752vt             1/1     Running            0        
 arroyo-controller-75587f886b-k9drg          1/1     Running            1 (18s ago)   36s
 arroyo-postgresql-0                         1/1     Running            0             26s
 arroyo-api-5dccb89967-zl727                 1/1     Running            2 (17s ago)   36s
-arroyo-prometheus-server-5c8d49b85d-xwl2h   2/2     Running            0             36s
 ```
 
 (Note that if you're deploying postgres, it may take a couple of minutes for all of the pods to get to running).
