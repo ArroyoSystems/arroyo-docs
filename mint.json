@@ -129,6 +129,7 @@
       "group": "Deployment",
       "pages": [
         "deployment/overview",
+        "deployment/pipeline-clusters",
         "deployment/kubernetes",
         "deployment/vm"
       ]

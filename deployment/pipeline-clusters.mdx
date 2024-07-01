@@ -1,0 +1,40 @@
+---
+title: Pipeline clusters
+description: "Pipeline clusters are a lightweight mode for running individual jobs"
+---
+
+Pipeline clusters provide a lightweight way to run a single pipeline in a self-contained
+minicluster. They are a great choice for development, CI, and serverless platforms like
+AWS Fargate, Google CloudRun, and Fly.io.
+
+A pipeline cluster is created with the `arroyo run` subcommand:
+
+```shellsession
+$ arroyo run --help
+Run a query as a local pipeline cluster
+
+Usage: arroyo run [OPTIONS] [QUERY]
+
+Arguments:
+  [QUERY]  The query to run [default: -]
+
+Options:
+  -n, --name <NAME>                Name for this pipeline
+  -s, --state-dir <STATE_DIR>      Directory or URL where checkpoints and metadata
+                                   will be written and restored from
+  -p, --parallelism <PARALLELISM>  Number of parallel subtasks to run [default: 1]
+  -f, --force                      Force the pipeline to start even if the state
+                                   file does not match the query
+  -h, --help                       Print help
+```
+
+## Running a query
+
+A pipeline cluster runs a single SQL query, however that query may contain
+multiple independent `INSERT INTO...SELECT` statements.
+
+The query can be specified in one of three ways:
+
+* Via STDIN: `echo "SELECT * FROM ..." | arroyo run`
+* As a CLI argument: `arroyo run query.sql`
+* As an enviornment variable: `ARROYO__RUN__QUERY="SELECT * FROM ..." arroyo run`

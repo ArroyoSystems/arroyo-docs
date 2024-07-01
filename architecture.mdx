@@ -8,14 +8,14 @@ The Arroyo system architecture is composed of several services, as can be seen i
 ![Arroyo Architecture](/images/arroyo_arch.png)
 
 These services can be run in a single process for a simple deployment, or separately for a fully scaleable,
-fault-tolerant system.  All components of the system are compiled into a single binary (called arroyo-bin)
+fault-tolerant system.  All components of the system are compiled into a single binary `arroyo`
 which provides sub-commands to run specific services or an entire Arroyo cluster.
 
 This document will cover the subsystems that make up an Arroyo cluster.
 
 ## Web UI
 
-The Web UI is a single-page app written in react that interacts with the system via the [REST API](/api-reference/overview).
+The Web UI is a web app that interacts with the system via the [REST API](/api-reference/overview).
 It allows users to configure the system, create pipelines, and monitor their statuses.
 
 ## Arroyo API
@@ -23,7 +23,7 @@ It allows users to configure the system, create pipelines, and monitor their sta
 The API server backs the Web UI and handles all configuration operations and pipeline management via the [REST API](/api-reference/overview).
 
 API operations, like creating a pipeline or updating its state, operate solely by updating the configuration in
-the postgres database. This is asynchronously applied to the actual state of the environment by the controller. The API
+the backing database. This is asynchronously applied to the actual state of the environment by the controller. The API
 itself is stateless and does not communicate with the rest of the system except via the database.
 
 ## Arroyo Controller
@@ -43,28 +43,27 @@ defined in [rpc.proto](https://github.com/ArroyoSystems/arroyo/blob/master/arroy
 ## Schedulers
 
 Arroyo supports multiple schedulers, which are responsible for running the workers that make up the dataflow engine.
-The scheduler can be set by setting the `SCHEDULER` environment variable for the controller.
+The scheduler can be set by setting the `controller.scheduler` [config key](/configuration#controller).
 
 ### Process Scheduler
 
-The process scheduler is the default, and is most useful for local development. In this mode, the controller will spawn
-processes locally to run the workers.
-
-### Embedded Scheduler
-
-The embedded scheduler runs pipelines within the same process as the controller. This is most useful for development
-on Arroyo itself and is not recommended for production use.
+The process scheduler is the default scheduler. It spawns workers locally as indepdendent processes.
 
 ### Node Scheduler
 
 Arroyo comes with a lightweight scheduler and node runtime for running distributed workers. In this mode, you must start
-some number of arroyo-node processes (for example, in an autoscaling group) and configure them with the controller's
+some number of `arroyo node` processes (for example, in an autoscaling group) and configure them with the controller's
 address. The controller will then schedule workers on these nodes.
 
 ### Kubernetes Scheduler
 
 Arroyo can be deployed to [Kubernetes](https://kubernetes.io/) and configured to schedule workers on the cluster.
 See more details [here](/deployment/kubernetes).
+
+### Embedded Scheduler
+
+The embedded scheduler runs pipelines within the same process as the controller. This is most useful for development
+on Arroyo itself and is not recommended for production use.
 
 ## Arroyo Worker
 
@@ -77,19 +76,21 @@ job of balancing the load across workers.
 The controller is responsible for scheduling the necessary number of workers to run a pipeline, initiating checkpoints,
 monitoring their health, and recovering from failures.
 
-## Postgres
+## Config Database
 
-Arroyo uses Postgres to store configuration (sources, connections, sinks, pipelines, etc) and the status of the system.
-This drives the API, and is also used by the controller to drive the reconciliation loop.
+The Arroyo control plane relies on a configuration database to store the registered tables and pipelines and to
+power the API and Web UI. Two databases are supported, with different scalability and reliability tradeoffs:
 
-## Prometheus
+* Postgres is the recommended choice for high-scale and distributed clusters
+* Sqlite is recommend when running locally and for pipeline clusters
 
-Arroyo uses Prometheus for metrics collection. This powers the metrics dashboard in the Web UI. It also relies on the
-Prometheus Pushgateway to collect metrics from workers.
+## Object stores
 
-## S3
-
-Checkpoints are stored on S3 for recovery.
+Arroyo relies on remote storage to store checkpoints so that pipelines can be recovered in case of failure or
+if they need to be rescaled or rescheduled. Local directories and remote object stores are supported;
+the former typically just for development and testing, while production use cases will use the latter. S3 (Amazon), GCS (Google Cloud),
+and ABS (Azure) are supported, as are alternative S3-compatible stores like Minio, Cloudflare R3, and
+Backblaze B2.
 
 ## Job State Machine
 

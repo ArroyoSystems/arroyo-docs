@@ -43,42 +43,36 @@ There are already a number of existing streaming engines out there, including [A
 - **Serverless operations**: Arroyo pipelines are designed to run in modern cloud environments, supporting seamless scaling,
   recovery, and rescheduling
 - **High performance SQL**: SQL is a first-class concern, with consistently excellent performance
-- **Designed for non-experts**: Arroyo cleanly separates the pipeline APIs from its internal implementation. You don't
+- **Designed for everyone**: Arroyo cleanly separates the pipeline APIs from its internal implementation. You don't
   need to be a streaming expert to build real-time data pipelines.
 
 ## Getting Started
 
-### With Docker
+Arroyo ships as a single binary. See the
+[getting started guide](/getting-started) to get up and running with a local Arroyo deployment.
 
-The easiest way to get started running Arroyo is with the single-node Docker image. This contains all of the services
-you need to get a test Arroyo system up and running.
-
-```bash
-$ docker run -p 8000:8000 ghcr.io/arroyosystems/arroyo-single:latest
-```
-
-This will run all of the core Arroyo services and a temporary Postgres database. The Web UI will be exposed at
-http://localhost:8000.
-
-Note that this mode should not be used for production, as it does not persist configuration state and does not support
-any distributed runtimes.
-
-### Locally
-
-Arroyo can easily be run locally as well. Currently Linux and MacOS are well supported as development environments.
-
-To run Arroyo locally follow the
-[dev setup instructions](/developing/dev-setup) to get set up your environment.
 
 ### In production
 
-Arroyo supports several deployment targets for production use, including full support for Kubernetes. See the
+Arroyo supports several deployment targets for production use, including native support for Kubernetes. See the
 [deployment docs](/deployment/overview) for more information.
 
+## License
 
-### Next steps
+Arroyo is fully open-source under the [Apache 2.0 license](https://github.com/ArroyoSystems/arroyo/tree/master/LICENSE-apache).
 
-Now you're ready to start building your first Arroyo pipeline! Check out the [tutorial](/tutorial) to get started.
+## Support
+
+### Commerical support
+
+Commercial support is offered by [Arroyo Systems](https://www.arroyo.dev), the creators of Arroyo. Reach out to
+[support@arroyo.systems](mailto:support@arroyo.systems) or fill out [this form](https://www.arroyo.dev/sign-up) to
+get in touch.
+
+### Community support
+
+Community support is offered via the [Arroyo Discord](https://discord.gg/cjCr5rVmyR) where the Arroyo development
+team and community are actively engaged in helping users get started and solve their probelms with Arroyo.
 
 ## Telemetry
 

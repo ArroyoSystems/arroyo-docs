@@ -6,6 +6,8 @@ description: "Build your first Arroyo pipeline"
 Once you've set up an Arroyo cluster, you're ready to start building pipelines. This tutorial will walk you through how
 to use Arroyo to process data in real-time.
 
+Start by opening up the Arroyo Web UI at http://localhost:8000.
+
 ## Creating a demo source
 
 Arroyo includes several generated data sources we can use to try out the engine. To create one, go to the Connections
@@ -38,7 +40,7 @@ Let's start with a simple query. Type this into the editor:
 SELECT bid FROM nexmark WHERE bid IS NOT NULL;
 ```
 
-and hit "Start Preview."
+and hit "Preview."
 
 This will simply dump out all of our data from our source that fits the filter criteria, which can be useful to get
 a handle on our data before we start to build more sophisticated queries.
@@ -85,12 +87,12 @@ Plug that into the editor and preview it, validating the results look like we ex
 
 ### Running the pipeline
 
-Once we're happy with it, we can run the pipeline for real. Click the "Start Pipeline" button, give it a name
+Once we're happy with it, we can run the pipeline for real. Click the "Launch" button, give it a name
 (for example "top_auctions"). Because we didn't specify a sink in the query (via an `INSERT INTO` statement),
 Arroyo will automatically add a Web sink so that we can view the results in the Web UI. Click "Start" to create
 the pipeline.
 
-This will compile and run the pipeline. Once it's running, we can click nodes on the pipeline dataflow graph and
+This will start the pipeline. Once it's running, we can click nodes on the pipeline dataflow graph and
 see metrics for that operator. Clicking into the Outputs tab we can tail the results for the pipeline. The Checkpoints
 tab shows metadata for the checkpoints for the pipeline. Arroyo regularly takes consistent checkpoints of the state
 of the pipeline (using a variation of asynchronous barrier snapshotting algorithm described in
