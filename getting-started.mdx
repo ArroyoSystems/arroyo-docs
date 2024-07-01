@@ -43,35 +43,35 @@ A local cluster can be started with
 
 ```shellsession
 $ arroyo cluster
-2024-06-28T19:13:29.665570Z  INFO arroyo_server_common: Starting cluster admin server on 0.0.0.0:8001
-2024-06-28T19:13:29.698800Z  INFO arroyo_api: Starting API server on 0.0.0.0:8000
-2024-06-28T19:13:29.700362Z  INFO arroyo_controller: Using process scheduler
-2024-06-28T19:13:29.709189Z  INFO arroyo_controller: Starting arroyo-controller on 0.0.0.0:9190
-2024-06-28T19:13:29.722110Z  INFO arroyo_compiler_service: Starting compiler service at 0.0.0.0:9191
+2024-07-01T22:58:29.316336Z  INFO arroyo_server_common: Starting cluster admin server on 0.0.0.0:8119
+2024-07-01T22:58:29.339237Z  INFO arroyo_api: Starting API server on 0.0.0.0:5115
+2024-07-01T22:58:29.342200Z  INFO arroyo_controller: Using process scheduler
+2024-07-01T22:58:29.348490Z  INFO arroyo_controller: Starting arroyo-controller on 0.0.0.0:5116
+2024-07-01T22:58:29.364186Z  INFO arroyo_compiler_service: Starting compiler service at 0.0.0.0:5117
 ```
 
-Then, open the Web UI in your brownser at http://localhost:8000.
+Then, open the Web UI in your browser at http://localhost:5115.
 
 ### With Docker
 
 Arroyo can also run in Docker. Note that by default, a docker cluster will not persist the set of pipelines and tables.
 
 ```bash
-$ docker run -p 8000:8000 ghcr.io/arroyosystems/arroyo:latest
+$ docker run -p 5115:5115 ghcr.io/arroyosystems/arroyo:latest
 ```
 
 <Tip>
     If you get an error like
 
     ```
-    Error starting userland proxy: listen tcp4 0.0.0.0:8000:
+    Error starting userland proxy: listen tcp4 0.0.0.0:5115:
     bind: address already in use.
     ```
     Then you have another service running on that port. Either stop that service, or rebind to a different port with
-    `-p 8002:8000` for example.
+    `-p 5215:5115` for example.
 </Tip>
 
-Then, open the Web UI at http://localhost:8000.
+Then, open the Web UI at http://localhost:5215.
 
 ## Running a single pipeline
 

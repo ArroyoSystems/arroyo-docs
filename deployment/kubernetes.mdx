@@ -173,7 +173,7 @@ $ open "http://$(kubectl get service/arroyo -o jsonpath='{.spec.clusterIP}')"
 If you're running on MacOS or in EKS, you can proxy the service to your local machine with
 
 ```sh
-$ kubectl port-forward service/arroyo 8000:80
+$ kubectl port-forward service/arroyo 5115:80
 ```
 
-Then you can access the UI at https://localhost:8000.
+Then you can access the UI at https://localhost:5115.

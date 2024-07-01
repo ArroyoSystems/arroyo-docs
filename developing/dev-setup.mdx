@@ -165,7 +165,7 @@ $ target/debug/arroyo cluster
 This will start a new Arroyo cluster with the default "process" scheduler, which runs each pipeline
 as a separate process on the same node.
 
-You can then open http://localhost:8000 to use your new cluster.
+You can then open http://localhost:5115 to use your new cluster.
 
 Cargo also allows combining the build-run process into a single step, with the `cargo run` command, for example:
 
@@ -194,7 +194,7 @@ $ cd webui
 $ pnpm run dev
 ```
 
-Then visit http://localhost:5173/. This requires the cluster is running on http://localhost:8000.
+Then visit http://localhost:5173/. This requires the cluster is running on http://localhost:5115.
 
 ### Updating frontend definitions
 
