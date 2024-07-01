@@ -102,8 +102,8 @@ Key: `api`
 | Name            | Description                       | Default Value |
 |-----------------|-----------------------------------|---------------|
 | `bind-address`  | The host the API service should bind to   | `0.0.0.0`     |
-| `http-port`     | The HTTP port for the API service     | `8000`        |
-| `run-http-port`     | The HTTP port for the API service in run mode; defaults to a random port     | `8000`        |
+| `http-port`     | The HTTP port for the API service     | `5115`        |
+| `run-http-port`     | The HTTP port for the API service in run mode; defaults to a random port     | `0`        |
 
 ### Controller
 
@@ -114,7 +114,7 @@ Key: `controller`
 | Name            | Description                              | Default Value |
 |-----------------|------------------------------------------|---------------|
 | `bind-address`  | The host the controller should bind to   | `0.0.0.0`     |
-| `rpc-port`      | The RPC port for the controller      | `9190`        |
+| `rpc-port`      | The RPC port for the controller      | `5116`        |
 | `scheduler`     | The scheduler to use; one of `process`, `kubernetes`, `node`, or `embedded`    | `process`     |
 
 ### Compiler
@@ -126,7 +126,7 @@ Key: `compiler`
 | Name              | Description                               | Default Value                 |
 |-------------------|-------------------------------------------|-------------------------------|
 | `bind-address`    | Bind address for the compiler      | `0.0.0.0`                     |
-| `rpc-port`        | Port for the Compiler RPC service         | `9191`                        |
+| `rpc-port`        | Port for the Compiler RPC service         | `5117`                        |
 | `install-clang`   | Whether the compiler should attempt to install clang if it's not already installed                  | `true`                        |
 | `install-rustc`   | Whether the compiler should attempt to install rustc if it's not already installed          | `true`                        |
 | `artifact-url`    | Where to store compilation artifacts, in a distributed cluster this must be a location available to all nodes        | `/tmp/arroyo/artifacts`       |
@@ -143,7 +143,7 @@ Key: `admin`
 | Name            | Description                          | Default Value |
 |-----------------|--------------------------------------|---------------|
 | `bind-address`  | Address to bind the Admin service    | `0.0.0.0`     |
-| `http-port`     | Port for the Admin HTTP service      | `8001`        |
+| `http-port`     | Port for the Admin HTTP service      | `5114`        |
 
 
 ### Node
@@ -155,7 +155,7 @@ Key: `node`
 | Name            | Description                          | Default Value |
 |-----------------|--------------------------------------|---------------|
 | `bind-address`  | Address to bind the Node service     | `0.0.0.0`     |
-| `rpc-port`      | Port for the Node RPC service        | `9192`        |
+| `rpc-port`      | Port for the Node RPC service        | `5118`        |
 | `task-slots`    | Number of task slots for the Node    | `16`          |
 
 
