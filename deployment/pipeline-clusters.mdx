@@ -35,6 +35,45 @@ multiple independent `INSERT INTO...SELECT` statements.
 
 The query can be specified in one of three ways:
 
-* Via STDIN: `echo "SELECT * FROM ..." | arroyo run`
-* As a CLI argument: `arroyo run query.sql`
-* As an enviornment variable: `ARROYO__RUN__QUERY="SELECT * FROM ..." arroyo run`
+1. Via STDIN:
+```shellsession
+$ echo "SELECT * FROM ..." | arroyo run
+```
+2. As a CLI argument:
+
+```shellsession
+$ arroyo run query.sql
+```
+
+3. As an environment variable:
+
+```shellsession
+$ ARROYO__RUN__QUERY="SELECT * FROM ..." arroyo run
+```
+
+## State
+
+Arroyo is a stateful system, capable of consistently saving and restoring
+in-progress computations. For Pipeline clusters, that state can be stored on a
+local filesystem or on an object store. To learn more about the supported object
+stores and how to configure them, see the
+[storage docs](/deployment/overview#storage). For production deployments, it is
+recommended to always use an object store.
+
+The storage location is specified on the command line with the `--state-dir` argument,
+or via an environment variable with `ARROYO__RUN__STATE_DIR`.
+
+For example
+
+```shellsession
+$ run --state-dir s3://my-bucket/pipelines/my-pipeline query.sql
+```
+
+If this is the first time the pipeline has been run with this state directory, it will
+start with a fresh state. On subsequent runs the existing state will be restored.
+
+This directory is expected to be exclusive to a single pipeline; i.e., for every new
+pipeline you want to run you should specify a different directory or object-store key.
+Doing otherwise will produce an error, which can be overridden with the `--force` flag.
+
+

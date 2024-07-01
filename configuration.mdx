@@ -68,6 +68,8 @@ Top-level options:
 | `checkpoint-url`            | URL of an object store or filesystem for storing checkpoints; in a distributed cluster this must be a location available to all nodes       | `/tmp/arroyo/checkpoints`  |
 | `default-checkpoint-interval` | Default checkpointing interval                                 | `10s`                      |
 | `api-endpoint`              | Endpoint of the API, used by other services to connect to it |   _inferred_    |
+| `controller-endpoint`       | Endpoint of the controller, used by other services to connect to it | _inferred_ |
+| `compiler-endpoint`       | Endpoint of the compiler, used by other services to connect to it | _inferred_ |
 | `query`                     | Default query for `arroyo run`                                      |   `None`               |
 | `disable-telemetry`         | Disable open-source telemetry                                       |   false   |
 
@@ -224,6 +226,8 @@ There are two modes for allocating resources for Kubernetes, specified as the `k
 
 ### Database
 
+Key: `database`
+
 | Name                      | Description                                | Default Value             |
 |---------------------------|--------------------------------------------|---------------------------|
 | `type`                    | Type of the database (either `sqlite` or `postgres`)   | `sqlite`                  |
@@ -235,6 +239,8 @@ There are two modes for allocating resources for Kubernetes, specified as the `k
 | `postgres.password`       | Password for the Postgres database         | `arroyo`                  |
 
 ### Logging
+
+Key: `logging`
 
 | Name       | Description                  | Default Value |
 |------------|------------------------------|---------------|
