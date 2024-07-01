@@ -119,11 +119,11 @@ so it can serve it.
 
 ## Building the services
 
-Arroyo is built via Cargo, the Rust build tool. All services are built into a single binary, arroyo-bin, which
+Arroyo is built via Cargo, the Rust build tool. All services are built into a single binary, arroyo, which
 can be built with
 
 ```
-$ cargo build --package arroyo-bin
+$ cargo build --package arroyo
 ```
 
 <Tip>
@@ -132,11 +132,11 @@ speeds. This is great for development, but you should make sure to always build 
 before deploying or benchmarking.
 </Tip>
 
-This will build the binary in target/debug/arroyo-bin. Running that you should see the available subcommands:
+This will build the binary in target/debug/arroyo. Running that you should see the available subcommands:
 
 ```
-$ target/debug/arroyo-bin
-Usage: arroyo-bin <COMMAND>
+$ target/debug/arroyo
+Usage: arroyo <COMMAND>
 
 Commands:
   api         Starts an Arroyo API server
@@ -159,7 +159,7 @@ All of the services can be run together in a single cluster, or individually. Fo
 it's most typical to run them together using the `cluster` subcommand:
 
 ```
-$ target/debug/arroyo-bin cluster
+$ target/debug/arroyo cluster
 ```
 
 This will start a new Arroyo cluster with the default "process" scheduler, which runs each pipeline
@@ -170,7 +170,7 @@ You can then open http://localhost:8000 to use your new cluster.
 Cargo also allows combining the build-run process into a single step, with the `cargo run` command, for example:
 
 ```
-$ cargo run --bin arroyo-bin -- cluster
+$ cargo run --bin arroyo -- cluster
 ```
 
 <Tip>

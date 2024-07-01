@@ -28,23 +28,21 @@ Alternatively, you can run the arroyo docker image, `ghcr.io/arroyosystems/arroy
 
 ## Running the migrations
 
-As covered in the dev setup, you will need to run the database migrations on your database before starting the
-cluster. Currently only Postgres is supported.
+Arroyo supports [two databases for its configuration store](http://localhost:3001/architecture#config-database): Sqlite
+(the default) and Postgres. The chosen database can be configured via the `database.type` config option or via
+`ARROYO__DATABASE__TYPE` env var.
+
+If you are using Postgres you will need to run the database migrations on your
+database before starting the cluster.
 
 By default, Arroyo will expect a database called `arroyo`, a user account `arroyo` with password `arroyo`
-at `localhost:5432`. These can be configured via the following environment variables:
-
-- `DATABASE_NAME`
-- `DATABASE_HOST`
-- `DATABASE_PORT`
-- `DATABASE_USER`
-- `DATABASE_PASSWORD`
+at `localhost:5432`. These can be configured via the [database config options](/configuration#database).
 
 <Card>
 <Tabs>
 <Tab title="Binary">
 ```bash
-$ arroyo-bin migrate
+$ arroyo migrate
 ```
 </Tab>
 
@@ -52,7 +50,7 @@ $ arroyo-bin migrate
 ```bash
 # Add other env vars as appropriate; this example will run migrations
 # on the host computer in Docker for Mac
-$ docker run -e DATABASE_HOST=host.docker.internal \
+$ docker run -e ARROYO__DATABASE__POSTGRES__HOST=host.docker.internal \
     ghcr.io/arroyosystems/arroyo:latest migrate
 ```
 </Tab>
@@ -85,7 +83,7 @@ The entire Arroyo control plane can be run as a single process with the _cluster
 <Tabs>
 <Tab title="Binary">
 ```bash
-$ arroyo-bin cluster
+$ arroyo cluster
 ```
 </Tab>
 
@@ -102,7 +100,8 @@ For high-availability, this should be managed by a process manager like systemd.
 ### Schedulers
 
 Arroyo ships with two [schedulers](/architecture#schedulers) that can be used for
-VM deployments: `process` and `node`.
+VM deployments: `process` and `node`. The scheduler is selected via the `controller.scheduler`
+config option or the `ARROYO__CONTROLLER__SCHEDULER` environment variable.
 
 #### Process scheduler
 
@@ -110,42 +109,42 @@ The process scheduler is the default. It runs pipelines by spawning new processe
 as the control plane. This is great for simple, single-node deployments as no other infrastructure
 is required.
 
-To use the process scheduler, run the control plane with `SCHEDULER=process` or with no `SCHEDULER`
-configuration.
+To use the process scheduler, run the control plane with `controller.scheduler=process` or with no
+scheduler configuration.
 
 #### Node scheduler
 
 The node scheduler supports running a distributed Arroyo cluster without
 requiring Kubernetes or another complex distributed runtime. An Arroyo node cluster is
 made up on some number of hosts running the `node` process, which are able to schedule work,
-and a control plane running with `SCHEDULER=node`.
+and a control plane running with `controller.scheduler=node`.
 
-A node can be run via the arroyo-bin binary or Docker image:
+A node can be run via the arroyo binary or Docker image:
 
 <Card>
 <Tabs>
 <Tab title="Binary">
 ```bash
-$ CONTROLLER_ADDR=http://localhost:9190 arroyo-bin node
+$ ARROYO__CONTROLLER_ENDPOINT=http://localhost:9190 arroyo node
 ```
 </Tab>
 
 <Tab title="Docker">
 ```bash
 $ docker run \
-  -e CONTROLLER_ADDR=http://localhost:9190 \
+  -e ARROYO__CONTROLLER_ENDPOINT=http://localhost:9190 \
   ghcr.io/arroyosystems/arroyo:latest cluster
 ```
 </Tab>
 </Tabs>
 </Card>
 
-Replace the `CONTROLLER_ADDR` configuration with the host and port that the controller is running on.
+Replace the `ARROYO__CONTROLLER_ENDPOINT` configuration with the host and port that the controller is running on.
 
 Note that the node should always be run within a process manager that restarts
 it, like systemd; nodes are designed to restart when they lose connection to the controller.
 
-Nodes can be configured with a given number of _slots_, via the `SLOTS_PER_NODE`
-environment variable. This controls how many parallel subtasks can run on that node;
+Nodes can be configured with a given number of _slots_, via the `node.tasks-slots`
+config. This controls how many parallel subtasks can run on that node;
 typically, you would want to set this to the number of CPUs but this can be somewhat
 hardware and workload dependent.
