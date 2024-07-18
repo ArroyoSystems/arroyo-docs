@@ -43,7 +43,7 @@ A Kafka connection has several required and optional fields:
 | schema_registry.endpoint | The URL of the Confluent Schema Registry to use | No | `https://schema-registry.cluster:8081` |
 | schema_registry.api_key | The API Key to use for the Schema Registry. Will be the username via basic auth | No | `ABCDEFGHIJK01234` |
 | schema_registry.api_secret | The API Secret to use for the Schema Registry. Will be the password via basic auth | No | `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789` |
-
+| client_configs | Key-value pairs of additional [rdkafka configuration](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md) options | No | `message.max.bytes=1000,queue.buffering.max.kbytes=1048576` |
 
 ## Kafka Sources
 
