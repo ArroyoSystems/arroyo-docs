@@ -439,3 +439,11 @@ from_unixtime(expression)
 
 - **expression**: Expression to operate on.
   Can be a constant, column, or function, and any combination of arithmetic operators.
+
+
+## `now`
+
+Returns the UTC timestamp at pipeline start.
+
+The now() return value is determined at query compilation time, and will be constant across the execution
+of the pipeline.
