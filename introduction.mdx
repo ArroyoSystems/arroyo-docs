@@ -48,7 +48,30 @@ There are already a number of existing streaming engines out there, including [A
 
 ## Getting Started
 
-Arroyo ships as a single binary. See the
+Arroyo ships as a single binary, which can be easily installed locally or run in a container.
+
+<CodeGroup>
+```shellsession MacOS
+brew install arroyosystems/tap/arroyo
+```
+
+```shellsession Linux
+curl -LsSf https://arroyo.dev/install.sh | sh
+```
+
+```shellsession Docker
+docker run -p 5115:5115 \
+      ghcr.io/arroyosystems/arroyo:latest
+```
+
+```shellsession Kubernetes
+helm repo add arroyo https://helm.arroyo.dev
+helm install arroyo arroyo/arroyo
+```
+
+</CodeGroup>
+
+ See the
 [getting started guide](/getting-started) to get up and running with a local Arroyo deployment.
 
 

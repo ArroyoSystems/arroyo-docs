@@ -11,10 +11,24 @@ the default sqlite database is used to store configuration data.
 
 ### Locally
 
-The easiest way to try out Arroyo is to run it locally. Currently Linux and MacOS are supported. You can find binaries
-on the [Github releases page](https://github.com/ArroyoSystems/arroyo/releases).
+The easiest way to try out Arroyo is to run it locally. Currently Linux and MacOS are well supported.
 
-Once you've downloaded the correct binary for your platform, you can run it to see the various options:
+For MacOS, we provide a Homebrew tap that can be used to install Arroyo:
+
+```shellsession
+brew install arroyosystems/tap/arroyo
+```
+
+For MacOS and Linux, you can also install the binary with the following script:
+
+```shellsession
+curl -LsSf https://arroyo.dev/install.sh | sh
+```
+
+Alternatively, you can download the binary for your OS and architecture from the
+[releases page](https://github.com/arroyosystems/arroyo/releases).
+
+Once you've installed Arroyo, you can run it with the `arroyo` command:
 
 ```shellsession
 $ arroyo --help
