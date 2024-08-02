@@ -70,7 +70,6 @@ Top-level options:
 | `api-endpoint`              | Endpoint of the API, used by other services to connect to it |   _inferred_    |
 | `controller-endpoint`       | Endpoint of the controller, used by other services to connect to it | _inferred_ |
 | `compiler-endpoint`       | Endpoint of the compiler, used by other services to connect to it | _inferred_ |
-| `query`                     | Default query for `arroyo run`                                      |   `None`               |
 | `disable-telemetry`         | Disable open-source telemetry                                       |   false   |
 
 ### Pipeline
@@ -91,6 +90,19 @@ Key: `pipeline`
 | `task-startup-time`             | Amount of time to wait for tasks to startup before considering it failed                         | `2m`            |
 | `compaction.enabled`            | Whether to enable compaction for checkpoints                  | `false`         |
 | `compaction.checkpoints-to-compact`        | The number of outstanding checkpoints that will trigger compaction               | `4`             |
+
+
+### Run (pipeline clusters)
+
+Configuration for pipeline clusters
+
+Key: `run`
+
+
+| Name                           | Description                                   | Default Value    |
+|--------------------------------|-----------------------------------------------|------------------|
+| `query`                        | The query to run for this pipeline cluster (equivalent to the query command-line parameter | _none_ |
+| `state-dir`                    | Sets the directory that state will be written to and read from | _none_ |
 
 
 ### API
