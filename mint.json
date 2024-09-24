@@ -131,6 +131,26 @@
       ]
     },
     {
+      "group": "User-Defined Functions",
+      "pages": [
+        "udfs/overview",
+        {
+          "group": "Rust",
+          "pages": [
+            "udfs/rust/udfs",
+            "udfs/rust/udafs",
+            "udfs/rust/async-udfs"
+          ]
+        },
+        {
+          "group": "Python",
+          "pages": [
+            "udfs/python/udfs"
+          ]
+        }
+      ]
+    },
+    {
       "group": "Deployment",
       "pages": [
         "deployment/overview",
