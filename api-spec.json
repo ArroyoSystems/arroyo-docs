@@ -1521,6 +1521,17 @@
           {
             "type": "object",
             "required": [
+              "protobuf"
+            ],
+            "properties": {
+              "protobuf": {
+                "$ref": "#/components/schemas/ProtobufFormat"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
               "parquet"
             ],
             "properties": {
@@ -1585,10 +1596,10 @@
           "id",
           "prefix",
           "name",
+          "language",
           "createdAt",
           "updatedAt",
-          "definition",
-          "dylibUrl"
+          "definition"
         ],
         "properties": {
           "createdAt": {
@@ -1604,10 +1615,14 @@
             "nullable": true
           },
           "dylibUrl": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "id": {
             "type": "string"
+          },
+          "language": {
+            "$ref": "#/components/schemas/UdfLanguage"
           },
           "name": {
             "type": "string"
@@ -2242,6 +2257,26 @@
           "Json"
         ]
       },
+      "ProtobufFormat": {
+        "type": "object",
+        "properties": {
+          "compiledSchema": {
+            "type": "string",
+            "format": "binary",
+            "nullable": true
+          },
+          "confluentSchemaRegistry": {
+            "type": "boolean"
+          },
+          "intoUnstructuredJson": {
+            "type": "boolean"
+          },
+          "messageName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "QueryValidationResult": {
         "type": "object",
         "required": [
@@ -2290,7 +2325,21 @@
             ],
             "properties": {
               "protobuf_schema": {
-                "type": "string"
+                "type": "object",
+                "required": [
+                  "schema"
+                ],
+                "properties": {
+                  "dependencies": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "schema": {
+                    "type": "string"
+                  }
+                }
               }
             }
           },
@@ -2460,8 +2509,18 @@
         "properties": {
           "definition": {
             "type": "string"
+          },
+          "language": {
+            "$ref": "#/components/schemas/UdfLanguage"
           }
         }
+      },
+      "UdfLanguage": {
+        "type": "string",
+        "enum": [
+          "python",
+          "rust"
+        ]
       },
       "UdfPost": {
         "type": "object",
@@ -2476,6 +2535,9 @@
           "description": {
             "type": "string",
             "nullable": true
+          },
+          "language": {
+            "$ref": "#/components/schemas/UdfLanguage"
           },
           "prefix": {
             "type": "string"
@@ -2526,6 +2588,9 @@
         "properties": {
           "definition": {
             "type": "string"
+          },
+          "language": {
+            "$ref": "#/components/schemas/UdfLanguage"
           }
         }
       }
