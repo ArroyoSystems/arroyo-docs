@@ -1,0 +1,89 @@
+---
+title: Rust UDFs
+description: Writing UDFs in Rust
+---
+
+Arroyo user-defined functions (UDFs) can be written in Rust, with performance
+that is comparable to built-in functions.
+
+UDFs are defined as Rust functions, annotated with the `#[udf]` attribute from the
+`arroyo_udf_plugin` crate. The parameters and return type of the UDF are determined
+by the definition of the function. All types must be valid [SQL data types](/sql/data-types).
+
+For String and Binary types (`TEXT` `BYTEA` in SQL), UDFs use the reference type
+(`&str` and `&[u8]`) for arguments and the owned types (`String` and `Vec<u8>`)
+
+Here's an example of a simple UDF that squares an integer:
+
+```rust
+use arroyo_udf_plugin::udf;
+
+#[udf]
+fn my_square(x: u64) -> u64 {
+  x * x
+}
+```
+
+For more general details about UDFs, see the [UDF overview](/udfs/overview), and
+for a complete example of how to use UDFs to solve a real-world problem of
+custom format parsing, see the [UDF tutorial](/tutorial/udfs).
+
+## Nullability
+
+SQL values are generally allowed to be null. How null values interact with your
+UDF is controlled via the type signature of the UDF parameters and return types.
+If a parameter is an `Option` type (for example `Option<i64>`), then it will be
+called with all inputs, even if they are `NULL`. If the parameter is not an
+`Option` type (for example `i64`), then it will only be called with non-`NULL`
+inputs.
+
+Similarly, if the return type is an `Option` type, then the output type is nullable, otherwise it is non-nullable.
+
+In table form:
+
+| Input    | Parameter type | Return type | Called on       | Nullability |
+| -------- | -------------- | ----------- | --------------- | ----------- |
+| Nullable | `T`            | `T`         | Non-null values | Nullable    |
+| Nullable | `Option<T>`    | `T`         | All values      | Non-null    |
+| Nullable | `T`            | `Option<T>` | Non-null values | Nullable    |
+| Nullable | `Option<T>`    | `Option<T>` | All values      | Nullable    |
+| Non-null | `T`            | `T`         | All values      | Non-null    |
+| Non-null | `Option<T>`    | `T`         | All values      | Non-null    |
+| Non-null | `T`            | `Option<T>` | All values      | Nullable    |
+| Non-null | `Option<T>`    | `Option<T>` | All values      | Nullable    |
+
+## Dependencies
+
+UDFs can depend on external crates. To add dependencies, you can define a
+special comment in the UDF definition like this:
+
+```rust
+/*
+[dependencies]
+regex = "1.10.2"
+*/
+
+use arroyo_udf_plugin::udf;
+use regex::Regex;
+
+#[udf]
+fn my_regex_matches(s: &str) -> bool {
+    let re = Regex::new(r"test").unwrap();
+    re.is_match(s)
+}
+```
+
+Internally, the contents of the `[dependencies]` comment are used to generate a `Cargo.toml` file for the UDF.
+See the [Cargo.toml reference](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html)
+for more details on the syntax.
+
+Dependencies may also include environment variables, which will be substituted at compile time:
+
+```rust
+/*
+[dependencies]
+my-repo = {
+  git = "https://{{ GITHUB_USER }}:{{ GITHUB_TOKEN }}@github.com/{{ GITHUB_ORG }}/my-repo.git"
+}
+*/
+```

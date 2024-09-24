@@ -1,0 +1,103 @@
+---
+title: Python UDFs
+description: Write UDFs in Python
+---
+
+Arroyo user-defined functions (UDFs) can be written in Python. UDFs are defined
+as Python functions, and registered with Arroyo using the `@udf` decorator.
+
+Python UDFs are available in Arroyo 0.12.0 and later. Currently only scalar UDFs
+are supported in Python, although support for UDAFs and async UDFs is planned for
+future releases.
+
+Here's an example of a simple UDF that squares an integer:
+
+```python
+from arroyo_udf import udf
+
+@udf
+def format_line(x: int, y: float) -> str:
+    return f"{x} {y:.2f}"
+```
+
+For more general details about UDFs, see the [UDF overview](/udfs/overview).
+
+## UDF signature
+
+The signature of the UDF (the function name, parameters, and return type) is
+determined automatically from the definition of the function annotated with
+`@udf`. The function must be a valid Python function, and the parameters and
+return type must be Python types that have a SQL mapping. For the full list of
+supported types, see the [SQL data types](/sql/data-types).
+
+In order to determine the types of the UDF parameters and return value, Arroyo
+expects Python [type hints](https://docs.python.org/3/library/typing.html).
+
+Note that because Python does not have as many numeric types as SQL,
+multiple SQL types may map to the same Python type. For example, `INT` and
+`BIGINT` both map to `int`, and `FLOAT` and `DOUBLE` both map to `float`.
+
+## Nullability
+
+SQL values are generally allowed to be null. How null values interact with your
+UDF is controlled via the type signature of the UDF parameters and return types.
+If a parameter is an `Optional` type (for example `Optional[int]`), then it will
+be called with all inputs, even if they are `NULL`. If the parameter is not an
+`Optional` type (for example `int`), then it will only be called with non-`NULL`
+inputs.
+
+Similarly, if the return type is an `Optional` type, then the output type is
+nullable, otherwise it is non-nullable.
+
+In table form:
+
+| Input    | Parameter type | Return type | Called on       | Nullability |
+| -------- | -------------- | ----------- | --------------- | ----------- |
+| Nullable | `T`            | `T`         | Non-null values | Nullable    |
+| Nullable | `Optional[T]`  | `T`         | All values      | Non-null    |
+| Nullable | `T`            | `Optional[T]` | Non-null values | Nullable    |
+| Nullable | `Optional[T]`  | `Optional[T]` | All values      | Nullable    |
+| Non-null | `T`            | `T`         | All values      | Non-null    |
+| Non-null | `Optional[T]`  | `T`         | All values      | Non-null    |
+| Non-null | `T`            | `Optional[T]` | All values      | Nullable    |
+| Non-null | `Optional[T]`  | `Optional[T]` | All values      | Nullable    |
+
+Note that the `Optional` type is from the Python `typing` module and must be
+imported to use, like this:
+
+```python
+from typing import Optional
+
+@udf
+def supply_default(x: Optional[int]) -> int:
+    if x is None:
+        return None
+    return x * x
+```
+
+## Python Environment
+
+Arroyo will use the Python environment that is available on the system where the
+Arroyo controller and workers are running. This may be system Python or a
+virtualenv. If using a virtualenv, activate it before starting the Arroyo
+cluster.
+
+If running Arroyo via the official Docker image, the Python environment is
+already provided by the image.
+
+### Minimum Python version
+
+In order to enable high levels of scalability when running multiple Python UDFs
+across parallel subtasks, Arroyo relies on the new _sub-interpreter_ feature in
+Python 3.12. As a result, earlier versions of Python are not supported.
+
+### Dependencies
+
+Arroyo currently does not support installing dependencies dynamically for Python
+UDFs. If your UDF requires additional Python packages, you must install them
+manually in the Python environment where Arroyo is running. This is easiest
+done by using a virtualenv.
+
+If you are interested in using libraries with Python, please get in touch with
+us via email at [support@arroyo.systems](mailto:support@arroyo.systems) or on
+[Discord](https://discord.gg/cjCr5rVmyR) and we can help you with your use case.
