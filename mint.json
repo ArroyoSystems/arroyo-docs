@@ -18,8 +18,7 @@
       "dark": "#1D2028"
     }
   },
-  "topbarLinks": [
-  ],
+  "topbarLinks": [],
   "topbarCtaButton": {
     "name": "Arroyo Cloud",
     "url": "https://arroyo.dev"
@@ -52,7 +51,13 @@
   "navigation": [
     {
       "group": "Home",
-      "pages": ["introduction", "getting-started", "concepts", "architecture", "configuration"]
+      "pages": [
+        "introduction",
+        "getting-started",
+        "concepts",
+        "architecture",
+        "configuration"
+      ]
     },
     {
       "group": "Tutorial",
@@ -67,31 +72,31 @@
     {
       "group": "Sources and Sinks",
       "pages": [
-          "connectors/overview",
-          "connectors/formats",
-          {
-            "group": "Connectors",
-            "pages": [
-                "connectors/blackhole",
-                "connectors/confluent",
-                "connectors/delta",
-                "connectors/filesystem",
-                "connectors/fluvio",
-                "connectors/impulse",
-                "connectors/kafka",
-                "connectors/kinesis",
-                "connectors/mqtt",
-                "connectors/mysql",
-                "connectors/nats",
-                "connectors/polling-http",
-                "connectors/postgres",
-                "connectors/redis",
-                "connectors/redpanda",
-                "connectors/server-sent-events",
-                "connectors/webhook",
-                "connectors/websocket"
-            ]
-          }
+        "connectors/overview",
+        "connectors/formats",
+        {
+          "group": "Connectors",
+          "pages": [
+            "connectors/blackhole",
+            "connectors/confluent",
+            "connectors/delta",
+            "connectors/filesystem",
+            "connectors/fluvio",
+            "connectors/impulse",
+            "connectors/kafka",
+            "connectors/kinesis",
+            "connectors/mqtt",
+            "connectors/mysql",
+            "connectors/nats",
+            "connectors/polling-http",
+            "connectors/postgres",
+            "connectors/redis",
+            "connectors/redpanda",
+            "connectors/server-sent-events",
+            "connectors/webhook",
+            "connectors/websocket"
+          ]
+        }
       ]
     },
     {
@@ -139,13 +144,13 @@
       "pages": [
         "api-reference/overview",
         {
-          "group": "connectors",
+          "group": "Connectors",
           "pages": [
             "api-reference/connectors/list-all-connectors"
           ]
         },
         {
-          "group": "connection_profiles",
+          "group": "Connection Profiles",
           "pages": [
             "api-reference/connection_profiles/list-all-connection-profiles",
             "api-reference/connection_profiles/create-connection-profile",
@@ -155,7 +160,7 @@
           ]
         },
         {
-          "group": "connection_tables",
+          "group": "Connection Tables",
           "pages": [
             "api-reference/connection_tables/list-all-connection-tables",
             "api-reference/connection_tables/create-a-new-connection-table",
@@ -165,7 +170,7 @@
           ]
         },
         {
-          "group": "jobs",
+          "group": "Jobs",
           "pages": [
             "api-reference/jobs/get-all-jobs",
             "api-reference/jobs/list-a-jobs-checkpoints",
@@ -176,7 +181,7 @@
           ]
         },
         {
-          "group": "pipelines",
+          "group": "Pipelines",
           "pages": [
             "api-reference/pipelines/list-all-pipelines",
             "api-reference/pipelines/create-a-new-pipeline",
@@ -190,18 +195,12 @@
           ]
         },
         {
-          "group": "udfs",
+          "group": "UDFs",
           "pages": [
             "api-reference/udfs/get-global-udfs",
             "api-reference/udfs/create-a-global-udf",
             "api-reference/udfs/validate-udfs",
             "api-reference/udfs/delete-udf"
-          ]
-        },
-        {
-          "group": "ping",
-          "pages": [
-            "api-reference/ping/ping-endpoint"
           ]
         }
       ]
