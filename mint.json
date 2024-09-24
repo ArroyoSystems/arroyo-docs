@@ -124,10 +124,7 @@
           ]
         },
         "sql/aggregate-functions",
-        "sql/window-functions",
-        "sql/udfs",
-        "sql/udafs",
-        "sql/async-udfs"
+        "sql/window-functions"
       ]
     },
     {
@@ -266,6 +263,18 @@
     {
       "source": "/deployment/ec2",
       "destination": "/deployment/vm"
+    },
+    {
+      "source": "/sql/udfs",
+      "destination": "/udfs/overview"
+    },
+    {
+      "source": "/sql/udafs",
+      "destination": "/udfs/rust/udafs"
+    },
+    {
+      "source": "/sql/async-udfs",
+      "destination": "/udfs/rust/async-udfs"
     }
   ]
 }
