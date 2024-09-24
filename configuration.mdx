@@ -257,4 +257,8 @@ Key: `logging`
 | Name       | Description                  | Default Value |
 |------------|------------------------------|---------------|
 | `format`   | Set the log format (one of `json`, `logfmt`, or `plaintext`)  | `plaintext`          |
+| `nonblocking` | Whether to use nonblocking logging; this uses more memory but ensures processing is not blocked by a high rate of logging | `false` |
+| `buffered-lines-limit` | Number of lines to buffer before dropping logs or exerting backpressure on senders; only valid when `nonblocking` is set to true | `4096` |
+| `enable-file-line` | Whether to record the source file line in the log | `false` |
+| `enable-file-name` | Whether to record the source file name in the log | `false` |
 
