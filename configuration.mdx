@@ -234,6 +234,7 @@ There are two modes for allocating resources for Kubernetes, specified as the `k
 | `worker.resources.limits` | Kubernetes resource object representing the limits for the worker pods | none                 |
 | `worker.task-slots`   | Number of task slots per worker                  | `16`                      |
 | `worker.command`      | Command to start worker containers               | `/app/arroyo worker`      |
+| `worker.env`          | List of environment variables for worker containers, each a k8s-style map with [name and value keys](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26/#envvar-v1-core) | none                      |
 
 
 ### Database
@@ -261,4 +262,3 @@ Key: `logging`
 | `buffered-lines-limit` | Number of lines to buffer before dropping logs or exerting backpressure on senders; only valid when `nonblocking` is set to true | `4096` |
 | `enable-file-line` | Whether to record the source file line in the log | `false` |
 | `enable-file-name` | Whether to record the source file name in the log | `false` |
-
