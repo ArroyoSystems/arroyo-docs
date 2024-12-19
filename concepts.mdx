@@ -44,7 +44,7 @@ where `source [0]` and `source [1]` represents two subtasks of the source task (
 
 Each subtask may be scheduled independently. If two communicating subtasks are scheduled on the same worker, the
 dataflow is performed via in-memory queues; otherwise the dataflow is performed via Arroyo's network stack which forms
-a logical NxN connection between every communicating subtask.
+a logical MxN connection between every communicating subtask.
 
 ## Streaming SQL
 
@@ -65,8 +65,10 @@ be found in
 
 ### Event time
 
-Each event in the dataflow is assigned a timestamp; for events read from Kafka this is the Kafka message timestamp,
-and in the future we will allow parsing the timestamp from a field in the data.
+Each event in the dataflow is assigned a timestamp. For sources that have a built-in notion of time (like
+the record timestamp in Kafka) we default to that; for other sources we use the current wall-clock time
+at ingestion. However it's often more useful to set the event time from a field in the data, which represents
+some logical time, which can be done via a SQL expression in the CREATE TABLE statement for the source.
 
 All time-oriented operations in the system are performed using this _event time_, rather than the time at which the data
 is processed (called _processing time_). This allows the system to perform operations such as windowing consistently
@@ -94,8 +96,7 @@ Late events (which arrive after the watermark has passed) are dropped.
 
 Arroyo is a _stateful_ dataflow system. Each node in the dataflow graph can maintain state, which is required to perform
 operations like joins and windowing. In the open-source release of Arroyo, state is stored in memory on the worker nodes,
-which means that it is limited to the size of the worker's memory. [Arroyo Cloud](https://arroyo.dev) runs on a
-distributed state backend that separates storage and compute and allows for arbitrarily large state.
+which means that it is limited to the size of the worker's memory.
 
 Arroyo regularly checkpoints state to ensure that it can recover from failures, and to allow for operations like scaling
 and code updates. Checkpoints are consistent snapshots of the state of the dataflow at a particular point in time. In
@@ -107,7 +108,8 @@ The algorithm for consistent checkpointing is based on the
 [asynchronous barrier snapshot](https://arxiv.org/abs/1506.08603) algorithm, which itself is an extension of the
 classic [Chandy-Lamport](https://en.wikipedia.org/wiki/Chandy-Lamport_algorithm) algorithm.
 
-Checkpoints are written to S3 so that we can recover from machine failures, and are stored in Parquet format.
+Checkpoints are written to remote storage like S3 so that we can recover from
+machine failures, and are stored in Parquet format.
 
 For more detail on how all of this works, see our
 [what is stateful stream processing?](https://www.arroyo.dev/blog/stateful-stream-processing)
