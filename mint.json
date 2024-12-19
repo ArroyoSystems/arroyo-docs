@@ -90,6 +90,7 @@
             "connectors/nats",
             "connectors/polling-http",
             "connectors/postgres",
+            "connectors/rabbitmq",
             "connectors/redis",
             "connectors/redpanda",
             "connectors/server-sent-events",
@@ -225,6 +226,7 @@
     {
       "group": "Releases",
       "pages": [
+        "releases/v0.13.0",
         "releases/v0.12.0",
         "releases/v0.11.0",
         "releases/v0.10.0",

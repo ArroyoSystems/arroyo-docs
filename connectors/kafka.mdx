@@ -28,11 +28,12 @@ A Kafka connection has several required and optional fields:
 | Field | Description | Required | Example |
 | ----- | ----------- | -------- | ------- |
 | bootstrap_servers | A comma-separated list of Kafka servers to connect to | Yes | `kafka-server-1.cluster:9092,kafka-server-2.cluster:9092` |
-| auth.type | One of 'none' or 'sasl' | No | `sasl` |
+| auth.type | One of `none`, `sasl`, or `aws_msk_iam` | No | `sasl` |
 | auth.protocol | The SASL protocol to use (e.g., `SASL_PLAINTEXT`, `SASL_SSL`) | No | `SASL_PLAINTEXT` |
 | auth.mechanism | The SASL mechanism to use (e.g., `SCRAM-SHA-256`, `SCRAM-SHA-512`) | No | `SCRAM-SHA-256` |
 | auth.username | The username to use for SASL authentication | No | `user` |
 | auth.password | The password to use for SASL authentication | No | `password` |
+| auth.region | The region to use for AWS_MSK_IAM auth | No | 'us-east-1' |
 | topic | The name of the Kafka topic to read from or write to | Yes |
 | type | The type of table (either 'source' or 'sink') | Yes | `source` |
 | value.subject | Configures the value subject read from the schema registry, if enabled | No | `logs-value` |
@@ -57,6 +58,17 @@ Confluent Schema Registry.
 
 Kakfa sources implement exactly-once semantics by storing the last-read offset in Arroyo's state.
 Additionally, you can set `source.read_mode` to `read_committed` to ensure that only committed messages are read.
+
+### Source metadata
+
+The Kafka connector supports accessing the following metadata fields:
+
+* `offset_id` — the offset of the message
+* `partition` - the partition of the message
+* `topic` — the topic the message was consumed from
+* `timestamp` - the record timestamp
+
+See the [source metadata](/connectors/overview#source-metadata) docs for more on how to use metadata fields.
 
 ## Kafka Sinks
 
@@ -110,7 +122,9 @@ For example:
 ```sql
 CREATE TABLE orders (
   customer_id INT,
-  order_id INT
+  order_id INT,
+  offset BIGINT GENERATED ALWAYS AS (metadata('offset_id')) STORED,
+  partition INT GENERATED ALWAYS AS (metadata('partition')) STORED
 ) WITH (
   connector = 'kafka',
   format = 'json',
