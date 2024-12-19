@@ -98,13 +98,9 @@ For each method, you will use the following settings:
             ```
         </Tab>
         <Tab title="Docker for Mac">
-            If you're running Arroyo in Docker for Mac, you will need to use a different address
-            to allow Arroyo to connect to the Kafka broker running on your host machine. By default
-            this is `host.docker.internal`, so configure your kafka connection with:
-
-            ```
-            Bootstrap Servers: host.docker.internal:9092
-            ```
+            Due to how Kafka networking works, it is not straightforward to connect
+            to a Kafka node running on your local computer from a Docker container. More
+            information on how to set this up can be found in [this StackOverflow question](https://stackoverflow.com/questions/51630260/connect-to-kafka-running-in-docker)
         </Tab>
         <Tab title="Docker on Linux">
             If you're running Arroyo in Docker on Linux, you will need to do a bit more setup
@@ -141,7 +137,7 @@ For each method, you will use the following settings:
 
 - Authentication: `None`
 - Schema Registry: `Confluent Schema Registry`
-  - Endpoint: `http://localhost:8081`, `http://host.docker.internal:8081`, or
+- Endpoint: `http://localhost:8081`, `http://host.docker.internal:8081`, or
 `http://<GATEWAY IP>:8081` similarly to how you configured the bootstrap servers
 above)
 
@@ -191,7 +187,7 @@ the topic we generated has an associated schema in the schema registry, we'll us
 Click "Continue" to finish configuring the source table. On the final screen, we
 can give the connection a name `orders`, then test that it's valid.
 
-WHen you click "Test Connection," Arroyo will attempt to connect to Kafka with the configured bootstrap servers,
+When you click "Test Connection," Arroyo will attempt to connect to Kafka with the configured bootstrap servers,
 validates that the topic exists, and tries reading a message from the topic.
 
 If everything is good, click "Create" to create the connection.

@@ -28,9 +28,24 @@ to the materialized view.
 
 Source connectors such as [kafka](/connectors/kafka) can specify the format as
 `'debezium_json'` to read [Debezium](https://debezium.io/) formatted messages.
-Messages with an op value of `'c'` (create) and `'r'` (read) are treated as an
-insert, an op value of `'d'` (delete) is treated as a delete, and an op value of
-`'u'` (update) is unrolled as a delete followed by an insert.
+
+Updating sources need at least one _primary key_, which tells Arroyo which
+rows are logically the same. The primary key is specified in the DDL, like this:
+
+```sql
+CREATE TABLE debezium_source (
+    id INT PRIMARY KEY,
+    customer_name TEXT,
+    price FLOAT,
+    order_date TIMESTAMP,
+    status TEXT
+) WITH (
+    connector = 'kafka',
+    format = 'debezium_json',
+    type = 'source',
+    ...
+);
+```
 
 ## Manipulating updating data in SQL
 
@@ -82,19 +97,19 @@ CREATE TABLE impulse WITH (
     event_rate = '100'
 );
 SELECT count(*) as rows
-FROM impulse;
+FROM impulse
+HAVING rows < 500;
 ```
 
 will produce output data like the following:
 
 |before | after | op |
 |-------|-------|----|
-|null |` { "rows": 300}`| `"c"`|
-|`{ "rows": 200 }`| null | `"d"`|
-|null |	`{ "rows": 200 }`|	`"c"`|
-|`{ "rows": 100 }`| null | `"d"`|
-|null |`{ "rows": 100 }`| `"c"`|
-
+|null |`{ "rows": 100}`| `"c"`|
+|`{ "rows": 100 }`| `{ "rows": 200}` | `"u"`|
+|`{ "rows": 200 }`| `{ "rows": 300}` | `"u"`|
+|`{ "rows": 300 }`| `{ "rows": 400}` | `"u"`|
+|`{ "rows": 400 }`| null | `"d"`|
 
 For examples of manipulating updating data, see the
 [Debezium Terminal](/tutorial/debezium).

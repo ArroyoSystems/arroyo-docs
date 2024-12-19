@@ -24,6 +24,7 @@ not currently supported, please get in touch with the team on Discord or via Git
 | **Nexmark** | Yes | No |
 | [Polling HTTP](/connectors/polling-http) | Yes | No |
 | [Postgres](/connectors/postgres) | Yes | Yes |
+| [RabbitMQ](/connectors/rabbitmq) | Yes | No |
 | [Redis](/connectors/redis) | No | Yes |
 | [Redpanda](/connectors/redpanda) | Yes | Yes |
 | [Server-Sent Events](/connectors/server-sent-events) | Yes | No |
@@ -139,6 +140,33 @@ format:
 
 Json and Avro Schemas for Kafka topics can also be read automatically from
 [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html).
+
+## Source metadata
+
+Fields in a source table are typically filled in from the underlying data in the source;
+for example from the fields of a JSON message in a Kafka topic. However it's also possible
+to inject _metadata_ fields into the table, using generated (virtual) fields along
+with the special `metadata` function. It looks like this:
+
+```sql
+create table users (
+    id TEXT,
+    name TEXT,
+    offset BIGINT GENERATED ALWAYS AS (metadata('offset_id')) STORED,
+    partition INT GENERATED ALWAYS AS (metadata('partition')) STORED
+) with (
+    connector = 'kafka',
+    ...
+);
+```
+
+Each connector will expose different metadata fields, which can be accessed by
+passing their name to the `metadata` function; in this example we use
+the `offset_id` and `partition` fields exposed by the Kafka connector. The metadata
+function can only be used in Source DDL generated fields, but those fields can
+then be used in queries like any other.
+
+See the individual connector docs for supported metadata fields.
 
 
 ## Source idleness

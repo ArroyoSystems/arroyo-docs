@@ -44,6 +44,15 @@ clause.
 
 See the [connection profile](/connectors/overview#connection-profiles) docs for more details.
 
+## Source metadata
+
+The MQTT connector supports accessing the following metadata fields:
+
+* `topic` - the MQTT topic the message was consumed from
+
+See the [source metadata](/connectors/overview#source-metadata) docs for more on how to use metadata fields.
+
+
 ## Examples
 
 ### MQTT Source
@@ -53,7 +62,8 @@ create table mqtt_source (
     id TEXT,
     lat FLOAT,
     lng FLOAT,
-    type INT
+    type INT,
+    topic TEXT GENERATED ALWAYS AS (metadata('topic')) STORED
 ) with (
     connector = 'mqtt',
     url = 'tcp://localhost:1833',

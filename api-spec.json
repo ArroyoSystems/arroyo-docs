@@ -1909,7 +1909,7 @@
       "OperatorMetricGroup": {
         "type": "object",
         "required": [
-          "operatorId",
+          "nodeId",
           "metricGroups"
         ],
         "properties": {
@@ -1919,8 +1919,10 @@
               "$ref": "#/components/schemas/MetricGroup"
             }
           },
-          "operatorId": {
-            "type": "string"
+          "nodeId": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },
@@ -2087,7 +2089,9 @@
         ],
         "properties": {
           "destId": {
-            "type": "string"
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           },
           "edgeType": {
             "type": "string"
@@ -2096,7 +2100,9 @@
             "type": "string"
           },
           "srcId": {
-            "type": "string"
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           },
           "valueType": {
             "type": "string"
@@ -2137,7 +2143,9 @@
             "type": "string"
           },
           "nodeId": {
-            "type": "string"
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           },
           "operator": {
             "type": "string"
@@ -2380,6 +2388,10 @@
           },
           "fieldType": {
             "$ref": "#/components/schemas/SourceFieldType"
+          },
+          "metadataKey": {
+            "type": "string",
+            "nullable": true
           },
           "nullable": {
             "type": "boolean"
