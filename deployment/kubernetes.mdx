@@ -14,12 +14,7 @@ stable Kubernetes versions are supported (currently >=1.25) but older versions
 will likely work as well.
 
 A complete working Arroyo cluster involves a number of components (as described in more detail in the
-[architecture guide](/architecture)):
-
-- arroyo-compiler
-- arroyo-controller
-- arroyo-api
-- postgres
+[architecture guide](/architecture)), including a controller pod and a postgres database.
 
 We provide a Helm chart to configure all of these components. You may choose to
 use an existing Postgres database, or have the helm chart deploy
@@ -68,9 +63,54 @@ The most important options are:
 The helm chart can be configured either via a `values.yaml` file or via command line arguments. See the
 [Helm documentation](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing) for more details.
 
-### Example local configuration
+### Configuring Arroyo
 
-To run on a local Kubernetes cluster without S3, you can use the following configuration:
+Arroyo has a rich [configuration system](/configuration), which is controlled through environment variables
+and config files. In Kubernetes, either option is available to control the behavior of the system.
+
+To set an environment variable, override the `env` field in the helm chart:
+
+```yaml values.yaml
+env:
+  - name: ARROYO__DEFAULT_CHECKPOINT_INTERVAL
+    value: 5s
+```
+
+Configuring Arroyo via a config file is also possible. Create a config map like this:
+
+```yaml configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-arroyo-config
+data:
+  config.yaml: |
+    default-checkpoint-interval: 5s
+    pipeline:
+      source-batch-size: 256
+      healthy-duration: 1m
+```
+
+Deploy it to the cluster:
+
+```
+$ kubectl create -f configmap.yaml
+```
+
+Then configure the Helm chart to use it:
+
+```yaml values.yaml
+existingConfigMap: my-arroyo-config
+```
+
+## Local Kubernetes
+
+To test out an Arroyo cluster or do development, it can be useful to run it on a local Kubernetes cluster
+(for example, minikube, k3s, Docker Desktop, etc.). In this mode, we can use a local filesystem mount
+for checkpoint storage, as we are running only on one node. (For distributed clusters, checkpoints must
+be stored on in a location that is accessible to all nodes, like S3).
+
+An example local configuration looks like this:
 
 ```yaml
 artifactUrl: "/tmp/arroyo-test"
@@ -87,7 +127,7 @@ volumeMounts:
     mountPath: /tmp/arroyo-test
 ```
 
-### Example EKS configuration
+## Amazon EKS
 
 For a production deployment on EKS, you may want to use an external Postgres instance and S3 bucket. Assuming you have
 an existing RDS installation at `arroyo.cnkkgnj5egvb.us-east-1.rds.amazonaws.com` with a database named `arroyo`, and
@@ -95,14 +135,15 @@ an S3 bucket named `arroyo-artifacts` in the `us-east-1` region, you can use the
 
 ```yaml
 postgresql:
+  deploy: false
   externalDatabase:
-    host: db.prod.iad.arroyo.cluster
+    host: arroyo-prod.cluster-dfg3fak5egvb.us-east-1.rds.amazonaws.com
     name: arroyo_test
     user: arroyodb
     password: arroyodb
 
-artifactUrl: "s3://arroyo-artifacts"
-checkpointUrl: "s3://arroyo-checkpoints"
+artifactUrl: "s3://arroyo-checkpoints/artifacts"
+checkpointUrl: "s3://arroyo-checkpoints/checkpoints"
 ```
 
 <Tip>
@@ -111,7 +152,133 @@ pod template for your EKS cluster has a security group that allows access to the
 see the Arroyo service pods hang on startup as they try to connect.
 </Tip>
 
-### Example GKE configuration
+### S3 Authentication
+
+Arroyo pods need to be able to authenticate against your S3 bucket to write and restore
+checkpoints, as well as against any other AWS resources you would like to access (like
+Kinesis streams or IAM-secured Kafka clusters). This section covers several options.
+
+#### Static credentials
+
+The easiest (but least secure) way to authenticate against S3 or other AWS
+services is to embed static credentials (an access key id/secret pair) as
+environment variables. Arroyo reads standard [AWS environment
+variables](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-envvars.html#envvars-list).
+
+To embed credentials directly in the config, you can add this to your Helm configuration:
+
+```yaml values.yaml
+env:
+  - name: AWS_ACCESS_KEY_ID
+    value: Z6EZ25YSK97EU5ZQ96MT2
+  - name: AWS_SECRET_ACCESS_KEY
+    value: lIEY87tBT3D7bGKxnM4IaxDAtmiORKDvqS3VMCwFO
+```
+
+However, this is quite insecure as the credentials will be visible in plaintext to anyone
+who has access the the Kubernetes cluster. A better approach is to store the credentials
+as a [Kubernetes Secret](https://kubernetes.io/docs/concepts/configuration/secret).
+
+We can create the secret like this:
+
+```sh
+$ kubectl create secret generic aws-creds \
+    --from-literal=aws-access-key-id='Z6EZ25YSK97EU5ZQ96MT2' \
+    --from-literal=aws-secret-access-key='lIEY87tBT3D7bGKxnM4IaxDAtmiORKDvqS3VMCwFO'
+```
+
+Then inject it into the configuration:
+
+```yaml values.yaml
+env:
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: aws-creds
+        key: aws-access-key-id
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: aws-creds
+        key: aws-secret-access-key
+```
+
+#### Pod IAM Role
+
+Another option is to configure the EKS Node IAM role to have access to the desired resource (like
+S3). This is also straightforward and is more secure than using static credentials, however it
+does require giving all workloads on the EKS cluster access.
+
+First, we create a policy:
+
+```json policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::my-s3-bucket",
+                "arn:aws:s3:::my-s3-bucket/*"
+            ]
+        }
+    ]
+}
+```
+
+(change `my-s3-bucket` to the name of your s3 bucket)
+
+```
+aws iam create-policy \
+  --policy-name ArroyoNodePolicy \
+  --policy-document file://policy.json
+```
+
+Next, we must find the ARN of the node group role:
+
+```bash
+$ aws eks describe-nodegroup \
+  --cluster-name <EKS_CLUSTER_NAME> \
+  --nodegroup-name <NODEGROUP_NAME> \
+  --query "nodegroup.nodeRole"
+arn:aws:iam::773345601144:role/eks-node-role
+```
+
+Then we can attach the policy to the role:
+
+```bash
+$ aws iam attach-role-policy \
+  --role-name <NODE_INSTANCE_ROLE> \
+  --policy-arn arn:aws:iam::<ACCOUNT_ID>:policy/ArroyoNodePolicy
+```
+
+Replace `<NODE_INSTANCE_ROLE>` with the ARN returned in the previous step.
+
+#### IAM Roles for Service Accounts (IRSA)
+
+The most secure way to configure this is to use EKS's
+[IRSA feature](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html).
+This is a way to bridge IAM roles (AWS's way of configuring permissions) with Service Accounts,
+which is Kubernetes', and ensures that only the pods that need access to a particular resource are
+granted it.
+
+Full documentation for how to set up IRSA is beyond the scope of this guide; see the AWS docs
+for full details.
+
+Once you've created a policy and attached it to a service account (for example one called `arroyo-pod-sa`)
+we can configure Arroyo to use it with this helm configuration:
+
+```yaml values.yaml
+serviceAccount:
+  create: false
+  name: arroyo-pod-sa
+
+role:
+  create: false
+```
+
+## Google GKE
 
 For a production deployment on GKE, you may want to use an external Postgres
 instance and GCS bucket. You will need to give the pods access to the GCS bucket
@@ -127,6 +294,7 @@ artifactUrl: "gs://arroyo-artifacts"
 checkpointUrl: "gs://arroyo-checkpoints"
 
 postgresql:
+  deploy: false
   externalDatabase:
     host: db.prod.iad.arroyo.cluster
     name: arroyo_test
@@ -137,7 +305,6 @@ serviceAccount:
   name: gke-access-gcs
   create: false
 ```
-
 
 ## Installing the helm chart
 
