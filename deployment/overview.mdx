@@ -29,7 +29,7 @@ See the [database configuration options](/configuration#database).
 
 You will need a place to store pipeline artifacts (binaries) and checkpoint data. This needs to be accessible to
 all nodes in your cluster, including Arroyo the control plane and pipeline workers. Arroyo
-supports several storage backends, including S3, GCS, EBS, and local filesystem. For local testing, a filesystem that's
+supports several storage backends, including S3, GCS, ABS, and local filesystem. For local testing, a filesystem that's
 mounted on all nodes is sufficient, but for production you will likely want to use an object store like S3 or GCS.
 We also support S3-compatible object stores like MinIO and Localstack; endpoints can be set via the `s3::` prefix
 or the `AWS_ENDPOINT_URL` environment variable.
