@@ -243,7 +243,7 @@ CREATE TABLE kafka_sink (
 ```
 
 Connection tables are created via `CREATE TABLE` statements that have a
-`connector` with option, which specifices which connector should be used; in
+`connector` with option, which specifies which connector should be used; in
 this case Kafka. Other required options are `type` which specifies whether the
 table is a source or a sink, and `format` which specifies the format of the
 data.
@@ -284,7 +284,7 @@ GROUP BY store_id, hop(interval '2 seconds', interval '10 seconds');
 Now we're ready to run the pipeline for real. Click "Start Pipeline" and give
 the pipeline a name, and click "Start."
 
-Once the pipeline starts running, we can see the oputputs by running the Kafka
+Once the pipeline starts running, we can see the outputs by running the Kafka
 console consumer in the confluent directory:
 
 ```
