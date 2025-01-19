@@ -4,17 +4,16 @@ description: Extending Arroyo with user-defined functions
 ---
 
 Arroyo SQL can be extended with user-defined functions, written in Rust or
-Python. UDFs can be defined as part of the SQL API call, or via the Web UI.
-
-UDFs are defined as Rust functions. The parameters and return type of the UDF
-are determined by the definition of the function. All types must be valid
-[SQL data types](/sql/data-types).
+Python.  The parameters and return type of the UDF are determined by the 
+definition of the function and all types must be valid [SQL data types](/sql/data-types).
 
 For String and Binary types (`TEXT` `BYTEA` in SQL), UDFs use the reference type
 (`&str` and `&[u8]`) for arguments and the owned types (`String` and `Vec<u8>`)
 for return values.
 
-Arroyo UDFs are annotated with the `#[udf]` in the arroyo\_udf\_plugin crate.
+Arroyo UDFs are annotated with the `#[udf]` in the arroyo\_udf\_plugin crate if they
+are written in rust and the `@udf` decorators if you use Python. UDFs can be defined
+as part of the SQL API call, or via the Web UI.
 
 Here's an example of a simple UDF that squares an integer:
 
