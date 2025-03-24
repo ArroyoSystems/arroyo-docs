@@ -107,6 +107,7 @@
         "sql/select-statements",
         "sql/ddl",
         "sql/windows",
+        "sql/joins",
         "sql/updating-tables",
         {
           "group": "Scalar Functions",
