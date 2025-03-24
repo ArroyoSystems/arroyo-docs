@@ -36,10 +36,10 @@ CREATE TABLE prs (
 ) WITH (
     connector = 'polling_http',
     endpoint = 'https://api.github.com/repos/ArroyoSystems/arroyo/pulls?per_page=1&state=all',
-    poll_interval_ms = '5000',
+    poll_interval_ms = 5000,
     emit_behavior = 'changed',
     headers = 'User-Agent:arroyo/0.6',
     format = 'json',
-    'json.unstructured' = 'true'
+    'json.unstructured' = true
 );
 ```

@@ -259,14 +259,14 @@ via *virtual columns*.
 ```sql
 create table logs (
     value TEXT,
-    parsed TEXT GENERATED ALWAYS AS (parse_log(value)) STORED,
+    parsed TEXT GENERATED ALWAYS AS (parse_log(value)),
     event_time TIMESTAMP GENERATED ALWAYS AS
-        (CAST(extract_json_string(parse_log(value), '$.date') as TIMESTAMP)) STORED
+        (CAST(extract_json_string(parse_log(value), '$.date') as TIMESTAMP)),
+    WATERMARK FOR event_time
 ) with (
     connector = 'sse',
     endpoint = 'http://host.docker.internal:9563/sse',
-    format = 'raw_string',
-    event_time_field = 'event_time'
+    format = 'raw_string'
 );
 ```
 
