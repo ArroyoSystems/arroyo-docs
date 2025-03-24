@@ -36,7 +36,7 @@ CREATE TABLE orders (customer_id INT, order_id INT);
 ### CREATE TABLE (Connection)
 
 Connection tables allow Arroyo to read and write to external systems like Kafka
-clusters. Connections tables may be used as sources or sinks depending on
+clusters. Connection tables may be used as sources or sinks depending on
 the type of connection. For details on all of the supported connectors, see the
 [Connectors](/connectors) docs. Connection tables can be created via the
 Connections tabs of the Web UI, or directly in SQL via the `CREATE TABLE`
@@ -50,22 +50,18 @@ connector pages. The general form of the statement is:
 
 ```sql
 CREATE TABLE <table name> (
-  [<field name> <field type>,]..
+  [<field name> <field type>,]*
+  [WATERMARK FOR <field_name> [AS <expression>]]
 ) WITH (
   connector = '<connector name>',
   format = '<format name>',
   [format options]
-  [connection options]
+  [connector options]
 )
 ```
 
 where `connector` is one of the connectors documented [here](/connectors) and
-format is one of:
-
-* `json`
-* `debezium_json`
-* `avro`
-* `raw_string`
+format is one of of the [supported formats](/connectors/formats).
 
 For example, to create a Kafka source for the topic `order_topic`:
 
@@ -73,19 +69,18 @@ For example, to create a Kafka source for the topic `order_topic`:
 CREATE TABLE orders (
   customer_id INT,
   order_id INT,
-  date_string TEXT,
-  event_time TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP)) STORED,
-  watermark TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP) - INTERVAL '15' SECOND) STORED
+  date_string TEXT
 ) WITH (
   connector = 'kafka',
   format = 'json',
   type = 'source',
   bootstrap_servers = 'localhost:9092',
-  topic = 'order_topic',
-  event_time_field = 'event_time',
-  watermark_field = 'watermark'
+  topic = 'order_topic'
 );
 ```
+
+For full details on how to create connection tables, see the
+[connector docs](/connectors).
 
 #### Schema inference
 
@@ -143,17 +138,25 @@ of the supported options, refer to the [Connector](/connectors) docs.
 |--------          | --------- |-------------|
 | `connector`      | yes  | The name of the connector to use.|
 | `format`         | if connector does not have a built-in format  | The format of the data to be deserialized. |
-| `event_time_field`| no  | The name of the field to use as the [event time](/concepts#event-time). If not specified, the event time will be set by the source.|
-| `watermark_field` | no  | The name of the field to use as the [watermark](/concepts#watermark). If not specified, the watermark will be 1 second before the event time. This will usually be the event_time_field minus some constant interval, e.g. `event_time - interval '10 seconds'`.|
 | `idle_micros`    | no  | The number of microseconds to wait before considering a source idle. Defaults to `30000000` (30 seconds). Set to `-1` to disable source idleness.|
 
 #### Virtual Fields
 
-Virtual fields can be created within the `CREATE TABLE` statement.
-These are done using the `GENERATED ALWAYS AS (expression) STORED` syntax.
-`expression` must be a valid Arroyo SQL expression that only depends on non-virtual fields within the table.
-These will primarily be used to specify event time and watermark fields,
-as most other use cases can be handled by the `SELECT` statement.
+Virtual fields can be created within the `CREATE TABLE` statement. These are
+done using the `GENERATED ALWAYS AS (expression)` syntax. `expression` must be a
+valid Arroyo SQL expression that only depends on non-virtual fields within the
+table. For example
+
+```sql
+CREATE TABLE events (
+  id TEXT,
+  event_type TEXT,
+  user_id TEXT,
+  key TEXT GENERATED ALWAYS AS (concat(id, '-', user_id))
+) WITH (
+  ...
+)
+```
 
 ## INSERT INTO
 

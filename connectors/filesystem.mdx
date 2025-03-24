@@ -116,7 +116,7 @@ CREATE TABLE bids (
   path = 'https://s3.us-west-2.amazonaws.com/demo/s3-uri',
   format = 'parquet',
   parquet_compression = 'zstd',
-  rollover_seconds = '60',
+  rollover_seconds = 60,
   time_partition_pattern = '%Y/%m/%d/%H',
   partition_fields = 'region,account_id'
 );
