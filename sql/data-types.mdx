@@ -15,15 +15,58 @@ For basic SQL users you should only need to deal with the SQL types.
 These types can also be inserted as literals in sql.
 For types like INT vs BIGINT it will infer the type based on context.
 
-| Arroyo  | Rust     | Python     | Arrow  | Sql Types                      | Example Literals                                         |
+| Arroyo       | Rust          | Python          | Arrow          | Sql Types                      | Example Literals                                         |
 |--------------|---------------|-----------------|----------------|--------------------------------|----------------------------------------------------------|
 | `Boolean`    | `bool`        | `bool`          | `Boolean`      | `BOOLEAN`                      | `TRUE`, `FALSE`                                           |
 | `Int32`      | `i32`         | `int`           | `Int32`        | `INT`, `INTEGER`               | `0`, `1`, `-2`                                            |
 | `Int64`      | `i64`         | `int`           | `Int64`        | `BIGINT`                       | `0`, `1`, `-2`                                            |
 | `Uint32`     | `u32`         | `int`           | `UInt32`       | `INT UNSIGNED`, `INTEGER UNSIGNED`| `0`, `1`, `2`                                        |
 | `Uint64`     | `u64`         | `int`           | `UInt64`       | `BIGINT UNSIGNED`              | `0`, `1`, `2`                                             |
-| `Float32`    | `f32`         | `float`         | `Float32`      | `FLOAT`, `REAL`                | `0.0`, `-2.4`, `1E-3`                                     |
-| `Float64`    | `f64`         | `float`         | `Float64`      | `DOUBLE`                       | `0.0`, `-2.4`, `1E-35`                                    |
+| `Float32`    | `f32`         | `float`          | `Float32`      | `FLOAT`, `REAL`                | `0.0`, `-2.4`, `1E-3`                                     |
+| `Float64`    | `f64`         | `float`          | `Float64`      | `DOUBLE`                       | `0.0`, `-2.4`, `1E-35`                                    |
 | `String`     | `String`      | `str`           | `Utf8`         | `VARCHAR`, `CHAR`, `TEXT`, `STRING`| `"hello"`, `"world"`                                  |
-| `Timestamp`  | `SystemTime`  | —      | `Timestamp`    | `TIMESTAMP`                    | `'2020-01-01'`, `'2023-05-17T22:16:00.648662+00:00'`      |
-| `Bytes`      | `Vec<u8>`     | —         | `Binary`       | `BYTEA`                        | `X'A123'` (hex)                                           |
+| `Timestamp`  | `SystemTime`  | —               | `Timestamp`    | `TIMESTAMP`                    | `'2020-01-01'`, `'2023-05-17T22:16:00.648662+00:00'`      |
+| `Bytes`      | `Vec<u8>`     | —               | `Binary`       | `BYTEA`                        | `X'A123'` (hex)                                           |
+
+## Composite types
+
+In addition to the primitive types above, Arroyo SQL supports two forms of
+composite types: arrays and structs.
+
+### Array types
+
+Arrays group together zero or more elements of the same type. Arrays are
+declared by suffixing another type with `[]`, for example an INT array can be
+declared with `INT[]`. Arrays values can be indexed using 1-indexed subscript
+notation (`v[1]` is the first element of `v`).
+
+Arrays can be constructed via `[]` literals, like `[1, 2, 3]`.
+
+Arroyo provides a set of [array functions](/sql/scalar-functions/array) for
+manipulating array values; arrays may also be unnested using the
+[`UNNEST` operator](/sql/select-statements#unnest).
+
+
+### Struct types
+
+Structs allow combining related fields into a single value. Structs are declared
+using this syntax: `struct<field_name field_type, ..>`, and may contain any other type,
+including arrays and other structs.
+
+For example:
+
+```sql
+CREATE TABLE events (
+    properties STRUCT <
+      user_id TEXT,
+      timings INT[],
+      name STRUCT <
+        first TEXT,
+        last TEXT
+      >
+    >
+)
+```
+
+Structs fields can be accessed via `.` notation, for example `properties.name.first`.
+
