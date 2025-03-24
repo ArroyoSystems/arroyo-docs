@@ -72,6 +72,7 @@ Parquet has a few supported options. Please reach out if you'd like to expand th
 | `parquet_row_group_size` | The maximum number of rows to write per row group | `1000000` | `100000` |
 
 ### Partitioning Options
+
 Arroyo supports partitioning of outputs. There are two types of partitioning: event time-based and field-based.
 You can use either or both of these types of partitioning.
 If both are used, the time-based partitioning is placed prior to the field-based partitioning.
@@ -90,6 +91,26 @@ so partitioning on field_1, field_2 will result in folders like `field_1=X/field
 
 Example:
 `partition_fields = 'field_1,field_2'`
+
+#### Shuffle by partition
+
+When using field-based partitioning and high parallelism, you may end up with many files;
+typically each sink subtask will write a file for every partition key. To avoid this,
+you can configure the dataflow to insert a shuffle step before the sink, which will ensure
+that all records for a particular partition key end up on the same sink node:
+
+```
+'shuffle_by_partition.enabled' = true
+```
+
+For example, if our partition key is `event_type` and we have 100 distinct
+types, at parallelism 32 we'd end up with 3,200 files being written for each
+flush interval. By enabling shuffle_by_partition, we reduce that 100.
+
+Note that this may lead to performance problems if your data is highly skewed
+across your partition keys; for example, if 90% of your data is in the same
+partition, those events will all end up on the same sink subtask which may
+not be able to keep up with the volume.
 
 ## Source Specific Configuration
 When using the file system source, the following options are available
