@@ -1268,6 +1268,13 @@
             "type": "boolean",
             "nullable": true
           },
+          "primaryKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
           "structName": {
             "type": "string",
             "nullable": true
@@ -1374,7 +1381,8 @@
         "type": "string",
         "enum": [
           "source",
-          "sink"
+          "sink",
+          "lookup"
         ]
       },
       "Connector": {
