@@ -56,7 +56,7 @@ Kafka source is defined by a topic name and a schema.
 Schemas can be defined via json-schema, or automatically configured via
 Confluent Schema Registry.
 
-Kakfa sources implement exactly-once semantics by storing the last-read offset in Arroyo's state.
+Kafka sources implement exactly-once semantics by storing the last-read offset in Arroyo's state.
 Additionally, you can set `source.read_mode` to `read_committed` to ensure that only committed messages are read.
 
 ### Source metadata
