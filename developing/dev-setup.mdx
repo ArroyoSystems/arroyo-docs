@@ -16,11 +16,8 @@ Follow these command to get the necessary dependencies to build Arroyo on Ubuntu
 
 ```bash
 $ sudo apt-get install pkg-config build-essential \
-  libssl-dev openssl cmake curl postgresql postgresql-client
+  libssl-dev openssl cmake curl postgresql postgresql-client protobuf-compiler
 $ sudo systemctl start postgresql
-$ wget https://github.com/protocolbuffers/protobuf/releases/download/v21.8/protoc-21.8-linux-x86_64.zip
-$ unzip protoc-21.8-linux-x86_64.zip
-$ sudo mv bin/protoc /usr/local/bin
 $ curl https://sh.rustup.rs -sSf | sh -s -- -y
 $ cargo install refinery_cli
 $ curl -fsSL https://get.pnpm.io/install.sh | sh -
@@ -36,7 +33,23 @@ run the following commands:
 $ brew install postgresql
 $ brew install protobuf
 $ brew install pnpm
-$ brew install cmake
+```
+
+We also need to install CMake, which is used by some of the C and C++ libraries we're dependant on,
+like librdkafka. The current version in homebrew (4.0.x) is too new, so a 3.x.x version must be
+installed manually:
+
+```bash
+$ curl -OL https://github.com/Kitware/CMake/releases/download/v3.31.7/cmake-3.31.7-macos-universal.tar.gz
+$ tar xvfz cmake-3.*-macos-universal.tar.gz
+$ mv cmake-3.*/Cmake.app /Applications
+```
+
+Then `/Applications/Cmake.app/Contents/bin` must be added your path, for example by putting this line
+in your `.zshrc` or `.bashrc`:
+
+```bash
+export PATH=$PATH:/Applications/CMake.app/Contents/bin
 ```
 
 Next install Rust:
