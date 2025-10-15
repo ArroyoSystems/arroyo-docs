@@ -78,7 +78,7 @@ the same output.
 ### Watermarks
 
 Stream processing operates over unbounded streams of data. This means that the data is never complete. And in real world
-systems, events may be arrive in any order and may be arbitrary delayed. But we still need to be able to compute results,
+systems, events may arrive in any order and may be arbitrary delayed. But we still need to be able to compute results,
 and can't wait indefinitely to be sure that all of the data has arrived.
 
 To solve this problem, Arroyo uses _watermarks_ to track the progress of the dataflow. A watermark is an estimate of
