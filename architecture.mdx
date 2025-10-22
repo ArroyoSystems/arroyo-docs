@@ -7,7 +7,7 @@ The Arroyo system architecture is composed of several services, as can be seen i
 
 ![Arroyo Architecture](/images/arroyo_arch.png)
 
-These services can be run in a single process for a simple deployment, or separately for a fully scaleable,
+These services can be run in a single process for a simple deployment, or separately for a fully scalable,
 fault-tolerant system.  All components of the system are compiled into a single binary `arroyo`
 which provides sub-commands to run specific services or an entire Arroyo cluster.
 
@@ -36,7 +36,7 @@ There is a single controller instance that runs in the system, and high-availabi
 source release. If the controller instance fails, the workers will eventually stop and wait for the controller to come
 back online.
 
-The controller manages a state machine for each job, which is documented [here](#state-machine) and is also responsible
+The controller manages a state machine for each job, which is documented [here](#job-state-machine) and is also responsible
 for initiating checkpoints on the workers. Communication between the controller and workers is done via the gRPC API
 defined in [rpc.proto](https://github.com/ArroyoSystems/arroyo/blob/master/arroyo-rpc/proto/rpc.proto).
 
