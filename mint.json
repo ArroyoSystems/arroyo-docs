@@ -83,6 +83,7 @@
             "connectors/filesystem",
             "connectors/fluvio",
             "connectors/impulse",
+            "connectors/iceberg",
             "connectors/kafka",
             "connectors/kinesis",
             "connectors/mqtt",

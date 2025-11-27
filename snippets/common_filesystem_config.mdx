@@ -1,0 +1,39 @@
+### File rollover configs
+
+These configs control when files are rolled over, creating new files. Rolling over
+more frequently allows lower latency for readers, but at the cost of more files, which
+can slow down queries.
+
+| Field | Description | Default | Example |
+| ----- | ----------- | -------- | ------- |
+| `rolling_policy.file_size` | Target size in a file before it is rolled | None | `'128MB'` |
+| `rolling_policy.interval` | Amount of time a file after creation that a file will be rolled, expressed as a SQL interval | None | `interval '30 minutes'` |
+| `rolling_policy.inactivity_interval` | Number of seconds a file will be open without any new data before it will be rolled | None | `interval '1 hour'` |
+
+
+#### File Naming Options
+
+By default Arroyo names files using [UUIDv7](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_7_(timestamp_and_random)),
+which ensures that they sort in time-order. This behavior can be configured via the following options:
+
+| Field | Description | Default |
+| ----- | ----------- | -------- |
+| `filename.prefix` | Prefix that will be appended to the beginning of the file name, followed by a `-` | None |
+| `filename.suffix` | Suffix (extension) that will be appended to the end of the file name, preceded by a `.` | `'json'` or  `'parquet'` |
+| `filename.strategy` | Filenaming strategy to use. Supported values: `serial`, `uuid`, `ulid`, `uuid_v7` | `'uuid_v7'` |
+
+### Parquet Options
+
+| Field | Description | Default |
+| ----- | ----------- | -------- | 
+| `parquet.compression` | The compression codec to use for Parquet files. Supported values: `none`, `snappy`, `gzip`, `zstd`, `lz4`, `lz4_raw`. | `'zstd'` |
+| `parquet.row_group_size` | Target size for each Parquet row group | `'128MB'` |
+
+### Multipart upload settings
+
+Thes options allow configuring the behavior of how writes against object storage are split into parts:
+
+| Field | Description | Default |
+| ----- | ----------- | -------- |
+| `multipart.target_part_size` | The target size of each multipart upload. Must be at least 5MB. | `'32MB'` |
+| `multipart.max_parts` | Maximum number of multipart uploads before a multipart will be completed | `1000` |
