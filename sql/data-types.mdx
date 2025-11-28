@@ -24,6 +24,7 @@ For types like INT vs BIGINT it will infer the type based on context.
 | `Uint64`     | `u64`         | `int`           | `UInt64`       | `BIGINT UNSIGNED`              | `0`, `1`, `2`                                             |
 | `Float32`    | `f32`         | `float`          | `Float32`      | `FLOAT`, `REAL`                | `0.0`, `-2.4`, `1E-3`                                     |
 | `Float64`    | `f64`         | `float`          | `Float64`      | `DOUBLE`                       | `0.0`, `-2.4`, `1E-35`                                    |
+| `Decimal128` | `i128`        | —               | `Decimal128`   | `DECIMAL(precision, scale)`    | `123.45`, `0.001`                                         |
 | `String`     | `String`      | `str`           | `Utf8`         | `VARCHAR`, `CHAR`, `TEXT`, `STRING`| `"hello"`, `"world"`                                  |
 | `Timestamp`  | `SystemTime`  | —               | `Timestamp`    | `TIMESTAMP`                    | `'2020-01-01'`, `'2023-05-17T22:16:00.648662+00:00'`      |
 | `Bytes`      | `Vec<u8>`     | —               | `Binary`       | `BYTEA`                        | `X'A123'` (hex)                                           |
@@ -69,4 +70,3 @@ CREATE TABLE events (
 ```
 
 Structs fields can be accessed via `.` notation, for example `properties.name.first`.
-

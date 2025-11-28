@@ -447,3 +447,13 @@ Returns the UTC timestamp at pipeline start.
 
 The now() return value is determined at query compilation time, and will be constant across the execution
 of the pipeline.
+
+## `row_time`
+
+Returns the event timestamp for the current row.
+
+```
+row_time()
+```
+
+This function returns the [event time](/concepts#event-time) for the current row
