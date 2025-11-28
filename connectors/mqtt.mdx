@@ -27,6 +27,7 @@ An MQTT connection has several required and optional fields:
 | qos | One of 'AtMostOnce', 'AtleastOnce', or 'ExactlyOnce' | No | AtMostOnce |
 | type | Either 'source' or 'sink'             | Yes | source |
 | sink.retain | Whether to retain messages published to this topic | No | false |
+| max_packet_size | Maximum MQTT packet size in bytes | No | 10240 |
 
 ## Connection Profiles
 
