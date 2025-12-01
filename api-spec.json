@@ -32,6 +32,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_profiles/list-all-connection-profiles"
         }
       },
       "post": {
@@ -61,6 +64,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_profiles/create-connection-profile"
         }
       }
     },
@@ -92,6 +98,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_profiles/test-connection-profile"
         }
       }
     },
@@ -117,6 +126,9 @@
           "200": {
             "description": "Deleted connection profile"
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_profiles/delete-a-connection-profile"
         }
       }
     },
@@ -149,6 +161,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_profiles/get-autocomplete-suggestions-for-a-connection-profile"
         }
       }
     },
@@ -192,6 +207,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_tables/list-all-connection-tables"
         }
       },
       "post": {
@@ -221,6 +239,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_tables/create-a-new-connection-table"
         }
       }
     },
@@ -245,6 +266,9 @@
           "200": {
             "description": "Schema is valid"
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_tables/test-a-connection-schema"
         }
       }
     },
@@ -269,6 +293,9 @@
           "200": {
             "description": "Job output as 'text/event-stream'"
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_tables/test-a-connection-table"
         }
       }
     },
@@ -294,6 +321,9 @@
           "200": {
             "description": "Deleted connection table"
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connection_tables/delete-a-connection-table"
         }
       }
     },
@@ -315,6 +345,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/connectors/list-all-connectors"
         }
       }
     },
@@ -336,6 +369,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/jobs/get-all-jobs"
         }
       }
     },
@@ -393,6 +429,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/pipelines/list-all-pipelines"
         }
       },
       "post": {
@@ -433,6 +472,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/pipelines/create-a-new-pipeline"
         }
       }
     },
@@ -474,6 +516,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/pipelines/create-a-new-preview-pipeline"
         }
       }
     },
@@ -505,6 +550,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/pipelines/validate-a-query-and-return-pipeline-graph"
         }
       }
     },
@@ -537,6 +585,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/pipelines/get-a-single-pipeline"
         }
       },
       "delete": {
@@ -560,6 +611,9 @@
           "200": {
             "description": "Deleted pipeline"
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/pipelines/delete-a-pipeline"
         }
       },
       "patch": {
@@ -600,6 +654,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/pipelines/update-a-pipeline"
         }
       }
     },
@@ -632,6 +689,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/pipelines/list-a-pipelines-jobs"
         }
       }
     },
@@ -674,6 +734,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/pipelines/restart-a-pipeline"
         }
       }
     },
@@ -715,6 +778,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/jobs/list-a-jobs-checkpoints"
         }
       }
     },
@@ -767,6 +833,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/jobs/get-a-checkpoints-details"
         }
       }
     },
@@ -830,6 +899,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/jobs/list-a-jobs-error-messages"
         }
       }
     },
@@ -871,6 +943,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/jobs/get-a-jobs-metrics"
         }
       }
     },
@@ -905,6 +980,9 @@
           "200": {
             "description": "Job output as 'text/event-stream'"
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/jobs/subscribe-to-a-jobs-output"
         }
       }
     },
@@ -926,6 +1004,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/udfs/get-global-udfs"
         }
       },
       "post": {
@@ -955,6 +1036,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/udfs/create-a-global-udf"
         }
       }
     },
@@ -986,6 +1070,9 @@
               }
             }
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/udfs/validate-udfs"
         }
       }
     },
@@ -1011,6 +1098,9 @@
           "200": {
             "description": "Deleted UDF"
           }
+        },
+        "x-mint": {
+          "href": "/api-reference/udfs/delete-udf"
         }
       }
     }
