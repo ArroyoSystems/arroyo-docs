@@ -106,6 +106,20 @@ Key: `run`
 | `state-dir`                    | Sets the directory that state will be written to and read from | _none_ |
 
 
+### TLS Configuration
+
+All services support TLS encryption, which can be configured globally for all services or per-service
+by prefixing the key by the service name (for example, `api.tls`).
+
+Key: `tls`
+
+| Name            | Description                       | Required |
+|-----------------|-----------------------------------|----------|
+| `cert-file`     | Path to the TLS certificate file (PEM format) | Yes |
+| `key-file`      | Path to the TLS private key file (PEM format) | Yes |
+| `mtls-ca-file`  | Path to the CA certificate for mutual TLS (mTLS) authentication | No |
+
+
 ### API
 
 Configuration for the API service
@@ -118,6 +132,48 @@ Key: `api`
 | `http-port`     | The HTTP port for the API service     | `5115`        |
 | `run-http-port`     | The HTTP port for the API service in run mode; defaults to a random port     | `0`        |
 
+#### Authentication
+
+The API service supports multiple authentication modes, configured via the `auth_mode` option:
+
+**None (default)**
+No authentication required.
+
+```toml
+[api]
+auth_mode = { type = "none" }
+```
+
+**Static API Key**
+Require a bearer token for all API requests.
+
+```toml
+[api]
+auth_mode = { type = "static-api-key", api-key = "your-secret-key" }
+```
+
+Clients must include the API key in the `Authorization` header:
+
+```
+Authorization: Bearer your-secret-key
+
+```
+
+**Mutual TLS (mTLS)**
+Require client certificates for authentication.
+
+```toml
+[tls]
+cert-file = "/path/to/server-cert.pem"
+key-file = "/path/to/server-key.pem"
+mtls-ca-file = "/path/to/ca-cert.pem"
+
+[api]
+auth_mode = { type = "mtls", ca-cert-file = "/path/to/ca-cert.pem" }
+```
+
+With mTLS, clients must present a valid certificate signed by the specified CA.
+
 ### Controller
 
 Configuration for the controller service
@@ -129,6 +185,7 @@ Key: `controller`
 | `bind-address`  | The host the controller should bind to   | `0.0.0.0`     |
 | `rpc-port`      | The RPC port for the controller      | `5116`        |
 | `scheduler`     | The scheduler to use; one of `process`, `kubernetes`, `node`, or `embedded`    | `process`     |
+
 
 ### Compiler
 
@@ -146,7 +203,6 @@ Key: `compiler`
 | `build-dir`       | Directory for build files                 | `/tmp/arroyo/build-dir`       |
 | `use-local-udf-crate` | Whether to use a local version of the UDF library or the published crate (only enable in development environments) | `false`                       |
 
-
 ### Admin
 
 Configuration for the Admin service
@@ -157,6 +213,10 @@ Key: `admin`
 |-----------------|--------------------------------------|---------------|
 | `bind-address`  | Address to bind the Admin service    | `0.0.0.0`     |
 | `http-port`     | Port for the Admin HTTP service      | `5114`        |
+
+#### Authentication
+
+Like the API service, the Admin service supports authentication modes. See the [API Authentication](#authentication) section for details.
 
 
 ### Node
@@ -170,7 +230,6 @@ Key: `node`
 | `bind-address`  | Address to bind the Node service     | `0.0.0.0`     |
 | `rpc-port`      | Port for the Node RPC service        | `5118`        |
 | `task-slots`    | Number of task slots for the Node    | `16`          |
-
 
 
 ### Worker

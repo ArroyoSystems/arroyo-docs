@@ -9,27 +9,29 @@ not currently supported, please get in touch with the team on Discord or via Git
 
 ## Supported Connectors
 
-| Name | Source | Sink |
-| ---- | ------ | ---- |
-| [Blackhole](/connectors/blackhole) | No | Yes |
-| [Confluent Cloud](/connectors/confluent) | Yes | Yes |
-| [Filesystem](/connectors/filesystem) | Yes | Yes |
-| [Fluvio](/connectors/fluvio) | Yes | Yes |
-| [Impulse](/connectors/impulse) | Yes | No |
-| [Kafka](/connectors/kafka) | Yes | Yes |
-| [Kinesis](/connectors/kinesis) | Yes | Yes |
-| [MySQL](/connectors/mysql) | Yes | Yes |
-| [MQTT](/connectors/mqtt) | Yes | Yes |
-| [NATS](/connectors/nats) | Yes | Yes |
-| **Nexmark** | Yes | No |
-| [Polling HTTP](/connectors/polling-http) | Yes | No |
-| [Postgres](/connectors/postgres) | Yes | Yes |
-| [RabbitMQ](/connectors/rabbitmq) | Yes | No |
-| [Redis](/connectors/redis) | No | Yes |
-| [Redpanda](/connectors/redpanda) | Yes | Yes |
-| [Server-Sent Events](/connectors/server-sent-events) | Yes | No |
-| [Webhook](/connectors/webhook) | No | Yes |
-| [WebSocket](/connectors/websocket) | Yes | No |
+| Name | Source | Sink | Lookup |
+| ---- | ------ | ---- | ------ |
+| [Blackhole](/connectors/blackhole) | No | Yes | No |
+| [Confluent Cloud](/connectors/confluent) | Yes | Yes | No |
+| [Filesystem](/connectors/filesystem) | Yes | Yes | No |
+| [Fluvio](/connectors/fluvio) | Yes | Yes | No |
+| [Impulse](/connectors/impulse) | Yes | No | No |
+| [Iceberg](/connectors/iceberg) | No | Yes | No |
+| [Kafka](/connectors/kafka) | Yes | Yes | No |
+| [Kinesis](/connectors/kinesis) | Yes | Yes | No |
+| [MySQL](/connectors/mysql) | Yes | Yes | No |
+| [MQTT](/connectors/mqtt) | Yes | Yes | No |
+| [NATS](/connectors/nats) | Yes | Yes | No |
+| **Nexmark** | Yes | No | No |
+| [Polling HTTP](/connectors/polling-http) | Yes | No | No |
+| [Postgres](/connectors/postgres) | Yes | Yes | No |
+| [RabbitMQ](/connectors/rabbitmq) | Yes | No | No |
+| [Redis](/connectors/redis) | No | Yes | Yes |
+| [Redpanda](/connectors/redpanda) | Yes | Yes | No |
+| [Server-Sent Events](/connectors/server-sent-events) | Yes | No | No |
+| [Webhook](/connectors/webhook) | No | Yes | No |
+| [WebSocket](/connectors/websocket) | Yes | No | No |
+
 
 <img src="/images/create_connection.png" alt="Create connection dialog" />
 
@@ -52,6 +54,37 @@ only one of these, while others support both.
 
 See the individual connector docs for details on on their capabilities and how
 to configure them in Arroyo.
+
+## Event time and watermarks
+
+Event time and watermarks are core to Arroyo's
+[dataflow semantics](http://localhost:3000/blog/what-is-streaming-sql#dataflow-semantics-for-streaming-sql).
+These allow users to specify (1) a field of the data that represents the actual,
+real-world time an event occurred, and (2) how we should generate watermarks
+based on that time.
+
+For SQL-created tables, event time and watermarks are specified with the syntax
+
+```
+WATERMARK FOR fieldname [AS watermark_expr]
+```
+
+where `fieldname` is a TIMESTAMP field on the table, and `watermark_expr` is a SQL expression
+over the table's fields that produces a timestamp which will generate the watermark. For example:
+
+```sql
+CREATE TABLE events (
+    ts TIMESTAMP NOT NULL,
+    id INT,
+    WATERMARK FOR ts AS timestamp - INTERVAL '5 seconds'
+) WITH (
+    ...
+)
+```
+
+This will produce a table with event time set to the `ts` field, and a watermark with a fixed
+5-second delay (i.e., we'll consider data late once it's 5 seconds older than the most recently
+received data).
 
 ## Connection profiles
 
@@ -145,15 +178,14 @@ Json and Avro Schemas for Kafka topics can also be read automatically from
 
 Fields in a source table are typically filled in from the underlying data in the source;
 for example from the fields of a JSON message in a Kafka topic. However it's also possible
-to inject _metadata_ fields into the table, using generated (virtual) fields along
-with the special `metadata` function. It looks like this:
+to inject _metadata_ fields into the table, using the `METADATA FROM key` syntax:
 
 ```sql
 create table users (
     id TEXT,
     name TEXT,
-    offset BIGINT GENERATED ALWAYS AS (metadata('offset_id')) STORED,
-    partition INT GENERATED ALWAYS AS (metadata('partition')) STORED
+    offset BIGINT METADATA FROM 'offset_id',
+    partition INT METADATA FROM 'partition'
 ) with (
     connector = 'kafka',
     ...
@@ -162,9 +194,7 @@ create table users (
 
 Each connector will expose different metadata fields, which can be accessed by
 passing their name to the `metadata` function; in this example we use
-the `offset_id` and `partition` fields exposed by the Kafka connector. The metadata
-function can only be used in Source DDL generated fields, but those fields can
-then be used in queries like any other.
+the `offset_id` and `partition` fields exposed by the Kafka connector.
 
 See the individual connector docs for supported metadata fields.
 

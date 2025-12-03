@@ -27,6 +27,7 @@ An MQTT connection has several required and optional fields:
 | qos | One of 'AtMostOnce', 'AtleastOnce', or 'ExactlyOnce' | No | AtMostOnce |
 | type | Either 'source' or 'sink'             | Yes | source |
 | sink.retain | Whether to retain messages published to this topic | No | false |
+| max_packet_size | Maximum MQTT packet size in bytes | No | 10240 |
 
 ## Connection Profiles
 
@@ -48,7 +49,7 @@ See the [connection profile](/connectors/overview#connection-profiles) docs for 
 
 The MQTT connector supports accessing the following metadata fields:
 
-* `topic` - the MQTT topic the message was consumed from
+* `topic TEXT` - the MQTT topic the message was consumed from
 
 See the [source metadata](/connectors/overview#source-metadata) docs for more on how to use metadata fields.
 
@@ -63,7 +64,7 @@ create table mqtt_source (
     lat FLOAT,
     lng FLOAT,
     type INT,
-    topic TEXT GENERATED ALWAYS AS (metadata('topic')) STORED
+    topic TEXT METADATA FROM 'topic'
 ) with (
     connector = 'mqtt',
     url = 'tcp://localhost:1833',
@@ -82,6 +83,6 @@ create table mqtt_sink with (
     type = 'sink',
     format = 'json',
     topic = 'results',
-    'sink.retain' = 'true'
+    'sink.retain' = true
 );
 ```

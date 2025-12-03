@@ -63,10 +63,11 @@ Additionally, you can set `source.read_mode` to `read_committed` to ensure that 
 
 The Kafka connector supports accessing the following metadata fields:
 
-* `offset_id` — the offset of the message
-* `partition` - the partition of the message
-* `topic` — the topic the message was consumed from
-* `timestamp` - the record timestamp
+* `offset_id BIGINT` — the offset of the message
+* `partition INT` - the partition of the message
+* `topic TEXT` — the topic the message was consumed from
+* `timestamp BIGINT` - the record timestamp
+* `key BYTEA` - the message key
 
 See the [source metadata](/connectors/overview#source-metadata) docs for more on how to use metadata fields.
 
@@ -123,8 +124,8 @@ For example:
 CREATE TABLE orders (
   customer_id INT,
   order_id INT,
-  offset BIGINT GENERATED ALWAYS AS (metadata('offset_id')) STORED,
-  partition INT GENERATED ALWAYS AS (metadata('partition')) STORED
+  offset BIGINT METADATA FROM 'offset_id',
+  partition INT METADATA FROM 'partition'
 ) WITH (
   connector = 'kafka',
   format = 'json',
