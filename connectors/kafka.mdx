@@ -41,8 +41,8 @@ A Kafka connection has several required and optional fields:
 | source.read_mode | The read mode to use. 'read_committed' only reads committed Kafka messages, while 'read_uncommitted' will read all messages.  | No | `read_committed` |
 | source.group_id | For sources, sets the Kafka consumer group to use; note that using the same group for multiple pipelines will result in each pipeline seeing only a subset of the data | No | `my-group` |
 | sink.commit_mode | The commit mode to use (either 'exactly_once' or 'at_least_once') | No | `exactly_once` |
-| 'sink.timestamp_field' | The field to use as the timestamp for the Kafka message | No | `timestamp` |
-| 'sink.key_field' | The field to use as the key for the Kafka message | No | `key` |
+| sink.timestamp_field | The field to use as the timestamp for the Kafka message | No | `timestamp` |
+| sink.key_field | The field to use as the key for the Kafka message | No | `key` |
 | schema_registry.endpoint | The URL of the Confluent Schema Registry to use | No | `https://schema-registry.cluster:8081` |
 | schema_registry.api_key | The API Key to use for the Schema Registry. Will be the username via basic auth | No | `ABCDEFGHIJK01234` |
 | schema_registry.api_secret | The API Secret to use for the Schema Registry. Will be the password via basic auth | No | `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789` |
