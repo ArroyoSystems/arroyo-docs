@@ -3,13 +3,17 @@ title: File System
 description: "Write Parquet and JSON to S3 and local filesystems"
 ---
 
+import CommonFSConfig from '/snippets/common_filesystem_config.mdx';
+import ShuffleByPartition from '/snippets/shuffle_by_partition.mdx';
+
+
 Arroyo provides the capability to read and write Parquet and JSON files to/from object stores and local filesystems.
 When used as a sink, Arroyo will produce complete files in line with the checkpointing system.
 As such, the file system sinks write all data exactly once.
 This is done against S3 by tracking multi-part uploads within the state store,
 allowing Arroyo to resume an in-progress upload in the event of a failure.
 
-The FileSystem connector supports local filesystem, S3 (including S3-compatible stores like MinIO), and GCS.
+The FileSystem connector supports local filesystem, S3 (including S3-compatible stores like MinIO), GCS, Cloudflare R2, and Azure Blob Storage/ADLS Gen2.
 
 As a source Arroyo reads all files to completion, at which point the job will finish.
 
@@ -24,12 +28,17 @@ The value is a URL pointing to the destination directory. The most common exampl
  | S3 Path | `s3://awesome-arroyo-bucket/amazing-arroyo-dir` |
  | S3 HTTP Endpoint| `https://s3.us-west-2.amazonaws.com/awesome-arroyo-bucket/amazing-arroyo-dir`|
  | Local MinIO installation | `s3::http://localhost:9123/local_bucket/sweet-dir` |
+ | Cloudflare R2 | `r2://my-bucket/path` or `r2://account-id@my-bucket/path` |
+ | Azure Blob Storage | `abfs://container@account.dfs.core.windows.net/path` |
+ | Azure HTTPS | `https://account.blob.core.windows.net/container/path` |
+ | GCS | `gs://my-bucket/path` |
 
 ### Additional Backend Configuration
 
-The StorageBackend can be passed additional configuration options.
-Currently this is only supported for S3-API based backends (including MinIO), and are namespaced with "storage." at the beginning.
-This allows you to pass in custom endpoints, credentials, and regions. The most common options are listed below.
+The StorageBackend can be passed additional configuration options, which are namespaced with "storage." at the beginning.
+This allows you to pass in custom endpoints, credentials, and regions.
+
+#### S3 and S3-Compatible Storage (including MinIO and R2)
 
 | Field | Description | Example |
 | ----- | ----------- | ------- |
@@ -38,40 +47,49 @@ This allows you to pass in custom endpoints, credentials, and regions. The most 
 | `storage.aws_secret_access_key` | Manually set the AWS secret access key | `your-secret-key` |
 | `storage.aws_access_key_id` | Manually set the AWS access key ID | `your-access-key-id` |
 
+#### Cloudflare R2
+
+R2 can be configured using the `r2://` URL scheme. Authentication can be provided via environment variables or storage options:
+
+**Environment Variables:**
+- `CLOUDFLARE_ACCOUNT_ID` or set as part of the URL
+- `R2_ACCESS_KEY_ID` or `AWS_ACCESS_KEY_ID`
+- `R2_SECRET_ACCESS_KEY` or `AWS_SECRET_ACCESS_KEY`
+
+**Storage Options:**
+- `storage.r2_access_key_id` or `storage.aws_access_key_id`
+- `storage.r2_secret_access_key` or `storage.aws_secret_access_key`
+
+**URL Formats:**
+- `r2://bucket/path` - Account ID from environment
+- `r2://account-id@bucket/path` - Account ID in URL
+- `https://account-id.r2.cloudflarestorage.com/bucket/path` - Full endpoint URL
+- `https://account-id.eu.r2.cloudflarestorage.com/bucket/path` - With jurisdiction (e.g., EU)
+
+#### Azure Blob Storage / ADLS Gen2
+
+Azure storage uses standard Azure authentication via environment variables. The following URL formats are supported:
+
+**URL Formats:**
+- `abfs://container@account.dfs.core.windows.net/path` - ADLS Gen2 format
+- `abfss://container@account.dfs.core.windows.net/path` - ADLS Gen2 with SSL
+- `https://account.blob.core.windows.net/container/path` - Blob storage HTTPS
+- `https://account.dfs.core.windows.net/container/path` - ADLS Gen2 HTTPS
+
+**Authentication:**
+Azure authentication is configured via standard Azure environment variables. Refer to the
+[Azure SDK documentation](https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string)
+for details on authentication options.
+
 ### Format
 Both sources and sinks require a format, and support `parquet` and `json`.
 
 ## Sink Specific Configuration
 
-### Output File Options
-| Field | Description | Default | Example |
-| ----- | ----------- | -------- | ------- |
-| `target_file_size` | Target number of bytes in a file before it is closed and a new file is opened | `None` | `100000000` |
-| `target_part_size` | The target size in bytes of each part of a multipart upload. Must be at least 5MB. | `5242880` | `10000000`|
-| `max_parts` | Maximum number of multipart uploads | `1000` | `50` |
-| `rollover_seconds` | Number of seconds a file will be open before it is closed and a new file is opened | `30` | `3600` |
-| `inactivity_rollover_seconds` | Number of seconds a file will be open without any new data before it is closed and a new file is opened | `None` | `600` |
-
-#### File Naming Options
-By default Arroyo writes sequential files, tracking a max_file_index as well as including the subtask.
-However, there are several alternate naming schemes available.
-
-| Field | Description | Default | Example |
-| ----- | ----------- | -------- | ------- |
-| `filename.prefix` | Prefix that will be appended to the beginning of the file name, followed by a `-` | `None` | `my-prefix` |
-| `filename.suffix` | Suffix that will be appended to the end of the file name, preceded by a `-` | `None` | `my-suffix` |
-| `filename.strategy` | Filenaming strategy to use. Supported values: `serial`, `uuid` | `serial` | `uuid` |
-
-### Parquet Options
-Parquet has a few supported options. Please reach out if you'd like to expand the settings allowed.
-
-| Field | Description | Default | Example |
-| ----- | ----------- | -------- | ------- |
-| `parquet_compression` | The compression codec to use for Parquet files. Supported values: `none`, `snappy`, `gzip`, `zstd`, `lz4`. | `none` | `zstd` |
-| `parquet_row_batch_size` | The maximum number of rows to write per record batch | `10000` | `100`|
-| `parquet_row_group_size` | The maximum number of rows to write per row group | `1000000` | `100000` |
+<CommonFSConfig />
 
 ### Partitioning Options
+
 Arroyo supports partitioning of outputs. There are two types of partitioning: event time-based and field-based.
 You can use either or both of these types of partitioning.
 If both are used, the time-based partitioning is placed prior to the field-based partitioning.
@@ -90,6 +108,10 @@ so partitioning on field_1, field_2 will result in folders like `field_1=X/field
 
 Example:
 `partition_fields = 'field_1,field_2'`
+
+#### Shuffle by partition
+
+<ShuffleByPartition />
 
 ## Source Specific Configuration
 When using the file system source, the following options are available
@@ -116,7 +138,7 @@ CREATE TABLE bids (
   path = 'https://s3.us-west-2.amazonaws.com/demo/s3-uri',
   format = 'parquet',
   parquet_compression = 'zstd',
-  rollover_seconds = '60',
+  rollover_seconds = 60,
   time_partition_pattern = '%Y/%m/%d/%H',
   partition_fields = 'region,account_id'
 );

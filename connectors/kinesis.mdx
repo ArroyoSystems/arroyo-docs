@@ -27,7 +27,7 @@ A Kinesis connection has several required and optional fields:
 
 ## Kinesis Sources
 
-Kinesis sources can be created via the Web UI, the API, or directly in SQL. 
+Kinesis sources can be created via the Web UI, the API, or directly in SQL.
 Kinesis sources implement exactly-once semantics by storing the last-read sequence number in Arroyo's state.
 To query from Kinesis using SQL, use a CREATE TABLE statement like
 ```sql
@@ -56,8 +56,8 @@ CREATE TABLE orders_sink (
   stream_name = 'my_sink_stream',
   type = 'sink',
   format = 'json',
-  'sink.max_records_per_batch' = '100',
-  'sink.max_bytes_per_batch' = '5000000',
-  'sink.flush_interval_millis' = '1000'
+  'sink.max_records_per_batch' = 100,
+  'sink.max_bytes_per_batch' = 5000000,
+  'sink.flush_interval_millis' = 1000
 );
 ```

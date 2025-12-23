@@ -19,9 +19,11 @@ An NATS connection has several required and optional fields:
 | Field | Description                | Required      | Example |
 | ----- | -------------------------- | -------------- | ------- |
 | servers | Comma-separated list of NATS servers | Yes            | nats-1:4222,nats-2:4222 |
-| auth.type | One of 'none', or 'credentials' | No | credentials |
+| auth.type | One of 'none', 'credentials', or `jqt` | No | credentials |
 | auth.username | Username for auth | For auth.type = 'credentials' | bob |
 | auth.password | Password for auth | For auth.type = 'credentials' | hunter2 |
+| auth.jwt | JWT token string used for JWT-based authentication with NATS | If `auth.type = 'jwt'` | `eyJhbGciOiJFZERTQSJ9...` |
+| auth.nkey_seed | NKEY seed string (private key) used to sign authentication challenges when using JWT-based authentication | If `auth.type = 'jwt'` | `SUAFK5ZQJXPQ...` |
 | type | Either 'source' or 'sink'             | Yes | source |
 | stream | The NATS stream to read from, for jetstream | One of stream or subject | events-arroyo |
 | subject | The Core NATS subject to read or write from | One of stream or subject | events |

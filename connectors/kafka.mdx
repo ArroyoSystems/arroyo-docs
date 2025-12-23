@@ -41,8 +41,8 @@ A Kafka connection has several required and optional fields:
 | source.read_mode | The read mode to use. 'read_committed' only reads committed Kafka messages, while 'read_uncommitted' will read all messages.  | No | `read_committed` |
 | source.group_id | For sources, sets the Kafka consumer group to use; note that using the same group for multiple pipelines will result in each pipeline seeing only a subset of the data | No | `my-group` |
 | sink.commit_mode | The commit mode to use (either 'exactly_once' or 'at_least_once') | No | `exactly_once` |
-| 'sink.timestamp_field' | The field to use as the timestamp for the Kafka message | No | `timestamp` |
-| 'sink.key_field' | The field to use as the key for the Kafka message | No | `key` |
+| sink.timestamp_field | The field to use as the timestamp for the Kafka message | No | `timestamp` |
+| sink.key_field | The field to use as the key for the Kafka message | No | `key` |
 | schema_registry.endpoint | The URL of the Confluent Schema Registry to use | No | `https://schema-registry.cluster:8081` |
 | schema_registry.api_key | The API Key to use for the Schema Registry. Will be the username via basic auth | No | `ABCDEFGHIJK01234` |
 | schema_registry.api_secret | The API Secret to use for the Schema Registry. Will be the password via basic auth | No | `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789` |
@@ -56,17 +56,18 @@ Kafka source is defined by a topic name and a schema.
 Schemas can be defined via json-schema, or automatically configured via
 Confluent Schema Registry.
 
-Kakfa sources implement exactly-once semantics by storing the last-read offset in Arroyo's state.
+Kafka sources implement exactly-once semantics by storing the last-read offset in Arroyo's state.
 Additionally, you can set `source.read_mode` to `read_committed` to ensure that only committed messages are read.
 
 ### Source metadata
 
 The Kafka connector supports accessing the following metadata fields:
 
-* `offset_id` — the offset of the message
-* `partition` - the partition of the message
-* `topic` — the topic the message was consumed from
-* `timestamp` - the record timestamp
+* `offset_id BIGINT` — the offset of the message
+* `partition INT` - the partition of the message
+* `topic TEXT` — the topic the message was consumed from
+* `timestamp BIGINT` - the record timestamp
+* `key BYTEA` - the message key
 
 See the [source metadata](/connectors/overview#source-metadata) docs for more on how to use metadata fields.
 
@@ -123,8 +124,8 @@ For example:
 CREATE TABLE orders (
   customer_id INT,
   order_id INT,
-  offset BIGINT GENERATED ALWAYS AS (metadata('offset_id')) STORED,
-  partition INT GENERATED ALWAYS AS (metadata('partition')) STORED
+  offset BIGINT METADATA FROM 'offset_id',
+  partition INT METADATA FROM 'partition'
 ) WITH (
   connector = 'kafka',
   format = 'json',

@@ -29,7 +29,7 @@ See the [database configuration options](/configuration#database).
 
 You will need a place to store pipeline artifacts (binaries) and checkpoint data. This needs to be accessible to
 all nodes in your cluster, including Arroyo the control plane and pipeline workers. Arroyo
-supports several storage backends, including S3, GCS, ABS, and local filesystem. For local testing, a filesystem that's
+supports several storage backends, including S3, GCS, ABS (Azure Block Storage), and local filesystem. For local testing, a filesystem that's
 mounted on all nodes is sufficient, but for production you will likely want to use an object store like S3 or GCS.
 We also support S3-compatible object stores like MinIO and Localstack; endpoints can be set via the `s3::` prefix
 or the `AWS_ENDPOINT_URL` environment variable.
@@ -47,7 +47,42 @@ these, for example:
 
 * `s3://my-bucket/key/path`
 * `s3::https://my-custom-s3:1234/my-bucket/key/path`
+* `r2://accountid@my-bucket/my-path`
 * `https://s3.us-east-1.amazonaws.com/my-bucket`
 * `file:///my/local/filesystem`
 * `/my/local/filesystem`
 * `gs://my-gcs-bucket`
+* `abfs://container@account.dfs.core.windows.net/path`
+
+
+### Reverse Proxy Configuration
+
+If you're running the Arroyo Web UI behind a reverse proxy on a non-root path (e.g., `https://myapp.com/arroyo/`
+instead of `https://arroyo.myapp.com/`), you'll need to configure your reverse proxy to pass the base path
+to Arroyo.
+
+The Web UI determines its base path from the `X-Arroyo-Basename` header. Your reverse proxy should set this
+header to the base path where Arroyo is mounted.
+
+### IPv6 Support
+
+Arroyo supports IPv6 networking for all service-to-service communication. Workers will automatically
+detect and use IPv6 addresses when the configured `bind-address` is an IPv6 address.
+
+To enable IPv6, set the bind address to an IPv6 address in your configuration:
+
+```toml
+[controller]
+bind-address = '::0'
+
+[api]
+bind-address = '::0'
+
+[admin]
+bind-address = '::0'
+
+[compiler]
+bind-address = '::0'
+```
+
+Arroyo will automatically handle IPv6 addresses in worker-to-worker communication and service discovery.

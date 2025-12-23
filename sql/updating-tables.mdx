@@ -47,11 +47,6 @@ CREATE TABLE debezium_source (
 );
 ```
 
-## Manipulating updating data in SQL
-
-Updating data can be `SELECT`ed over and filtered, however, it currently cannot be joined
-or aggregated.
-
 ## Writing to updating sinks
 
 Updating queries can be written to sinks with the `debezium_json` format. This output
@@ -81,7 +76,7 @@ SET updating_ttl = '1 hour';
 Currently all queries in a pipeline share the same TTL. In the future, we may allow
 different TTLs for different queries.
 
-## Non-windowed aggregates
+## Updating aggregates
 
 Aggregating data without a window will result in an updating output.
 This will emit an insert the first time data is processed for a group and subsequent data
@@ -96,6 +91,7 @@ CREATE TABLE impulse WITH (
     'connector' = 'impulse',
     event_rate = '100'
 );
+
 SELECT count(*) as rows
 FROM impulse
 HAVING rows < 500;
@@ -112,4 +108,9 @@ will produce output data like the following:
 |`{ "rows": 400 }`| null | `"d"`|
 
 For examples of manipulating updating data, see the
-[Debezium Terminal](/tutorial/debezium).
+[Debezium tutorial](/tutorial/debezium).
+
+## Updating joins
+
+See the [join documentation](/sql/joins#updating-joins) for more details on how
+to use Joins in updating queries.

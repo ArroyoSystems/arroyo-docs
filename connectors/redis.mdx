@@ -1,13 +1,18 @@
 ---
 title: Redis
-description: "Sink outputs to Redis"
+description: "Connect to Redis"
 ---
+
+Arroyo includes two types of Redis connectors: a sink and a lookup connector,
+for lookup joins.
+
+## Sink
 
 The Redis sink allows you to write data to a [Redis](https://redis.io) instance
 or cluster. Redis is a great choice for use cases where you need low-latency access
 to the outputs of your Arroyo pipeline.
 
-The Redis sink relies on pipelining to achieve high throughput and is capable of
+The Redis sink uses pipelining to achieve high throughput and is capable of
 writing millions of records per second to a single Redis instance.
 
 Redis supports a variety of data structures. Currently, the Redis sink supports
@@ -23,7 +28,7 @@ a suffix constructed from the columns of the result.
 The value for each record will be the serialized representation of the row,
 using the configured format.
 
-## Configuring the Connection
+### Configuring the Connection
 
 Redis sinks can be created in the Web UI or directly in SQL.
 
@@ -44,26 +49,26 @@ alt="Redis sink creation in the Web UI"
 | target.key_prefix | A prefix that will be prepended to all keys | Yes | `outputs.` |
 | target.key_columns | A column whose value will be appended to the key for each record | No | `id` |
 
-### `string` target
+#### `string` target
 
 | Field | Description | Required | Example |
 | ----- | ----------- | -------- | ------- |
 | target.ttl_secs | The time-to-live for each key in seconds | No | `3600` |
 
-### `list` target
+#### `list` target
 
 | Field | Description | Required | Example |
 | ----- | ----------- | -------- | ------- |
 | target.max_length | The max length for this list; once the list exceeds this, the oldest elements will be dropped | No | 100 |
 | target.operation | The operation to perform on the list; one of 'append' (default) or 'prepend' | No | `append` |
 
-### `hash` target
+#### `hash` target
 
 | Field | Description | Required | Example |
 | ----- | ----------- | -------- | ------- |
 | target.field_column | This column will be used as the field name in the hash | Yes | `key` |
 
-## Example
+### Example
 
 ```sql
 CREATE TABLE redis (
@@ -93,3 +98,29 @@ $ redis-cli
 127.0.0.1:6379> GET outputs.fred
 "{\"user_id\":\"fred\",\"event_count\":10}"
 ```
+
+## Lookup
+
+Redis can also be used as a source for [lookup joins](/sql/joins#lookup-joins). When used in
+a lookup join, queries are made via a Redis `GET` command, supporting key-value records.
+
+Lookup tables must currently be created via SQL. A Redis lookup table looks like this:
+
+```sql
+CREATE TEMPORARY TABLE customers (
+    -- For Redis lookup tables, it's required that there be a single
+    -- METADATA FROM 'key' marked as PRIMARY KEY, as Redis only supports
+    -- efficient lookups by key
+    customer_id TEXT METADATA FROM 'key' PRIMARY KEY,
+    name TEXT,
+    plan TEXT
+) with (
+    connector = 'redis',
+    address = 'redis://localhost:6379',
+    format = 'json',
+    'lookup.cache.max_bytes' = 1000000,
+    'lookup.cache.ttl' = interval '5 seconds'
+);
+```
+
+The address and format arguments are required.
