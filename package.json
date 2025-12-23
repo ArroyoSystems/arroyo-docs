@@ -3,9 +3,10 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
+    "dev": "node scripts/transform-openapi.js && astro dev",
+    "start": "node scripts/transform-openapi.js && astro dev",
+    "build": "node scripts/transform-openapi.js && astro build",
+    "build:api": "node scripts/transform-openapi.js",
     "preview": "astro preview",
     "astro": "astro"
   },

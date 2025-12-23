@@ -27,6 +27,13 @@
 --color-gray-900: #121a1c;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+
 /* Custom Aside (Tip) styling to match Mintlify */
 .starlight-aside--tip {
   --sl-color-asides-text-accent: #15803d;
