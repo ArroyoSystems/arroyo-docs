@@ -96,18 +96,18 @@ If both are used, the time-based partitioning is placed prior to the field-based
 
 #### Event Time-based Partitioning
 Event time partitioning uses each record's event_time, formatting it using a strftime-style formatting string.
-You can set the `time_partition_pattern` key in the sink to define the pattern.
+You can set the `partitioning.time_pattern` key in the sink to define the pattern.
 
 Example:
-`time_partition_pattern = '%Y/%m/%d/%H'`
+`partitioning.time_pattern = '%Y/%m/%d/%H'`
 
 #### Field-based Partitioning
 Field-based formatting produces a string mirroring the Hive-style partition directories,
 so partitioning on field_1, field_2 will result in folders like `field_1=X/field_2=Y`.
- You can set the `partition_fields` key in the sink to define the partition fields.
+ You can set the `partitioning.fields` key in the sink to define the partition fields.
 
 Example:
-`partition_fields = 'field_1,field_2'`
+`partitioning.fields = 'field_1,field_2'`
 
 #### Shuffle by partition
 
