@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
@@ -186,9 +187,13 @@ export default defineConfig({
                       { label: 'v0.2.0', slug: 'releases/v0.2.0' },
                   ],
               },
+              {
+                  label: 'API Reference',
+                  link: '/api/',
+              },
           ],
       }),
-	],
+  ],
 
   vite: {
     plugins: [tailwindcss()],
