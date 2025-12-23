@@ -1,0 +1,56 @@
+---
+// Standalone API Reference page using Scalar
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - Arroyo Documentation</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <!-- Google Analytics -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-YV6B37JRYM"></script>
+    <script is:inline>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){window.dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-YV6B37JRYM');
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 0.75rem;
+            right: 1rem;
+            z-index: 10000;
+            background: #0073aa;
+            color: white;
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: background 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .back-link:hover {
+            background: #005580;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">&larr; Back to Docs</a>
+    <script
+        is:inline
+        id="api-reference"
+        data-url="/api-spec.json"
+        data-configuration='{"theme":"default","darkMode":false,"hideDarkModeToggle":false,"hideModels":false,"hideDownloadButton":true,"showSidebar":true,"servers":[{"url":"http://localhost:5115/api/"}]}'
+    ></script>
+    <script is:inline src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>

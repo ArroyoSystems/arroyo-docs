@@ -1,0 +1,160 @@
+---
+title: Iceberg Sink
+description: "Write data to Apache Iceberg tables"
+---
+
+import CommonFilesystemConfig from '../../../components/snippets/CommonFilesystemConfig.mdx';
+import ShuffleByPartition from '../../../components/snippets/ShuffleByPartition.mdx';
+
+Data from Arroyo can be written to an [Apache Iceberg](https://iceberg.apache.org/) table using the `iceberg` sink.
+Iceberg is an open table format designed for huge analytic datasets, providing features like schema evolution,
+hidden partitioning, and time travel. Arroyo currently implements v2 of the Iceberg spec.
+
+The Iceberg sink ingests into Iceberg tables in compatible catalogs, allowing
+the data to be queried by Iceberg-compatible engines like Apache Spark, Trino,
+and others.
+
+## Catalog support
+
+Currently, the Iceberg Sink supports writing to Iceberg REST catalogs, backed
+S3, R2, GCS, ABS, and Minio; other S3-compatible object stores should also work
+but are untested.
+
+Known-working catalogs include:
+
+* [Cloudflare R2 Data Catalog](https://developers.cloudflare.com/r2/data-catalog/)
+* [Lakekeeper](https://docs.lakekeeper.io/)
+* [S3 Tables](https://aws.amazon.com/s3/features/tables/)
+* [Apache Polaris](https://polaris.apache.org/)
+
+However, any other REST catalog should also work provided it follows the spec.
+
+
+## Configuration
+
+The Iceberg sink requires the following configuration options:
+
+| Field | Description | Required | Example |
+| ----- | ----------- | -------- | ------- |
+| `type` | Type of Iceberg connector, currently must be `sink` | Yes | `"sink"` |
+| `catalog.type` | Type of Iceberg catalog; currently only `rest` is supported | Yes | `"rest"` |
+| `catalog.warehouse` | Name of the warehouse to connect to | No | `"my-warehouse"` |
+| `catalog.rest.uri` | URI of the Iceberg REST catalog | Yes | `"http://localhost:8181"` |
+| `catalog.rest.token` | Authentication token to use against the catalog | No | `"asdf234234"` |
+| `namespace` | Namespace for the Iceberg table | No | `"default"` |
+| `table_name` | Name of the Iceberg table | Yes | `"my_table"` |
+| `shuffle_by_partition.enabled` | Insert a shuffle (repartitioning) before the sink ([see these docs](/connectors/filesystem#shuffle-by-partition)) | No | `true` |
+| `location_path` | Optional override for the object storage path to write data | No | `/my/custom/path` |
+
+
+In addition to the Iceberg-specific configurations, there are a number of shared configs with the FileSystemSink:
+
+<CommonFilesystemConfig />
+
+## Supported types
+
+Iceberg has a more limited typesystem than Parquet or Arroyo SQL. In the
+currently-implemented v2 of the Iceberg spec, only these Arroyo types may be used in
+an Iceberg sink:
+
+* BOOL
+* INT / BIGINT
+* FLOAT / DOUBLE
+* DECIMAL
+* TIMESTAMP(6) (microsecond-precision)
+* TEXT
+* BYTEA
+
+## Partitioning
+
+The Iceberg sink supports partitioning using the `PARTITIONED BY` clause on the
+Create Table statement. Partitioning helps improve query performance by
+organizing data based on specific columns or transforms. For more background on how
+partitioning works in Iceberg, see the [Iceberg docs](https://iceberg.apache.org/docs/latest/partitioning/).
+
+### Partition Transforms
+
+Arroyo's Iceberg sink supports the following [partition
+transforms](https://iceberg.apache.org/spec/#partition-transforms):
+
+| Transform | Description |
+| --------- | ----------- |
+| `identity(column)` | Partition by the exact value of the column |
+| `bucket(N, column)` | Partition into N buckets based on hash of the column |
+| `truncate(N, column)` | Truncate string values to N characters |
+| `year(column)` | Extract year from timestamp |
+| `month(column)` | Extract year and month from timestamp |
+| `day(column)` | Extract year, month, and day from timestamp |
+| `hour(column)` | Extract year, month, day, and hour from timestamp |
+
+You can combine multiple partition transforms:
+
+```sql
+CREATE TABLE partitioned_events (
+    user_id BIGINT,
+    region TEXT,
+    event_type TEXT,
+    value DOUBLE,
+    event_time TIMESTAMP
+) WITH (
+    'connector' = 'iceberg',
+    'catalog.type' = 'rest',
+    'catalog.rest.url' = 'http://localhost:8181',
+    'namespace' = 'analytics',
+    'table_name' = 'events',
+    'type' = 'sink'
+)
+PARTITIONED BY (
+    day(event_time),
+    identity(region)
+);
+```
+
+### Shuffle by partition
+
+<ShuffleByPartition />
+
+## Example
+
+Here's a complete example of how to use the Iceberg sink with [R2 Data
+Catalog](https://developers.cloudflare.com/r2/data-catalog/):
+
+```sql
+create table impulse with (
+    connector = 'impulse',
+    event_rate = 100
+);
+
+create table sink (
+    id INT,
+    ts TIMESTAMP(6) NOT NULL,
+    count INT
+) with (
+    connector = 'iceberg',
+    'catalog.type' = 'rest',
+    'catalog.rest.url' = 'https://catalog.cloudflarestorage.com/bddda7b15979aaad1875d7a1643c463a/my-bucket',
+    'catalog.warehouse' = 'bddda7b15979aaad1875d7a1643c463a_my-bucket',
+    type = 'sink',
+    table_name = 'events',
+    format = 'parquet',
+    'rolling_policy.interval' = interval '30 seconds'
+) PARTITIONED BY (
+    bucket(id, 4),
+    hour(ts)
+);
+
+insert into sink
+select subtask_index, row_time(), counter
+from impulse;
+```
+
+## Limitations
+
+In Arroyo 0.15, we released the first version of the Iceberg sink. There are currently some
+limitations that users shuold be aware of:
+
+* There is no support for schema evolution; any evolution must be done outside of Arroyo
+* Iceberg tables may only be written to, not read
+* Arroyo does not perform any compaction operations (including snapshot expiration); we recommend 
+  using it with a catalog that implements its own compaction operations, like R2 Data Catalog or S3 Tables
+* The only supported data file format is Parquet

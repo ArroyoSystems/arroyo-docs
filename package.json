@@ -1,0 +1,22 @@
+{
+  "name": "starlight-docs",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "node scripts/transform-openapi.js && astro dev",
+    "start": "node scripts/transform-openapi.js && astro dev",
+    "build": "node scripts/transform-openapi.js && astro build",
+    "build:api": "node scripts/transform-openapi.js",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.6.12",
+    "@astrojs/starlight": "^0.37.1",
+    "@astrojs/starlight-tailwind": "^4.0.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.6.1",
+    "sharp": "^0.34.2",
+    "tailwindcss": "^4.1.18"
+  }
+}

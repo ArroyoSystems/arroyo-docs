@@ -1076,7 +1076,41 @@
           }
         ],
         "discriminator": {
-          "propertyName": "behavior"
+          "propertyName": "behavior",
+          "mapping": {
+            "fail": "#/components/schemas/BadData_Fail",
+            "drop": "#/components/schemas/BadData_Drop"
+          }
+        }
+      },
+      "BadData_Drop": {
+        "type": "object",
+        "title": "Drop",
+        "required": [
+          "behavior"
+        ],
+        "properties": {
+          "behavior": {
+            "type": "string",
+            "enum": [
+              "drop"
+            ]
+          }
+        }
+      },
+      "BadData_Fail": {
+        "type": "object",
+        "title": "Fail",
+        "required": [
+          "behavior"
+        ],
+        "properties": {
+          "behavior": {
+            "type": "string",
+            "enum": [
+              "fail"
+            ]
+          }
         }
       },
       "Checkpoint": {
@@ -1233,19 +1267,11 @@
         "type": "object",
         "properties": {
           "bad_data": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/BadData"
-              }
-            ],
+            "$ref": "#/components/schemas/BadData",
             "nullable": true
           },
           "definition": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/SchemaDefinition"
-              }
-            ],
+            "$ref": "#/components/schemas/SchemaDefinition",
             "nullable": true
           },
           "fields": {
@@ -1255,19 +1281,11 @@
             }
           },
           "format": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Format"
-              }
-            ],
+            "$ref": "#/components/schemas/Format",
             "nullable": true
           },
           "framing": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Framing"
-              }
-            ],
+            "$ref": "#/components/schemas/Framing",
             "nullable": true
           },
           "inferred": {
@@ -1298,11 +1316,7 @@
         "properties": {
           "config": {},
           "connection_profile": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ConnectionProfile"
-              }
-            ],
+            "$ref": "#/components/schemas/ConnectionProfile",
             "nullable": true
           },
           "connector": {
@@ -1370,11 +1384,7 @@
             "type": "string"
           },
           "schema": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ConnectionSchema"
-              }
-            ],
+            "$ref": "#/components/schemas/ConnectionSchema",
             "nullable": true
           }
         }
@@ -1609,25 +1619,29 @@
             }
           },
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/DecimalField"
-              },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "decimal128"
-                    ]
-                  }
-                }
-              }
+            "type": "object",
+            "required": [
+              "precision",
+              "scale",
+              "type"
             ],
+            "properties": {
+              "precision": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "scale": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "decimal128"
+                ]
+              }
+            },
             "title": "Decimal128"
           },
           {
@@ -1676,24 +1690,20 @@
             }
           },
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/TimestampField"
+            "type": "object",
+            "properties": {
+              "unit": {
+                "$ref": "#/components/schemas/TimestampUnit"
               },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "timestamp"
-                    ]
-                  }
-                }
+              "type": {
+                "type": "string",
+                "enum": [
+                  "timestamp"
+                ]
               }
+            },
+            "required": [
+              "type"
             ],
             "title": "Timestamp"
           },
@@ -1713,221 +1723,690 @@
             }
           },
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StructField"
-              },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "struct"
-                    ]
-                  }
-                }
-              }
+            "type": "object",
+            "required": [
+              "fields",
+              "type"
             ],
+            "properties": {
+              "fields": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SourceField"
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "struct"
+                ]
+              }
+            },
             "title": "Struct"
           },
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ListField"
-              },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "list"
-                    ]
-                  }
-                }
-              }
+            "type": "object",
+            "required": [
+              "items",
+              "type"
             ],
+            "properties": {
+              "items": {
+                "$ref": "#/components/schemas/ListFieldItem"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "list"
+                ]
+              }
+            },
             "title": "List"
           }
         ],
         "discriminator": {
-          "propertyName": "type"
+          "propertyName": "type",
+          "mapping": {
+            "int32": "#/components/schemas/FieldType_Int32",
+            "int64": "#/components/schemas/FieldType_Int64",
+            "uint32": "#/components/schemas/FieldType_UInt32",
+            "uint64": "#/components/schemas/FieldType_UInt64",
+            "float32": "#/components/schemas/FieldType_Float32",
+            "float64": "#/components/schemas/FieldType_Float64",
+            "decimal128": "#/components/schemas/FieldType_Decimal128",
+            "bool": "#/components/schemas/FieldType_Bool",
+            "string": "#/components/schemas/FieldType_String",
+            "bytes": "#/components/schemas/FieldType_Bytes",
+            "timestamp": "#/components/schemas/FieldType_Timestamp",
+            "json": "#/components/schemas/FieldType_Json",
+            "struct": "#/components/schemas/FieldType_Struct",
+            "list": "#/components/schemas/FieldType_List"
+          }
+        }
+      },
+      "FieldType_Bool": {
+        "type": "object",
+        "title": "Bool",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "bool"
+            ]
+          }
+        }
+      },
+      "FieldType_Bytes": {
+        "type": "object",
+        "title": "Bytes",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "bytes"
+            ]
+          }
+        }
+      },
+      "FieldType_Decimal128": {
+        "type": "object",
+        "required": [
+          "precision",
+          "scale",
+          "type"
+        ],
+        "properties": {
+          "precision": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "scale": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "decimal128"
+            ]
+          }
+        },
+        "title": "Decimal128"
+      },
+      "FieldType_Float32": {
+        "type": "object",
+        "title": "Float32",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "float32"
+            ]
+          }
+        }
+      },
+      "FieldType_Float64": {
+        "type": "object",
+        "title": "Float64",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "float64"
+            ]
+          }
+        }
+      },
+      "FieldType_Int32": {
+        "type": "object",
+        "title": "Int32",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "int32"
+            ]
+          }
+        }
+      },
+      "FieldType_Int64": {
+        "type": "object",
+        "title": "Int64",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "int64"
+            ]
+          }
+        }
+      },
+      "FieldType_Json": {
+        "type": "object",
+        "title": "Json",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "json"
+            ]
+          }
+        }
+      },
+      "FieldType_List": {
+        "type": "object",
+        "required": [
+          "items",
+          "type"
+        ],
+        "properties": {
+          "items": {
+            "$ref": "#/components/schemas/ListFieldItem"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "list"
+            ]
+          }
+        },
+        "title": "List"
+      },
+      "FieldType_String": {
+        "type": "object",
+        "title": "String",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "string"
+            ]
+          }
+        }
+      },
+      "FieldType_Struct": {
+        "type": "object",
+        "required": [
+          "fields",
+          "type"
+        ],
+        "properties": {
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SourceField"
+            }
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "struct"
+            ]
+          }
+        },
+        "title": "Struct"
+      },
+      "FieldType_Timestamp": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "$ref": "#/components/schemas/TimestampUnit"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "timestamp"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "Timestamp"
+      },
+      "FieldType_UInt32": {
+        "type": "object",
+        "title": "UInt32",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "uint32"
+            ]
+          }
+        }
+      },
+      "FieldType_UInt64": {
+        "type": "object",
+        "title": "UInt64",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "uint64"
+            ]
+          }
         }
       },
       "Format": {
         "oneOf": [
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/JsonFormat"
+            "type": "object",
+            "properties": {
+              "confluent_schema_registry": {
+                "type": "boolean"
               },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "json"
-                    ]
-                  }
-                }
+              "debezium": {
+                "type": "boolean"
+              },
+              "decimal_encoding": {
+                "$ref": "#/components/schemas/DecimalEncoding"
+              },
+              "include_schema": {
+                "type": "boolean"
+              },
+              "schema_id": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true,
+                "minimum": 0
+              },
+              "timestamp_format": {
+                "$ref": "#/components/schemas/TimestampFormat"
+              },
+              "unstructured": {
+                "type": "boolean"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "json"
+                ]
               }
+            },
+            "required": [
+              "type"
             ],
             "title": "Json"
           },
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/AvroFormat"
+            "type": "object",
+            "properties": {
+              "confluent_schema_registry": {
+                "type": "boolean"
               },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "avro"
-                    ]
-                  }
-                }
+              "into_unstructured_json": {
+                "type": "boolean"
+              },
+              "raw_datums": {
+                "type": "boolean"
+              },
+              "reader_schema": {
+                "type": "string",
+                "readOnly": true
+              },
+              "schema_id": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true,
+                "nullable": true,
+                "minimum": 0
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "avro"
+                ]
               }
+            },
+            "required": [
+              "type"
             ],
             "title": "Avro"
           },
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProtobufFormat"
+            "type": "object",
+            "properties": {
+              "compiled_schema": {
+                "type": "string",
+                "format": "binary",
+                "nullable": true
               },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "protobuf"
-                    ]
-                  }
-                }
+              "confluent_schema_registry": {
+                "type": "boolean"
+              },
+              "into_unstructured_json": {
+                "type": "boolean"
+              },
+              "length_delimited": {
+                "type": "boolean"
+              },
+              "message_name": {
+                "type": "string",
+                "nullable": true
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "protobuf"
+                ]
               }
+            },
+            "required": [
+              "type"
             ],
             "title": "Protobuf"
           },
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ParquetFormat"
+            "type": "object",
+            "properties": {
+              "compression": {
+                "$ref": "#/components/schemas/ParquetCompression"
               },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "parquet"
-                    ]
-                  }
-                }
+              "row_group_bytes": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "minimum": 0
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "parquet"
+                ]
               }
+            },
+            "required": [
+              "type"
             ],
             "title": "Parquet"
           },
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/RawStringFormat"
-              },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "raw_string"
-                    ]
-                  }
-                }
-              }
+            "type": "object",
+            "required": [
+              "type"
             ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "raw_string"
+                ]
+              }
+            },
             "title": "RawString"
           },
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/RawBytesFormat"
-              },
-              {
-                "type": "object",
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "raw_bytes"
-                    ]
-                  }
-                }
-              }
+            "type": "object",
+            "required": [
+              "type"
             ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "raw_bytes"
+                ]
+              }
+            },
             "title": "RawBytes"
           }
         ],
         "discriminator": {
-          "propertyName": "type"
+          "propertyName": "type",
+          "mapping": {
+            "json": "#/components/schemas/Format_Json",
+            "avro": "#/components/schemas/Format_Avro",
+            "protobuf": "#/components/schemas/Format_Protobuf",
+            "parquet": "#/components/schemas/Format_Parquet",
+            "raw_string": "#/components/schemas/Format_RawString",
+            "raw_bytes": "#/components/schemas/Format_RawBytes"
+          }
         }
+      },
+      "Format_Avro": {
+        "type": "object",
+        "properties": {
+          "confluent_schema_registry": {
+            "type": "boolean"
+          },
+          "into_unstructured_json": {
+            "type": "boolean"
+          },
+          "raw_datums": {
+            "type": "boolean"
+          },
+          "reader_schema": {
+            "type": "string",
+            "readOnly": true
+          },
+          "schema_id": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true,
+            "nullable": true,
+            "minimum": 0
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "avro"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "Avro"
+      },
+      "Format_Json": {
+        "type": "object",
+        "properties": {
+          "confluent_schema_registry": {
+            "type": "boolean"
+          },
+          "debezium": {
+            "type": "boolean"
+          },
+          "decimal_encoding": {
+            "$ref": "#/components/schemas/DecimalEncoding"
+          },
+          "include_schema": {
+            "type": "boolean"
+          },
+          "schema_id": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "minimum": 0
+          },
+          "timestamp_format": {
+            "$ref": "#/components/schemas/TimestampFormat"
+          },
+          "unstructured": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "json"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "Json"
+      },
+      "Format_Parquet": {
+        "type": "object",
+        "properties": {
+          "compression": {
+            "$ref": "#/components/schemas/ParquetCompression"
+          },
+          "row_group_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "minimum": 0
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "parquet"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "Parquet"
+      },
+      "Format_Protobuf": {
+        "type": "object",
+        "properties": {
+          "compiled_schema": {
+            "type": "string",
+            "format": "binary",
+            "nullable": true
+          },
+          "confluent_schema_registry": {
+            "type": "boolean"
+          },
+          "into_unstructured_json": {
+            "type": "boolean"
+          },
+          "length_delimited": {
+            "type": "boolean"
+          },
+          "message_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "protobuf"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "Protobuf"
+      },
+      "Format_RawBytes": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "raw_bytes"
+            ]
+          }
+        },
+        "title": "RawBytes"
+      },
+      "Format_RawString": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "raw_string"
+            ]
+          }
+        },
+        "title": "RawString"
       },
       "Framing": {
         "oneOf": [
           {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/NewlineDelimitedFraming"
+            "type": "object",
+            "properties": {
+              "max_line_length": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "minimum": 0
               },
-              {
-                "type": "object",
-                "required": [
-                  "method"
-                ],
-                "properties": {
-                  "method": {
-                    "type": "string",
-                    "enum": [
-                      "newline"
-                    ]
-                  }
-                }
+              "method": {
+                "type": "string",
+                "enum": [
+                  "newline"
+                ]
               }
+            },
+            "required": [
+              "method"
             ],
             "title": "Newline"
           }
         ],
         "discriminator": {
-          "propertyName": "method"
+          "propertyName": "method",
+          "mapping": {
+            "newline": "#/components/schemas/Framing_Newline"
+          }
         }
+      },
+      "Framing_Newline": {
+        "type": "object",
+        "properties": {
+          "max_line_length": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "minimum": 0
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "newline"
+            ]
+          }
+        },
+        "required": [
+          "method"
+        ],
+        "title": "Newline"
       },
       "GlobalUdf": {
         "type": "object",
@@ -2006,11 +2485,7 @@
             "minimum": 0
           },
           "failure_reason": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/FailureReason"
-              }
-            ],
+            "$ref": "#/components/schemas/FailureReason",
             "nullable": true
           },
           "finish_time": {
@@ -2088,11 +2563,7 @@
             "type": "string"
           },
           "error_domain": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ErrorDomain"
-              }
-            ],
+            "$ref": "#/components/schemas/ErrorDomain",
             "nullable": true
           },
           "id": {
@@ -2433,11 +2904,7 @@
         ],
         "properties": {
           "action": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StopType"
-              }
-            ],
+            "$ref": "#/components/schemas/StopType",
             "nullable": true
           },
           "action_in_progress": {
@@ -2595,11 +3062,7 @@
             "minimum": 0
           },
           "stop": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StopType"
-              }
-            ],
+            "$ref": "#/components/schemas/StopType",
             "nullable": true
           }
         }
@@ -2704,11 +3167,7 @@
             }
           },
           "graph": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/PipelineGraph"
-              }
-            ],
+            "$ref": "#/components/schemas/PipelineGraph",
             "nullable": true
           }
         }
@@ -2786,7 +3245,75 @@
           }
         ],
         "discriminator": {
-          "propertyName": "type"
+          "propertyName": "type",
+          "mapping": {
+            "json_schema": "#/components/schemas/SchemaDefinition_JsonSchema",
+            "protobuf_schema": "#/components/schemas/SchemaDefinition_Protobuf",
+            "avro_schema": "#/components/schemas/SchemaDefinition_Avro"
+          }
+        }
+      },
+      "SchemaDefinition_Avro": {
+        "type": "object",
+        "title": "Avro",
+        "required": [
+          "schema",
+          "type"
+        ],
+        "properties": {
+          "schema": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "avro_schema"
+            ]
+          }
+        }
+      },
+      "SchemaDefinition_JsonSchema": {
+        "type": "object",
+        "title": "JsonSchema",
+        "required": [
+          "schema",
+          "type"
+        ],
+        "properties": {
+          "schema": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "json_schema"
+            ]
+          }
+        }
+      },
+      "SchemaDefinition_Protobuf": {
+        "type": "object",
+        "title": "Protobuf",
+        "required": [
+          "schema",
+          "type"
+        ],
+        "properties": {
+          "dependencies": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "schema": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "protobuf_schema"
+            ]
+          }
         }
       },
       "SourceField": {

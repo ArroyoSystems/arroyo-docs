@@ -1,0 +1,281 @@
+---
+slug: releases/v0.3.0
+title: v0.3.0
+description: "Release 0.3.0 of Arroyo"
+---
+slug: releases/v0.3.0
+
+We're thrilled to announce the 0.3.0 release of Arroyo, our second minor release
+as an open-source project. Arroyo is a state-of-the-art stream processing engine
+designed to allow anyone to build complex, stateful real-time data pipelines
+with SQL.
+
+# Overview
+
+The Arroyo 0.3 release focused on improving the flexibility of the system and
+completeness of SQL support, with the MVP for UDF support, DDL statements, and
+custom event time and watermarks. There have also many substantial improvements
+to the Web UI, including error reporting, backpressure monitoring, and under-the-hood
+infrastructure improvements.
+
+We've also greatly expanded our docs since the last release. Check them out at
+https://doc.arroyo.dev.
+
+## New contributors
+
+We are excited to welcome three new contributors to the project with this release:
+
+- [@haoxins](https://github.com/haoxins) made their first contribution in [#100](https://github.com/ArroyoSystems/arroyo/pull/100)
+- [@edmondop](https://github.com/edmondop) made their first contribution in [#122](https://github.com/ArroyoSystems/arroyo/pull/122)
+- [@chenquan](https://github.com/chenquan) made their first contribution in [#147](https://github.com/ArroyoSystems/arroyo/pull/147)
+
+Thanks to all new and existing contributors!
+
+## What's next
+
+Looking forward to the 0.4 release, we have a lot of exciting changes planned.
+We're adding the ability to create _updating tables_ with native support for Debezium,
+allowing users to connect Arroyo to relational databases like MySQL and Postgres. Other
+planned features include external joins, session windows, and Delta Lake integration.
+
+Excited to be part of the future of stream processing? Come chat with the team
+on our [discord](https://discord.gg/cjCr5rVmyR), check out a [starter
+issue](https://github.com/ArroyoSystems/arroyo/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+and submit a PR, and let us know what you'd like to see next in Arroyo\!
+
+---
+slug: releases/v0.3.0
+
+# Features
+
+## UDFs
+
+With this release we are shipping initial support for writing user-defined
+functions (UDFs) in Rust, allowing users to extend SQL with custom business
+logic. See the [udf docs](https://doc.arroyo.dev/sql/udfs) for full details.
+
+For example, we can register a Rust function:
+
+```rust
+// Returns the great-circle distance between two coordinates
+fn gcd(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
+    let radius = 6371.0;
+
+    let dlat = (lat2 - lat1).to_radians();
+    let dlon = (lon2 - lon1).to_radians();
+
+    let a = (dlat / 2.0).sin().powi(2) +
+        lat1.to_radians().cos() *
+            lat2.to_radians().cos() *
+                (dlon / 2.0).sin().powi(2);
+    let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
+
+    radius * c
+}
+```
+
+and call it from SQL:
+
+```sql
+SELECT gcd(src_lat, src_long, dst_lat, dst_long)
+FROM orders;
+```
+
+  - MVP of Rust UDFs by [@mwylde](https://github.com/mwylde) in [#104](https://github.com/ArroyoSystems/arroyo/pull/104)
+
+## SQL DDL statements
+
+It's now possible to define sources and sinks directly in SQL via
+[CREATE TABLE statements](https://doc.arroyo.dev/sql/ddl#create-table-connection):
+
+```sql
+CREATE TABLE orders (
+  customer_id INT,
+  order_id INT,
+  date_string TEXT
+) WITH (
+  connection = 'my_kafka',
+  topic = 'order_topic',
+  serialization_mode = 'json'
+);
+```
+
+These tables can then be selected from and inserted into to read and write from
+those systems. For example, we can duplicate the orders topic by inserting from
+it into a new table:
+
+```sql
+CREATE TABLE orders_copy (
+  customer_id INT,
+  order_id INT,
+  date_string TEXT
+) WITH (
+  connection = 'my_kafka',
+  topic = 'order_topic',
+  serialization_mode = 'json'
+);
+
+
+INSERT INTO orders_copy SELECT * FROM orders;
+```
+
+In addition to connection tables, this release also adds support for views and
+virtual tables, which are helpful for splitting up complex queries into smaller
+components.
+
+  - Feature/inline create table by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+    [#101](https://github.com/ArroyoSystems/arroyo/pull/101)
+  - Rework sources and sinks to allow for creating tables/views in SQL queries
+    by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in [#107](https://github.com/ArroyoSystems/arroyo/pull/107)
+
+
+## Custom event time and watermarks
+
+Arroyo now supports custom event time fields and watermarks, allowing users to
+define their own event time fields and watermarks based on the data in their
+streams.
+
+When creating a connection table in SQL, it is now possible to define a _virtual
+field_ generated from the data in the stream and then assign that to be the event time.
+We can then generate a watermark from that event time field as well.
+
+A complete example looks like this:
+
+```sql
+CREATE TABLE orders (
+  customer_id INT,
+  order_id INT,
+  date_string TEXT,
+  event_time TIMESTAMP GENERATED ALWAYS AS (CAST(date_string as TIMESTAMP)),
+  watermark TIMESTAMP GENERATED ALWAYS AS (event_time - INTERVAL '15' SECOND)
+) WITH (
+  connection = 'my_kafka',
+  topic = 'order_topic',
+  serialization_mode = 'json',
+  event_time_field = 'event_time',
+  watermark_field = 'watermark'
+);
+```
+
+For more on the underlying concepts of event times and watermarks, see the
+[concept docs](https://doc.arroyo.dev/concepts#timely-processing).
+
+  - Support virtual fields and overriding timestamp via event_time_field by
+    [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in [#127](https://github.com/ArroyoSystems/arroyo/pull/127)
+  - Add ability to configure watermark by specifying a specific override column.
+    by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in [#142](https://github.com/ArroyoSystems/arroyo/pull/142)
+
+## Additional SQL features
+
+Beyond UDFs and DDL statements, we have continued to expand the completeness of
+our SQL support with addition of case statements and regex functions:
+
+- Allow filters on join computations by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#131](https://github.com/ArroyoSystems/arroyo/pull/131)
+- Implement CASE statements by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#146](https://github.com/ArroyoSystems/arroyo/pull/146)
+- Adding support for regex_replace and regex_match by [@edmondop](https://github.com/edmondop) in
+  [#122](https://github.com/ArroyoSystems/arroyo/pull/122)
+- Rework top N window functions by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#136](https://github.com/ArroyoSystems/arroyo/pull/136)
+
+## Server-Sent Events source
+
+We've added a new source which allows reading from
+[Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events)
+APIs (also called EventSource). SSE is a simple protocol for streaming data from
+HTTP servers and is a common choice for web applications. See the
+[SSE source documentation](https://doc.arroyo.dev/connectors/server-sent-events)
+for more details, and take a look at the new
+[Mastodon trends](https://doc.arroyo.dev/tutorial/mastodon) tutorial that makes
+uses of it
+
+- Add event source source operator by [@mwylde](https://github.com/mwylde) in
+  [#106](https://github.com/ArroyoSystems/arroyo/pull/106)
+- Add HTTP connections and add support for event source tables in SQL by [@mwylde](https://github.com/mwylde)
+  in [#119](https://github.com/ArroyoSystems/arroyo/pull/119)
+
+
+## Web UI
+
+This release has seen a ton of improvements to the Web UI.
+
+- Show SQL names instead of primitive types in catalog by
+  [@jbeisen](https://github.com/jbeisen) in
+  [#84](https://github.com/ArroyoSystems/arroyo/pull/84)
+- Add backpressure metric by [@jbeisen](https://github.com/jbeisen) in
+  [#109](https://github.com/ArroyoSystems/arroyo/pull/109)
+- Add backpressure graph and color pipeline nodes by
+  [@jbeisen](https://github.com/jbeisen) in
+  [#110](https://github.com/ArroyoSystems/arroyo/pull/110)
+- Add page not found page by [@jbeisen](https://github.com/jbeisen) in
+  [#130](https://github.com/ArroyoSystems/arroyo/pull/130)
+- Use SWR for fetching data for job details page by
+  [@jbeisen](https://github.com/jbeisen) in
+  [#129](https://github.com/ArroyoSystems/arroyo/pull/129)
+- Show operator checkpoint sizes by [@jbeisen](https://github.com/jbeisen) in
+  [#139](https://github.com/ArroyoSystems/arroyo/pull/139)
+- Write eventsource and kafka source errors to db by
+  [@jbeisen](https://github.com/jbeisen) in
+  [#140](https://github.com/ArroyoSystems/arroyo/pull/140)
+- Add Errors tab to job details page by [@jbeisen](https://github.com/jbeisen)
+  in [#149](https://github.com/ArroyoSystems/arroyo/pull/149)
+
+# Improvements
+
+- Improvements to Kafka consumer/producer reliability and correctness by
+  [@mwylde](https://github.com/mwylde) in
+  [#132](https://github.com/ArroyoSystems/arroyo/pull/132)
+- Implement full_pipeline_codegen proc macro to test pipeline codegen by
+  [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#135](https://github.com/ArroyoSystems/arroyo/pull/135)
+- Bump datafusion to 25.0.0 by
+  [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#145](https://github.com/ArroyoSystems/arroyo/pull/145)
+- Add docker.yaml to build and push docker images by
+  [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#150](https://github.com/ArroyoSystems/arroyo/pull/150)
+- Add basic end-to-end integration test by [@mwylde](https://github.com/mwylde)
+  in [#108](https://github.com/ArroyoSystems/arroyo/pull/108)
+- Add event tracking by [@mwylde](https://github.com/mwylde)
+  [#144](https://github.com/ArroyoSystems/arroyo/pull/144)
+- Helm: Create service account for Postgres deployment by
+  [@haoxins](https://github.com/haoxins) in
+  [#100](https://github.com/ArroyoSystems/arroyo/pull/100)
+- Enforce prettier and eslint in the github pipeline by
+  [@jbeisen](https://github.com/jbeisen) in
+  [#120](https://github.com/ArroyoSystems/arroyo/pull/120)
+- Check formatting on PRs by
+  [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#124](https://github.com/ArroyoSystems/arroyo/pull/124)
+- Simplify the code by [@chenquan](https://github.com/chenquan) in
+  [#147](https://github.com/ArroyoSystems/arroyo/pull/147)
+
+# Fixes
+
+- Fix UI for creating non-raw kafka sources by
+  [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#95](https://github.com/ArroyoSystems/arroyo/pull/95)
+- Fix query compilation error when sorting floats by
+  [@mwylde](https://github.com/mwylde) in
+  [#105](https://github.com/ArroyoSystems/arroyo/pull/105)
+- Fix top n optimization for sliding windows by
+  [@mwylde](https://github.com/mwylde) in
+  [#114](https://github.com/ArroyoSystems/arroyo/pull/114)
+- Fix some edge-cases around `make_array()` by
+  [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#123](https://github.com/ArroyoSystems/arroyo/pull/123)
+- Fix overlapping graph nodes for joins by
+  [@jbeisen](https://github.com/jbeisen) in
+  [#134](https://github.com/ArroyoSystems/arroyo/pull/134)
+- Fix data fetching when getClient involves a react hook by
+  [@mwylde](https://github.com/mwylde) in
+  [#137](https://github.com/ArroyoSystems/arroyo/pull/137)
+- Fix regression in nomad cluster cleaning by
+  [@mwylde](https://github.com/mwylde) in
+  [#113](https://github.com/ArroyoSystems/arroyo/pull/113)
+- Remove AggregatingStrategy, as that is handled differently by
+  [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#151](https://github.com/ArroyoSystems/arroyo/pull/151)
+
+The full change-log is available [here](https://github.com/ArroyoSystems/arroyo/compare/release-0.2.0...v0.3.0).

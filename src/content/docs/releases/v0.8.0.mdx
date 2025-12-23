@@ -1,0 +1,427 @@
+---
+slug: releases/v0.8.0
+title: v0.8.0
+description: Release v0.8.0 of Arroyo
+---
+slug: releases/v0.8.0
+
+*This release notes are also available on the [Arroyo blog](https://www.arroyo.dev/blog/arroyo-0-8-0).*
+
+Arroyo 0.8 includes a number of new connectors, including a FileSystem source,
+Delta Lake sink, and a Redis sink. There are also other new features like Avro
+support, global UDFs, and more.
+
+Thanks to all our contributors for this release:
+
+- [@rcjmurillo](http://github.com/rcjmurillo)
+- [@harshit2283](http://github.com/harshit2283)
+- [@jbeisen](http://github.com/jbeisen)
+- [@jacksonrnewhouse](http://github.com/jacksonrnewhouse)
+- [@mwylde](http://github.com/mwylde)
+
+
+## FileSystem source
+
+Arroyo 0.5 added a high-performance [FileSystem sink](https://www.arroyo.dev/blog/arroyo-0-5-0#filesystem-connector),
+capable of writing JSON and Parquet files to local or remote filesystems and object stores like S3. Now in 0.8, we're
+adding a corresponding FileSystem source.
+
+The FileSystem source can be configured with a directory (on a local filesystem,
+or a remote object store like S3). It will read all files in that directory and
+emit them as records for processing, with support for JSON and Parquet files
+and a variety of compression codecs.
+
+Files are read in parallel, enabling a very high rate of ingestion.
+
+A FileSystem source can be created in SQL like this:
+
+```sql
+CREATE TABLE logs (
+    id BIGINT,
+    time TIMESTAMP,
+    host TEXT,
+    status INT
+) WITH (
+    connector = 'filesystem',
+    type = 'source',
+    path = 's3://my-bucket/inputs/events',
+    compression_format = 'gzip',
+    format = 'json'
+)
+
+select * from logs;
+```
+
+In the next release, we will be improving our support for _bootstrapping_ using the FileSystem source, which is the
+process of creating the initial state of the pipeline from historical data.
+
+For example, you may have a window over 30 days of data. If you start reading today from Kafka, that will take 30
+days to fully fill the window. But if you have the historical data available on S3, as is common in many modern
+data architectures, you can read from both the FileSystem and Kafka sources in parallel with a SQL `union`.
+
+Full details on the FileSystem source are available in the [docs](https://doc.arroyo.dev/connectors/filesystem).
+
+Thanks to [@rcjmurillo](http://github.com/rcjmurillo) for this major contribution!
+
+* S3 source connector + Parquet by [@rcjmurillo](http://github.com/rcjmurillo)
+  and [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in
+  [#403](https://github.com/ArroyoSystems/arroyo/pull/403)
+
+## Delta Lake Sink
+
+
+[Delta Lake](https://delta.io/) is a popular open-source storage format, with support for ACID transactions,
+schema enforcement, time travel, and more. It's a great choice for modern data lakes and supported by many popular query
+engines.
+
+In Arroyo 0.8 we've enhanced our existing FileSystem sink to support Delta Lake, allowing you to write
+data transactionally to Delta tables.
+
+With Arroyo, a high-performance Kafka to Delta Lake pipeline can be created in SQL as easily
+as
+
+```sql
+CREATE TABLE events (
+    id BIGINT,
+    time TIMESTAMP,
+    host TEXT,
+    status INT
+) WITH (
+    connector = 'kafka',
+    type = 'source',
+    topic = 'events',
+    format = 'json'
+);
+
+CREATE TABLE deltatable (
+    id BIGINT,
+    time TIMESTAMP,
+    host TEXT,
+    status INT
+) WITH (
+    connector = 'delta',
+    path = 's3://arroyo-deltalake/delta_uuid_remote_checkpoints',
+    format = 'parquet',
+    'filename.strategy' = 'uuid'
+);
+
+INSERT INTO deltatable
+SELECT * FROM events;
+```
+
+See the [Delta Lake docs](https://doc.arroyo.dev/connectors/delta) for more details.
+
+* Implement Delta Lake Sink by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#385](https://github.com/ArroyoSystems/arroyo/pull/385)
+
+
+## Redis Sink
+
+For applications that rely on real-time data Redis is a popular choice for a fast, in-memory
+state store. Now Arroyo can sink its results directly to Redis, providing a great option for
+serving state.
+
+Redis supports a variet of data structures. In the initial release of the Redis sink, we support
+writing to String tables, Lists, and Hashes. Keys can be constructed dynamically from columns in
+the record.
+
+For example, to write results to a Redis String table, you can use a SQL statement like
+
+```sql
+CREATE TABLE redis (
+    user_id TEXT,
+    count INT
+) WITH (
+    connector = 'redis',
+    type = 'sink',
+    format = 'json',
+    'address' = 'redis://localhost:6379',
+    target = 'string',
+    'target.key_prefix' = 'counts.',
+    'target.key_column' = 'user_id'
+);
+
+INSERT INTO redis
+SELECT user_id, count(*)
+FROM events
+GROUP BY user_id, hop(interval '5 seconds', interval '1 hour');
+```
+
+This will write JSON-encoded values to keys like `counts.fred` for the user `fred`.
+
+Writes are performed efficiently using Redis pipelines and can achieve
+throughputs of millions of writes per second on a single Redis node.
+
+Both standalone and cluster modes are supported.
+
+See the [Redis connector docs](https://doc.arroyo.dev/connectors/redis) for more
+details.
+
+
+* Add Redis sink by [@mwylde](http://github.com/mwylde) in [#391](https://github.com/ArroyoSystems/arroyo/pull/391)
+
+## Avro
+
+Arroyo today supports JSON, Parquet, and custom string formats. New in 0.8 is support for
+[Avro](https://avro.apache.org/), including deep integration with Confluent Schema Registry.
+
+Avro-encoded Kafka sources can be easily created using the Confluent Schema
+Registry, using the Arroyo UI or API:
+
+From SQL, those sources can be queried like any other:
+
+```sql
+select * from pizza_orders;
+```
+
+When reading from schema registry sources, Arroyo will use the schema registry to decode the
+data with full support for schema evolution.
+
+It's also possible to specify your schema directly, although without a schema registry you will
+not be able to evolve your schemas.
+
+Avro sinks are now supported as well, allowing you to write Avro-encoded data to
+Kafka and other Avro-compatible systems. When using the Schema Registry, Arroyo
+will automatically register new schemas as they are encountered.
+
+```sql
+create table output with (
+    connector = 'kafka',
+    type = 'sink',
+    bootstrap_servers = 'localhost:9092',
+    'schema_registry.endpoint' =
+      'http://localhost:8081',
+    format = 'avro',
+    'avro.confluent_schema_registry' = 'true',
+    'topic' = 'outputs'
+);
+
+insert into output
+select * from source;
+```
+
+See the [Avro format](https://doc.arroyo.dev/connectors/overview#avro) docs for more details.
+
+* Initial support for Avro formats by [@mwylde](http://github.com/mwylde) in [#386](https://github.com/ArroyoSystems/arroyo/pull/386)
+* Add support for writing Avro data by [@mwylde](http://github.com/mwylde) in [#422](https://github.com/ArroyoSystems/arroyo/pull/422)
+
+
+## Schema Registry improvements
+
+Arroyo supports Confluent Schema Registry for loading and storing schemas of data
+read and written to Kafka.
+
+We've made several improvementsto our schema registry support in addition to adding
+Avro support (see above).
+
+* It's now possible to write JSON data to Kafka using a pre-existing schema that
+  has been registered with the schema registry. This provides a more efficient
+  way to write data to Kafka for use with Kafka Connect and other systems that
+  rely on having a schema (previously Arroyo supported an option to embed the
+  schema in the message, which is less efficient).
+* We now support using schema registries that require authentication, for example
+  Confluent Cloud.
+
+See the [Kafka connector docs](https://doc.arroyo.dev/connectors/kafka) for more
+details.
+
+* Implement json sink for schema registry, use connection types for sinks, add
+  auth for schema registry by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in
+  [#416](https://github.com/ArroyoSystems/arroyo/pull/416)
+
+
+## UDFs
+
+UDFs (user-defined functions) and UDAFs (user-defined aggregate functions) have
+become a widely-used feature of Arroyo, allowing users to extend Arroyo with
+custom logic written in Rust.
+
+Arroyo 0.8 includes a number of improvements to UDFs, making them easier to use
+and more powerful.
+
+### Global UDFs
+
+In earlier versions of Arroyo, UDFs could be defined within a single pipeline,
+but could not be easily shared. It's common to have a set of UDFs that are
+useful across an organization, for example to parse custom formats or implementing
+business logic.
+
+Now in 0.8, UDFs can be defined globally, and used across multiple pipelines. Along with
+this, we've also completely reworked the UDF editing experience.
+
+* Add global UDFs feature by [@jbeisen](http://github.com/jbeisen) in [#387](https://github.com/ArroyoSystems/arroyo/pull/387)
+* Improve UDF state handling by [@jbeisen](http://github.com/jbeisen) in [#406](https://github.com/ArroyoSystems/arroyo/pull/406)
+
+### Custom UDF dependencies
+
+UDFs can now depend on a custom set of external Rust crates (libraries) by
+specifying them as a special comment in the UDF definition. Previously, UDFs had
+a few built-in dependencies (including serde_json and regex) but now any Rust
+crate can be used.
+
+For example, the
+[access_log_parser](https://crates.io/crates/access_log_parser) crate provides a
+comprehensive suite of web server log parsers. It's now possible to write a UDF
+that uses this crate to parse access logs and extract fields from them.
+
+```rust
+/*
+[dependencies]
+access_log_parser = "0.8"
+serde_json = "1"
+*/
+
+use access_log_parser::{parse, AccessLogError, LogType, LogEntry};
+use serde_json::json;
+use std::time::{UNIX_EPOCH, Duration};
+
+pub fn parse_log(input: String) -> Option<String> {
+    let LogEntry::CommonLog(entry) =
+        parse(LogType::CommonLog, &input).ok()? else {
+            return None
+    };
+
+    Some(json!({
+        "ip": entry.ip,
+        "user": entry.user,
+        "timestamp": entry.timestamp.to_rfc3339(),
+        "request": format!("{:?}", entry.request),
+        "status_code": entry.status_code.as_u16()
+    }).to_string())
+}
+
+```
+
+Then this UDF can be used in SQL, for example this query will count the number
+of 500 errors in 5 minute sliding windows:
+
+```sql
+create table logs (
+    value TEXT NOT NULL,
+    parsed TEXT GENERATED ALWAYS AS (parse_log(value)),
+    event_time TIMESTAMP GENERATED ALWAYS AS
+        (CAST(extract_json_string(parse_log(value), '$.timestamp') as TIMESTAMP))
+) with (
+    connector = 'kafka',
+    type = 'source',
+    format = 'raw_string',
+    bootstrap_servers = 'localhost:9092',
+    topic = 'apache_logs',
+    'source.offset' = 'earliest'
+);
+
+SELECT count(*)
+FROM logs
+WHERE extract_json(parsed, '$.status_code')[1] = '500'
+GROUP BY hop(interval '5 seconds', interval '5 minutes');
+```
+
+As part of this change, the previously built-in dependencies have been removed,
+so going forward all crates will need to be specified explicitly.
+
+* Define dependencies in UDF definition by [@jbeisen](http://github.com/jbeisen) in [#393](https://github.com/ArroyoSystems/arroyo/pull/393)
+
+## SQL enhancements
+
+### Schema inferrence
+
+Arroyo is now able to infer schemas for connection tables in some cases, making it easier
+to define sources and sinks without needing to specify the schema manually.
+
+This is particularly useful for sinks, which previously needed to have the schema specified
+manually. Now, if the schema is not specified, Arroyo can infer it from how the table is used.
+
+For example, a sink table can now be created like this:
+
+```sql
+CREATE TABLE output WITH (
+    connector = 'kafka',
+    type = 'sink',
+    bootstrap_servers = 'localhost:9092',
+    format = 'json',
+    'topic' = 'outputs'
+);
+```
+
+without needing to specify the fields.
+
+It can be written to like this:
+
+```sql
+INSERT INTO output
+SELECT id as id, count(*) as count
+FROM events
+GROUP BY id, hop(interval '5 seconds', interval '1 hour');
+```
+
+Note that when using schema inference, the field names will be determined by the select statement,
+so it's important to use aliases to ensure the correct names are used.
+
+* Add support for inferring schemas by [@mwylde](http://github.com/mwylde) in [#417](https://github.com/ArroyoSystems/arroyo/pull/417)
+
+### Connection profiles in SQL
+
+Some connectors, like Kafka or Redis, have a concept of a "connection profile" which
+contains common configuration that will be used across many tables. For example, for Kafka this
+contains the bootstrap servers, auth information, and schema registry.
+
+These connection profiles could be used when creating connection tables via the
+Web UI and API, but not when creating them via SQL. Now in 0.8, connection
+profiles can be created in the Web UI and then used in SQL as well.
+
+For example, given a connection profile called "local_kafka" a Kafka source can
+be created like this:
+
+```sql
+CREATE TABLE events WITH (
+    connector = 'kafka',
+    type = 'source',
+    format = 'json',
+    'connection_profile' = 'local_kafka'
+);
+```
+
+* Connection profiles sql by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#421](https://github.com/ArroyoSystems/arroyo/pull/421)
+
+
+### SQL `IN` operator
+
+Arroyo now supports the `IN` operator in SQL, allowing you to filter records based on a list of values.
+
+For example, to filter records where the `status` field is either 400 or 401, you can use a query like:
+
+```sql
+SELECT * FROM events
+WHERE status IN (400, 401);
+```
+
+* Add support for InList expressions. by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#418](https://github.com/ArroyoSystems/arroyo/pull/418)
+
+
+## Improvements
+
+* Refactor api types into modules by [@jbeisen](http://github.com/jbeisen) in [#377](https://github.com/ArroyoSystems/arroyo/pull/377)
+* Add headers and multiple subscription messages to Websocket source by [@jbeisen](http://github.com/jbeisen) in [#379](https://github.com/ArroyoSystems/arroyo/pull/379)
+* Bump datafusion to 31.0, parquet to 46.0 by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#381](https://github.com/ArroyoSystems/arroyo/pull/381)
+* bump object_store dependency to 0.7.1 by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#380](https://github.com/ArroyoSystems/arroyo/pull/380)
+* Use udfs crate for compilation in addition to checking by [@mwylde](http://github.com/mwylde) in [#382](https://github.com/ArroyoSystems/arroyo/pull/382)
+* Reduce the size of cars.json so tests run more quickly by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#383](https://github.com/ArroyoSystems/arroyo/pull/383)
+* Filesystem write configurations by [@harshit2283](http://github.com/harshit2283) in [#392](https://github.com/ArroyoSystems/arroyo/pull/392)
+* Refactor FilenamingStrategy behavior to share code by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#409](https://github.com/ArroyoSystems/arroyo/pull/409)
+* Make UDFs public when added to schema provider by [@jbeisen](http://github.com/jbeisen) in [#407](https://github.com/ArroyoSystems/arroyo/pull/407)
+* Pin deltalake to not bump arrow version. by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#413](https://github.com/ArroyoSystems/arroyo/pull/413)
+* Test code-gen for JSON Schema and Avro by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#408](https://github.com/ArroyoSystems/arroyo/pull/408)
+* Update dependencies by [@mwylde](http://github.com/mwylde) in [#415](https://github.com/ArroyoSystems/arroyo/pull/415)
+* Docker pin pnpm by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#419](https://github.com/ArroyoSystems/arroyo/pull/419)
+
+## Fixes
+* Fix deeply-nested generated forms by [@mwylde](http://github.com/mwylde) in [#388](https://github.com/ArroyoSystems/arroyo/pull/388)
+* Reset nexmark sources if parallelism is changed by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#389](https://github.com/ArroyoSystems/arroyo/pull/389)
+* Make sure a final checkpoint is taken before rescaling by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#400](https://github.com/ArroyoSystems/arroyo/pull/400)
+* Clear pipeline before checking by [@jbeisen](http://github.com/jbeisen) in [#401](https://github.com/ArroyoSystems/arroyo/pull/401)
+* Fix schema editor by [@mwylde](http://github.com/mwylde) in [#404](https://github.com/ArroyoSystems/arroyo/pull/404)
+* Make the StorageProvider's get() and put() calls relative to the full path by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#410](https://github.com/ArroyoSystems/arroyo/pull/410)
+* Make sure delta lake timestamps are microsecond grain by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#411](https://github.com/ArroyoSystems/arroyo/pull/411)
+* RawString schema's value now submitted as non-nullable by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#414](https://github.com/ArroyoSystems/arroyo/pull/414)
+
+
+**Full Changelog**: https://github.com/ArroyoSystems/arroyo/compare/v0.7.0...v0.8.0

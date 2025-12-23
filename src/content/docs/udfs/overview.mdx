@@ -1,0 +1,99 @@
+---
+title: UDF Overview
+description: Extending Arroyo with user-defined functions
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Arroyo SQL can be extended with user-defined functions, written in Rust or
+Python.  The parameters and return type of the UDF are determined by the 
+definition of the function and all types must be valid [SQL data types](/sql/data-types).
+
+For String and Binary types (`TEXT` `BYTEA` in SQL), UDFs use the reference type
+(`&str` and `&[u8]`) for arguments and the owned types (`String` and `Vec<u8>`)
+for return values.
+
+Arroyo UDFs are annotated with the `#[udf]` in the arroyo\_udf\_plugin crate if they
+are written in rust and the `@udf` decorators if you use Python. UDFs can be defined
+as part of the SQL API call, or via the Web UI.
+
+Here's an example of a simple UDF that squares an integer:
+
+<Tabs>
+  ```python Python
+  from arroyo_udf import udf
+
+  @udf
+  def my_square(x: int) -> int:
+      return x * x
+  ```
+
+  ```rust Rust
+  use arroyo_udf_plugin::udf;
+
+  #[udf]
+  fn my_square(x: u64) -> u64 {
+    x * x
+  }
+  ```
+</Tabs>
+
+Once registered, this UDF can be used in SQL queries:
+
+```sql
+CREATE TABLE impulse with (
+  connector = 'impulse',
+  event_rate = '10'
+);
+
+SELECT my_square(counter)
+FROM impulse;
+```
+
+For a complete example of how to use UDFs to solve a real-world problem of custom
+format parsing, see the [UDF tutorial](/tutorial/udfs).
+
+## Creating UDFs
+
+UDFs are developed and managed in the Web UI, within the Pipeline editor. To create a new UDF,
+navigate to the UDFs tab and click "New."
+
+<img src="/images/creating_udfs.png" alt="The UDF creation interface" />
+
+The name for the UDF is determined automatically from the function name that is
+annotated with `#[udf]` for Rust or `@udf` for Python. You may include helper
+functions, structs, and other definitions so long as only one function has the
+udf annotation.
+
+As you're developing, you may make use of the "Check" button to validate the UDF
+definition. Any Rust compilation or Python parsing errors will be included in
+the errors box at the bottom of the UI.
+
+## Global UDFs
+
+UDFs may be either *local*—associated with a particular pipeline—or *global*, in which case they are stored
+in the database and may be used in any pipeline.
+
+All UDFs begin as local. If you've written a UDF that will benefit from being globally available, you can
+make it global by hovering over the tab containing the UDF, and clicking the "Globalize" button in the
+drop down.
+
+<img src="/images/globalize_udf.png" alt="The process of making a global UDF" />
+
+Global UDFs are available in all pipelines, but will be shadowed by local UDFs with the same name.
+
+## Performance considerations
+
+UDFs are expected to run and return quickly (think microseconds, not milliseconds). This means they
+shouldn't do any blocking work (like making network requests) or CPU-intensive computations. Within
+the Arroyo dataflow, UDFs are treated as normal scalar functions. They run serially against a batch of
+data, and while they run forward progress is blocked.
+
+If you need to use IO, CPU-intensive computations, or other usecases for long-running UDFs, see
+[async UDFs](/udfs/rust/async-udfs).
+
+## Debugging UDFs
+
+If UDFs panic, they will produce log lines in the worker logs. These are not currently forwarded to the Web UI, so you
+will need to find the logs where the workers are running. For the default `process` scheduler, this will be in the
+controller logs. For the `kubernetes` scheduler, this will be within the actual worker pods.
