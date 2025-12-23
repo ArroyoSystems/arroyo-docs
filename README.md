@@ -1,49 +1,25 @@
-# Starlight Starter Kit: Basics
+# Arroyo Docs
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+This repo contains the source code to documentation website (https://doc.arroyo.dev) for [Arroyo](https://arroyo.dev).
+Docs are developed as mdx (Markdown with embedded React components). 
 
-```
-npm create astro@latest -- --template starlight
-```
+We welcome contributions and fixes! Just open a PR.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Doc development
 
-## 🚀 Project Structure
+We use [Starlight](https://starlight.astro.build/) for our docs. The live
+website is automatically rebuilt on every merge to this repo. 
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+Docs can be developed locally:
 
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+```bash
+$ pnpm install
+$ pnpm run dev
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+or built statically and previewed with
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
-
-Static assets, like favicons, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+```bash
+$ pnpm run build
+$ pnpm run preview
+```
