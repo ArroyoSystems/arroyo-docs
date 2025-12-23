@@ -1,29 +1,49 @@
-# Arroyo Docs
+# Starlight Starter Kit: Basics
 
-This repo contains the source code to documentation website (https://doc.arroyo.dev) for [Arroyo](https://arroyo.dev).
+[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
 
-## Doc development
-
-We use [mintlify](https://mintlify.com) for our docs. The live website is automatically rebuilt on every merge to this
-repo. To develop docs locally, you can install the mintlify dev CLI:
-
-```bash
-$ npm i -g mintlify
+```
+npm create astro@latest -- --template starlight
 ```
 
-Then changes can be previewed by running this command in the root of the repository:
+> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
-```bash
-$ mintlify dev
+## 🚀 Project Structure
+
+Inside of your Astro + Starlight project, you'll see the following folders and files:
+
+```
+.
+├── public/
+├── src/
+│   ├── assets/
+│   ├── content/
+│   │   └── docs/
+│   └── content.config.ts
+├── astro.config.mjs
+├── package.json
+└── tsconfig.json
 ```
 
-**Note: Mintlify is not currently compatible with Node 20. Node 18 is recommended.**
+Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
 
-## Updating the API Reference
+Images can be added to `src/assets/` and embedded in Markdown with a relative link.
 
-We use the [mintlify scraper](https://mintlify.com/docs/api-playground/openapi-generation)
-to generate the pages. After copying the latest `api-spec.json` into this repo, run:
+Static assets, like favicons, can be placed in the `public/` directory.
 
-```bash
-$ npx @mintlify/scraping@latest openapi-file api-spec.json -o api-reference --overwrite
-```
+## 🧞 Commands
+
+All commands are run from the root of the project, from a terminal:
+
+| Command                   | Action                                           |
+| :------------------------ | :----------------------------------------------- |
+| `npm install`             | Installs dependencies                            |
+| `npm run dev`             | Starts local dev server at `localhost:4321`      |
+| `npm run build`           | Build your production site to `./dist/`          |
+| `npm run preview`         | Preview your build locally, before deploying     |
+| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `npm run astro -- --help` | Get help using the Astro CLI                     |
+
+## 👀 Want to learn more?
+
+Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).

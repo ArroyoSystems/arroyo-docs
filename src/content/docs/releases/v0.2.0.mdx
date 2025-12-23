@@ -1,0 +1,115 @@
+---
+slug: releases/v0.2.0
+title: v0.2.0
+description: "Release 0.2.0 of Arroyo"
+---
+slug: releases/v0.2.0
+
+This release marks our first versioned release of Arroyo since we open-sourced the engine in April.
+
+We're excited to welcome three new contributors to the project:
+
+- [@rtyler](https://github.com/rtyler) made their first contribution in
+  [#8](https://github.com/ArroyoSystems/arroyo/pull/8)
+- [@akennedy4155](https://github.com/akennedy4155) made their first contribution in
+  [#49](https://github.com/ArroyoSystems/arroyo/pull/49)
+- [@jbeisen](https://github.com/jbeisen) made their first contribution in
+  [#77](https://github.com/ArroyoSystems/arroyo/pull/77)
+
+With the 0.2.0 release, we are continuing to push forward on features, stability, and productionization. We've added
+native Kubernetes support and easy deployment via a [Helm chart](https://doc.arroyo.dev/deployment/kubernetes), expanded
+our SQL support with features like JSON functions and windowless joins, and made many more fixes and improvements
+detailed below.
+
+# Features
+
+## Native Kubernetes support
+
+As of release 0.2.0, Arroyo can natively target Kubernetes as a scheduler for running pipelines. We now also support
+easily running the Arroyo control plane on Kubernetes using our new [helm
+chart](https://artifacthub.io/packages/helm/arroyo/arroyo).
+
+See the [docs](https://doc.arroyo.dev/deployment/kubernetes) for all the details.
+
+- Add Kubernetes scheduler by [@mwylde](https://github.com/mwylde) in
+  [#79](https://github.com/ArroyoSystems/arroyo/pull/79)
+- K8s deployment and helm chart by [@mwylde](https://github.com/mwylde) in
+  [#91](https://github.com/ArroyoSystems/arroyo/pull/91)
+
+## Nomad deployments
+
+Arroyo has long had first-class support for Nomad as a scheduler, where we take advantage of the very low-latency and
+lightweight scheduling support. Now we also support Nomad as an easy deploy target for the control plane as well via a
+[nomad pack](https://github.com/ArroyoSystems/arroyo-nomad-pack).
+
+See the docs [for more details](https://doc.arroyo.dev/deployment/nomad).
+
+- Support for deploying Arroyo to a nomad cluster by [@mwylde](https://github.com/mwylde) in
+  [#50](https://github.com/ArroyoSystems/arroyo/pull/50)
+
+## SQL features
+
+With this release we are making big improvements in SQL completeness. Notably, we've made our JSON support much more
+flexible with the introduction of SQL JSON functions including `get_json_objects`, `get_first_json_object`, and
+`extract_json_string`.
+
+We've also added support for windowless joins.
+
+Here are some of the highlights:
+
+- Initial JSON functions and raw Kafka Source by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#86](https://github.com/ArroyoSystems/arroyo/pull/86)
+- Windowless Joins by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#61](https://github.com/ArroyoSystems/arroyo/pull/61)
+- String functions by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#17](https://github.com/ArroyoSystems/arroyo/pull/17)
+- Hashing Functions by [@akennedy4155](https://github.com/akennedy4155) in
+  [#49](https://github.com/ArroyoSystems/arroyo/pull/49)
+- Casting between numeric types and strings by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#5](https://github.com/ArroyoSystems/arroyo/pull/5)
+- Casting timestamps to text by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#32](https://github.com/ArroyoSystems/arroyo/pull/32)
+- String Concat Operator `||` in SQL by [@akennedy4155](https://github.com/akennedy4155) in
+  [#55](https://github.com/ArroyoSystems/arroyo/pull/55)
+- Add COALESCE, NULLIF, MAKE_ARRAY by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#89](https://github.com/ArroyoSystems/arroyo/pull/89)
+
+## Connectors, Web UI, and platform support
+
+Arroyo now supports SASL authentication for Kafka and FreeBSD
+
+- Add FreeBSD support by [@rtyler](https://github.com/rtyler) in [#8](https://github.com/ArroyoSystems/arroyo/pull/8),
+  [#19](https://github.com/ArroyoSystems/arroyo/pull/19)
+- SASL authentication support to kafka connections by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#20](https://github.com/ArroyoSystems/arroyo/pull/20)
+- Add support for changing pipeline parallelism in the Web UI by [@jbeisen](https://github.com/jbeisen) in
+  [#77](https://github.com/ArroyoSystems/arroyo/pull/77)
+
+# Fixes
+
+- Fix filter on partition_by parsing. by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#27](https://github.com/ArroyoSystems/arroyo/pull/27)
+- Make parquet state management more reliable by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#23](https://github.com/ArroyoSystems/arroyo/pull/23)
+- Fix the quoting of types in the sql package by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#64](https://github.com/ArroyoSystems/arroyo/pull/64)
+
+# Improvements
+
+- SQL macro testing by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#10](https://github.com/ArroyoSystems/arroyo/pull/10)
+- Add a SQL IR and factor out optimizations by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#80](https://github.com/ArroyoSystems/arroyo/pull/80)
+- Multi-arch builds for Docker by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#11](https://github.com/ArroyoSystems/arroyo/pull/11)
+- Prometheus and pushgateway in the docker image for working metrics by [@mwylde](https://github.com/mwylde) in
+  [#16](https://github.com/ArroyoSystems/arroyo/pull/16)
+- Bump datafusion to 23.0, arrow to 37.0 by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#92](https://github.com/ArroyoSystems/arroyo/pull/92)
+- Run compiler service locally, compile in debug mode if DEBUG is set by
+  [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in [#83](https://github.com/ArroyoSystems/arroyo/pull/83)
+- Replace shelling out to rustfmt with prettyplease by [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in
+  [#87](https://github.com/ArroyoSystems/arroyo/pull/87)
+
+**See the full changelog**:
+[https://github.com/ArroyoSystems/arroyo/commits/release-0.2.0](https://github.com/ArroyoSystems/arroyo/commits/release-0.2.0)

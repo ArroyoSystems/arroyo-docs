@@ -1,0 +1,9 @@
+# Redirects for backwards compatibility with old Mintlify URLs
+/sql/async_udfs /udfs/rust/async-udfs 301
+/deployment/ec2 /deployment/vm 301
+/sql/udfs /udfs/overview 301
+/sql/udafs /udfs/rust/udafs 301
+/sql/async-udfs /udfs/rust/async-udfs 301
+
+# Introduction page redirect
+/introduction / 301
