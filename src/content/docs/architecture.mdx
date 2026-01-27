@@ -15,12 +15,12 @@ This document will cover the subsystems that make up an Arroyo cluster.
 
 ## Web UI
 
-The Web UI is a web app that interacts with the system via the [REST API](/api-reference/overview).
+The Web UI is a web app that interacts with the system via the [REST API](/api).
 It allows users to configure the system, create pipelines, and monitor their statuses.
 
 ## Arroyo API
 
-The API server backs the Web UI and handles all configuration operations and pipeline management via the [REST API](/api-reference/overview).
+The API server backs the Web UI and handles all configuration operations and pipeline management via the [REST API](/api).
 
 API operations, like creating a pipeline or updating its state, operate solely by updating the configuration in
 the backing database. This is asynchronously applied to the actual state of the environment by the controller. The API
@@ -36,9 +36,9 @@ There is a single controller instance that runs in the system, and high-availabi
 source release. If the controller instance fails, the workers will eventually stop and wait for the controller to come
 back online.
 
-The controller manages a state machine for each job, which is documented [here](#state-machine) and is also responsible
+The controller manages a state machine for each job, which is documented [here](#job-state-machine) and is also responsible
 for initiating checkpoints on the workers. Communication between the controller and workers is done via the gRPC API
-defined in [rpc.proto](https://github.com/ArroyoSystems/arroyo/blob/master/arroyo-rpc/proto/rpc.proto).
+defined in [rpc.proto](https://github.com/ArroyoSystems/arroyo/blob/master/crates/arroyo-rpc/proto/rpc.proto).
 
 ## Schedulers
 
