@@ -1,0 +1,43 @@
+---
+title: Tutorials
+description: "Hands-on tutorials for building pipelines with Arroyo"
+sidebar:
+  label: Overview
+  order: 0
+---
+
+These tutorials walk through building real pipelines with Arroyo, from your first query to
+integrating with external systems and writing custom logic.
+
+If you're just getting started, work through them in order. Otherwise, jump to whichever one
+matches what you're trying to build.
+
+## [First pipeline](/tutorial/first-pipeline)
+
+Build a simple pipeline against a generated data source. This is the best place to start if
+you've never used Arroyo before—you'll learn how to create sources, run queries, and inspect
+results in the Web UI.
+
+## [Kafka](/tutorial/kafka)
+
+Connect Arroyo to a Kafka cluster, create sources from topics, and process real streaming
+data. Covers setting up a local broker, generating sample data, and defining Kafka-backed
+tables in SQL.
+
+## [Debezium](/tutorial/debezium)
+
+Use [Debezium](https://debezium.io/) to stream changes out of an operational database
+(Postgres or MySQL) and process them with Arroyo. A practical introduction to change data
+capture (CDC) as a source for streaming analytics.
+
+## [Mastodon trends](/tutorial/mastodon)
+
+Build a real-time trending-hashtags pipeline over the public Mastodon firehose. Demonstrates
+Server-Sent Event sources, JSON parsing, windowed aggregations, and `unnest` operations on
+a real-world data stream.
+
+## [Parsing with UDFs](/tutorial/udfs)
+
+Extend Arroyo with user-defined functions to parse custom data formats. A great follow-on
+once you're comfortable with basic pipelines and want to handle data that isn't JSON, Avro,
+or Parquet.

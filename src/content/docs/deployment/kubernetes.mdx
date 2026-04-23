@@ -55,7 +55,7 @@ The most important options are:
   instance to be available with the connection settings determined by `postgresql.externalDatabase` configurations
   (by default: postgres://arroyo:arroyo@localhost:5432/arroyo).
 - `artifactUrl` and `checkpointUrl`: Configures where pipeline artifacts and
-  checkpoints are stored. See the [overview](/deployment/overview#storage) for
+  checkpoints are stored. See the [overview](/deployment#storage) for
   more details on how these are configured. If this is set to a local directory
   (when running a local k8s cluster), you will need to configure `volumes` and
   `volumeMounts` to make this directory available on all of the pods.

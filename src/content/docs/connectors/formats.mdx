@@ -76,7 +76,7 @@ without additional context. However, this is fairly inefficient as the schema wi
 record.
 
 The `avro.into_unstructured_json` option, if set, will cause the Avro data to be deserialized and re-serialized
-to JSON, which can then be operated on using [SQL json functions](/sql/scalar-functions#json-functions) or [UDFs](/udfs/overview).
+to JSON, which can then be operated on using [SQL json functions](/sql/scalar-functions#json-functions) or [UDFs](/udfs).
 This can be useful if the Avro schema for the data may change, and offers flexibility in how the data is
 processed.
 
@@ -133,7 +133,7 @@ CREATE TABLE logs (
 
 Raw string data can be operated on using
 [SQL string functions](/sql/scalar-functions#string-functions) or
-[UDFs](/udfs/overview).
+[UDFs](/udfs).
 
 Raw string is supported for both deserialization (from sources) and serialization
 (to sinks). As a serialization format, it can be useful for generating data in formats
@@ -162,7 +162,7 @@ be seen in the [logfmt parsing tutorial](/tutorial/udfs).
 ## Raw bytes
 
 The raw bytes format allows users to ingest and emit arbitrary binary data. Together with a
-[UDFs](/udfs/overview), this allows you to implement binary formats that are internal or otherwise
+[UDFs](/udfs), this allows you to implement binary formats that are internal or otherwise
 not supported natively by Arroyo.
 
 Raw bytes tables have a single column named `value` with type `BYTEA`:

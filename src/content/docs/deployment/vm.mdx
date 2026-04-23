@@ -10,7 +10,7 @@ server, like EC2 instances. This requires a good understanding of the Arroyo
 architecture. For an easier approach to running a production-quality Arroyo
 cluster, see the docs for running on top of [Kubernetes](/deployment/kubernetes).
 
-Before starting this guide, follow the common setup steps in the [deployment overview](/deployment/overview) guide.
+Before starting this guide, follow the common setup steps in the [deployment overview](/deployment) guide.
 
 There are two options for running Arroyo on VMs; you may run the arroyo binary directly,
 or use Docker.
@@ -74,7 +74,7 @@ the dev team on [Discord](https://discord.gg/cjCr5rVmyR) or at
 
 In addition to the database configs described in the migration section, there are several
 other configuration options that you may wish to set via environment variables, including
-[CHECKPOINT_URL and ARTIFACT_URL](/deployment/overview#storage). Note that for a distributed
+[CHECKPOINT_URL and ARTIFACT_URL](/deployment#storage). Note that for a distributed
 cluster, those must be set to remote storage that is accessible by all nodes in the cluster.
 
 ### Arroyo services

@@ -78,7 +78,7 @@ export default defineConfig({
         {
           label: "Sources and Sinks",
           items: [
-            { label: "Overview", slug: "connectors/overview" },
+            { label: "Overview", slug: "connectors" },
             { label: "Formats", slug: "connectors/formats" },
             {
               label: "Connectors",
@@ -114,6 +114,7 @@ export default defineConfig({
         {
           label: "SQL Reference",
           items: [
+            { label: "Overview", slug: "sql" },
             { label: "SQL Data Types", slug: "sql/data-types" },
             { label: "SELECT Statements", slug: "sql/select-statements" },
             { label: "DDL Statements", slug: "sql/ddl" },
@@ -153,7 +154,7 @@ export default defineConfig({
         {
           label: "User-Defined Functions",
           items: [
-            { label: "UDF Overview", slug: "udfs/overview" },
+            { label: "UDF Overview", slug: "udfs" },
             {
               label: "Rust",
               collapsed: true,
@@ -173,7 +174,7 @@ export default defineConfig({
         {
           label: "Deployment",
           items: [
-            { label: "Overview", slug: "deployment/overview" },
+            { label: "Overview", slug: "deployment" },
             {
               label: "Pipeline Clusters",
               slug: "deployment/pipeline-clusters",

@@ -1,0 +1,45 @@
+---
+title: SQL Reference
+description: "Arroyo's streaming SQL dialect"
+sidebar:
+  label: Overview
+  order: 0
+---
+
+Arroyo pipelines are written in SQL. The dialect is based on
+[Apache DataFusion](https://arrow.apache.org/datafusion/) — a well-supported SQL engine
+built on [Apache Arrow](https://arrow.apache.org/) — and extended with streaming-specific
+constructs like windows, watermarks, and event-time joins.
+
+If you've used other SQL engines (Postgres, DuckDB, Spark SQL, Flink SQL), most of what you
+already know carries over. The sections below cover the pieces that are either Arroyo-specific
+or particularly important for streaming.
+
+## Core reference
+
+- **[SQL Data Types](/sql/data-types)** — the primitive and complex types supported by Arroyo,
+  and how they map to underlying Rust types.
+- **[SELECT Statements](/sql/select-statements)** — the basic query syntax, including projections,
+  filtering, `UNNEST`, and subqueries.
+- **[DDL Statements](/sql/ddl)** — `CREATE TABLE` for connection tables, `CREATE VIEW`, and the
+  `WITH` options used to configure connectors.
+
+## Streaming
+
+- **[Streaming Windows](/sql/windows)** — tumbling, sliding, and session windows for
+  time-bucketed aggregations.
+- **[Joins](/sql/joins)** — stream-stream joins (windowed and interval), lookup joins against
+  external systems, and the semantics of each.
+- **[Updating Tables](/sql/updating-tables)** — working with update streams (CDC-style data),
+  including Debezium-formatted inputs and outputs.
+
+## Functions
+
+- **[Scalar Functions](/sql/scalar-functions/math)** — math, string, JSON, time, array, struct,
+  regex, hashing, and more.
+- **[Aggregate Functions](/sql/aggregate-functions)** — `sum`, `count`, `avg`, `array_agg`, and
+  other functions usable in `GROUP BY` queries.
+- **[Window Functions](/sql/window-functions)** — OVER-clause analytical functions like
+  `row_number`, `rank`, and `lag`/`lead`.
+
+For user-defined functions in Rust or Python, see the [UDF docs](/udfs).
