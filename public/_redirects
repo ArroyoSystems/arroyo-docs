@@ -9,6 +9,7 @@
 /connectors/overview /connectors 301
 /deployment/overview /deployment 301
 /udfs/overview /udfs 301
+/api-reference/overview /api 301
 
 # Introduction page redirect
 /introduction / 301
