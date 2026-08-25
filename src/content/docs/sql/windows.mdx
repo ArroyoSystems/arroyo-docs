@@ -64,11 +64,10 @@ allowing for long sliding windows with small hops.
 ## Session Windows
 
 Session windows are non-fixed-width windows that are defined by a gap in
-activity. For example, a session window with gap size 30 minutes, defined on a
-stream of user clicks might be would aggregate over all clicks that occur within
-30 minutes of each other. Once there has been a 30 minute gap for a given user,
-the session window would close and a new one would be opened for the next
-click.
+activity. For example, when applied to a stream of user clicks, a session window
+with a 30 minute gap aggregates all clicks that occur within 30 minutes of one
+another. Once there is a 30 minute gap for a given user, the session window
+closes and a new one opens with the next click.
 
 In Arroyo the `SESSION()` function is used to create session windows.
 
