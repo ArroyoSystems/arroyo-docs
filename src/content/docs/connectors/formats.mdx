@@ -27,6 +27,7 @@ The following options are supported for both formats:
 | `json.unstructured`              | Set to true to treat the data as unstructured JSON, which will be parsed as a single column of type `TEXT`                                                                          | `false`   |
 | `json.timestamp_format`          | The format of timestamps in the data. May be one of `rfc3339` or `unix_millis`                                                                                                      | `rfc3339` |
 | `json.decimal_encoding`          | Controls how decimals are encoded into JSON. May be one of `number`, `string`, or `bytes`, which encodes as a two's-complement, big-endian unscaled integer binary array, as base64 | `number` |
+| `json.compression`               | Compression for JSON files written by the [filesystem sink](/connectors/filesystem#json-options): `uncompressed` or `gzip`. Not supported by other connectors                      | `uncompressed` |
 
 
 Json data can be either structured or unstructured. Structured data is parsed

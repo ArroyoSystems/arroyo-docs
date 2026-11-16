@@ -1,3 +1,13 @@
+### Sink version
+
+Arroyo 0.16 introduced a new implementation of the sink, `v2`, which is now the default. The original
+implementation, `v1`, is still available and can be selected with the `sink.version` option.
+
+| Field | Description | Default |
+| ----- | ----------- | -------- |
+| `sink.version` | Which sink implementation to use: `v1` or `v2` | `'v2'` |
+
+
 ### File rollover configs
 
 These configs control when files are rolled over, creating new files. Rolling over
@@ -6,9 +16,10 @@ can slow down queries.
 
 | Field | Description | Default | Example |
 | ----- | ----------- | -------- | ------- |
-| `rolling_policy.file_size` | Target size in a file before it is rolled | None | `'128MB'` |
+| `rolling_policy.file_size` | Target size in a file before it is rolled; at most 5TB | None | `'128MB'` |
 | `rolling_policy.interval` | Amount of time a file after creation that a file will be rolled, expressed as a SQL interval | None | `interval '30 minutes'` |
-| `rolling_policy.inactivity_interval` | Number of seconds a file will be open without any new data before it will be rolled | None | `interval '1 hour'` |
+| `rolling_policy.inactivity_interval` | Amount of time a file will be open without any new data before it will be rolled, expressed as a SQL interval | None | `interval '1 hour'` |
+| `rolling_policy.watermark_expiration` | Roll time-partitioned files once the event-time watermark moves past their partition's time bucket. Only applies when `partitioning.time_pattern` is set, so it has no effect on the Iceberg sink | `false` | `true` |
 
 
 #### File Naming Options
@@ -19,7 +30,7 @@ which ensures that they sort in time-order. This behavior can be configured via 
 | Field | Description | Default |
 | ----- | ----------- | -------- |
 | `filename.prefix` | Prefix that will be appended to the beginning of the file name, followed by a `-` | None |
-| `filename.suffix` | Suffix (extension) that will be appended to the end of the file name, preceded by a `.` | `'json'` or  `'parquet'` |
+| `filename.suffix` | Suffix (extension) that will be appended to the end of the file name, preceded by a `.` | `'parquet'`, `'json'`, or `'json.gz'` (for gzip-compressed JSON) |
 | `filename.strategy` | Filenaming strategy to use. Supported values: `serial`, `uuid`, `ulid`, `uuid_v7` | `'uuid_v7'` |
 
 ### Parquet Options
@@ -27,13 +38,21 @@ which ensures that they sort in time-order. This behavior can be configured via 
 | Field | Description | Default |
 | ----- | ----------- | -------- | 
 | `parquet.compression` | The compression codec to use for Parquet files. Supported values: `none`, `snappy`, `gzip`, `zstd`, `lz4`, `lz4_raw`. | `'zstd'` |
-| `parquet.row_group_size` | Target size for each Parquet row group | `'128MB'` |
+| `parquet.row_group_size` | Target size for each Parquet row group; at most 1GB | `'128MB'` |
 
 ### Multipart upload settings
 
-Thes options allow configuring the behavior of how writes against object storage are split into parts:
+These options allow configuring the behavior of how writes against object storage are split into parts:
 
 | Field | Description | Default |
 | ----- | ----------- | -------- |
-| `multipart.target_part_size` | The target size of each multipart upload. Must be at least 5MB. | `'32MB'` |
+| `multipart.target_part_size` | The target size of each multipart upload. Must be between 5MB and 5GB. | `'32MB'` |
 | `multipart.max_parts` | Maximum number of multipart uploads before a multipart will be completed | `1000` |
+| `multipart.minimum_multipart_size` | (v2 only) Files that are closed before reaching this size are uploaded with a single request instead of a multipart upload. Must be at most 5GB. The default of `0` uses a multipart upload for every file | `0` |
+
+### JSON Options
+
+| Field | Description | Default |
+| ----- | ----------- | -------- |
+| `json.compression` | Compression for JSON files written by the sink: `uncompressed` or `gzip`. Gzip-compressed files use the `json.gz` suffix by default. Only supported by the filesystem connector | `'uncompressed'` |
+
