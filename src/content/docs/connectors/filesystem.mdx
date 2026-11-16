@@ -3,6 +3,7 @@ title: File System
 description: "Write Parquet and JSON to S3 and local filesystems"
 ---
 
+import { Aside } from '@astrojs/starlight/components';
 import CommonFilesystemConfig from '../../../components/snippets/CommonFilesystemConfig.mdx';
 import ShuffleByPartition from '../../../components/snippets/ShuffleByPartition.mdx';
 
@@ -82,11 +83,24 @@ Azure authentication is configured via standard Azure environment variables. Ref
 for details on authentication options.
 
 ### Format
-Both sources and sinks require a format, and support `parquet` and `json`.
+Both sources and sinks require a format, and support `parquet` and `json`. JSON files written by the sink can be
+gzip-compressed (see [JSON options](#json-options)), and the source can read compressed JSON files (see
+[source configuration](#source-specific-configuration)).
 
 ## Sink Specific Configuration
 
 <CommonFilesystemConfig />
+
+For local filesystem paths, the sink always uses a separate local writer, so `sink.version` and the multipart
+upload settings have no effect.
+
+### JSON Options
+
+| Field | Description | Default |
+| ----- | ----------- | -------- |
+| `json.compression` | Compression for JSON files written by the sink: `uncompressed` or `gzip`. Gzip-compressed files use the `json.gz` suffix by default. Only supported by the filesystem connector | `'uncompressed'` |
+
+The other JSON format options are described in the [formats docs](/connectors/formats#json).
 
 ### Partitioning Options
 
@@ -100,6 +114,16 @@ You can set the `partitioning.time_pattern` key in the sink to define the patter
 
 Example:
 `partitioning.time_pattern = '%Y/%m/%d/%H'`
+
+By default, time-partitioned files are rolled according to the [file rollover configs](#file-rollover-configs)
+like any other file. To also close a file as soon as the event-time watermark moves past its time bucket (for example,
+closing the files for `2026/01/15/09` once the watermark passes 10:00), set `rolling_policy.watermark_expiration = true`.
+This lets readers see each partition's files sooner after its time window ends.
+
+<Aside type="caution" title="Changed in 0.16">
+Before Arroyo 0.16, time-partitioned files were always rolled when the watermark passed their time bucket. To keep
+that behavior after upgrading, set `rolling_policy.watermark_expiration = true`.
+</Aside>
 
 #### Field-based Partitioning
 Field-based formatting produces a string mirroring the Hive-style partition directories,
@@ -117,8 +141,8 @@ Example:
 When using the file system source, the following options are available
 | Field | Description | Default | Example |
 | ----- | ----------- | -------- | ------- |
-| compression_format | The compression format of the files to read. Supported values: `none`, `zstd`, `gzip`. Only used for JSON input | `none` | `gzip` |
-| source.regex-pattern | A regex pattern to match files to read. If specified all files within the path will be evaluated against pattern. If not specified only files directly under the path will be read.  | None | `.*\.json` |
+| `source.compression` | The compression format of the files to read. Supported values: `none`, `zstd`, `gzip`. Only used for JSON input | `none` | `gzip` |
+| `source.regex_pattern` | A regex pattern to match files to read. If specified all files within the path will be evaluated against pattern. If not specified only files directly under the path will be read.  | None | `.*\.json` |
 
 
 ## File System Sink DDL
@@ -137,10 +161,10 @@ CREATE TABLE bids (
   type = 'sink',
   path = 'https://s3.us-west-2.amazonaws.com/demo/s3-uri',
   format = 'parquet',
-  parquet_compression = 'zstd',
-  rollover_seconds = 60,
-  time_partition_pattern = '%Y/%m/%d/%H',
-  partition_fields = 'region,account_id'
+  'parquet.compression' = 'zstd',
+  'rolling_policy.interval' = interval '60 seconds',
+  'partitioning.time_pattern' = '%Y/%m/%d/%H',
+  'partitioning.fields' = 'region,account_id'
 );
 ```
 
@@ -160,6 +184,6 @@ CREATE TABLE bids (
   type = 'source',
   path = 'https://s3.us-west-2.amazonaws.com/demo/s3-uri',
   format = 'parquet',
-  'source.regex-pattern' = '.*\.parquet$'
+  'source.regex_pattern' = '.*\.parquet$'
 );
 ```
