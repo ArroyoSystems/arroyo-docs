@@ -70,6 +70,7 @@ Top-level options:
 | `api-endpoint`              | Endpoint of the API, used by other services to connect to it |   _inferred_    |
 | `controller-endpoint`       | Endpoint of the controller, used by other services to connect to it | _inferred_ |
 | `compiler-endpoint`       | Endpoint of the compiler, used by other services to connect to it | _inferred_ |
+| `job-controller`            | Where each pipeline's job controller runs: `controller` runs it inside the Arroyo controller, while `worker` runs it on one of the pipeline's workers (the leader). See [Job controller modes](/architecture#job-controller-modes) | `controller` |
 | `disable-telemetry`         | Disable open-source telemetry                                       |   false   |
 
 ### Pipeline
@@ -82,15 +83,19 @@ Key: `pipeline`
 |---------------------------------|------------------------------------------------|-----------------|
 | `source-batch-size`             | Max size of source batches                         | `512`           |
 | `source-batch-linger`           | Batch linger time (how long to wait before flushing)                 | `100ms`         |
+| `source-batch-max-bytes`        | Flush a source batch once it has buffered this many bytes, measured as the raw size of the input data. Specified as an integer number of bytes; unset disables size-based flushing | _none_ |
 | `update-aggregate-flush-interval`| How often to flush aggregates           | `1s`            |
-| `allowed-restarts`              | How many restarts to allow before moving to failed (-1 for infinite)       `20`            |
+| `allowed-restarts`              | How many restarts to allow before moving to failed (-1 for infinite)       | `20`            |
 | `worker-heartbeat-timeout`      | Number of seconds to wait for a worker heartbeat before considering it dead                   | `30s`           |
 | `healthy-duration`              | After this amount of time, we consider the job to be healthy and reset the restarts counter                     | `2m`            |
 | `worker-startup-time`           | Amount of time to wait for workers to start up before considering them failed                       | `10m`           |
 | `task-startup-time`             | Amount of time to wait for tasks to startup before considering it failed                         | `2m`            |
-| `compaction.enabled`            | Whether to enable compaction for checkpoints                  | `false`         |
+| `state-initial-backoff`         | Initial delay before the controller retries a pipeline after a retryable error; the delay doubles (with jitter) on each subsequent attempt | `500ms` |
+| `state-max-backoff`             | Maximum delay between controller retries after retryable errors | `1m` |
+| `compaction.enabled`            | Whether to enable compaction for checkpoints; not supported in [worker mode](/architecture#worker-mode)                  | `false`         |
 | `compaction.checkpoints-to-compact`        | The number of outstanding checkpoints that will trigger compaction               | `4`             |
-| `chaining.enabled` | Whether to enable operator chaining, which reduces the number of operators in the pipeline | `false` |
+| `checkpoint.timeout` | [Worker mode](/architecture#worker-mode) only: maximum time to wait for the final checkpoint when stopping a pipeline with a checkpoint or rescaling it. If the checkpoint doesn't finish in time, the job fails and goes through normal recovery | _none_ |
+| `chaining.enabled` | Whether to enable operator chaining, which reduces the number of operators in the pipeline | `true` |
 | `store-deserialization-errors` | Whether to persist deserialization errors to the database | `true` |
 
 
@@ -121,6 +126,17 @@ Key: `tls`
 | `mtls-ca-file`  | Path to the CA certificate for mutual TLS (mTLS) authentication | No |
 
 
+### gRPC
+
+Configuration for the gRPC connections that Arroyo services use to communicate with each other.
+
+Key: `grpc`
+
+| Name               | Description                       | Default Value |
+|--------------------|-----------------------------------|---------------|
+| `max-message-size` | Maximum size of a gRPC message that a process will accept, specified as a data size like `32mb` or `512kb` (units are powers of 1024); must be less than `4gb`. Each process enforces this limit on the messages it receives; very large pipelines may need a higher limit | `32mb` |
+
+
 ### API
 
 Configuration for the API service
@@ -135,14 +151,14 @@ Key: `api`
 
 #### Authentication
 
-The API service supports multiple authentication modes, configured via the `auth_mode` option:
+The API service supports multiple authentication modes, configured via the `auth-mode` option:
 
 **None (default)**
 No authentication required.
 
 ```toml
 [api]
-auth_mode = { type = "none" }
+auth-mode = { type = "none" }
 ```
 
 **Static API Key**
@@ -150,7 +166,7 @@ Require a bearer token for all API requests.
 
 ```toml
 [api]
-auth_mode = { type = "static-api-key", api-key = "your-secret-key" }
+auth-mode = { type = "static-api-key", api-key = "your-secret-key" }
 ```
 
 Clients must include the API key in the `Authorization` header:
@@ -170,10 +186,32 @@ key-file = "/path/to/server-key.pem"
 mtls-ca-file = "/path/to/ca-cert.pem"
 
 [api]
-auth_mode = { type = "mtls", ca-cert-file = "/path/to/ca-cert.pem" }
+auth-mode = { type = "mtls", ca-cert-file = "/path/to/ca-cert.pem" }
 ```
 
 With mTLS, clients must present a valid certificate signed by the specified CA.
+
+#### CORS
+
+By default, the API allows cross-origin requests from any origin. To restrict which
+origins can call the API from a browser, switch to an allow-list:
+
+```toml
+[api.cors]
+origin-policy = "allow-list"
+allowed-origins = ["https://arroyo.example.com"]
+allow-credentials = true
+```
+
+Key: `api.cors`
+
+| Name                | Description                                    | Default Value |
+|---------------------|------------------------------------------------|---------------|
+| `origin-policy`     | Either `any`, which allows requests from all origins, or `allow-list`, which only allows the origins in `allowed-origins` | `any` |
+| `allowed-origins`   | Origins allowed when `origin-policy` is `allow-list`. Each entry must be a bare origin (scheme, host, and optional port, such as `https://example.com:8443`) with no path or trailing slash; the wildcard `*` is not allowed. Must be empty when `origin-policy` is `any` | `[]` |
+| `allow-credentials` | Whether browsers may send credentials (cookies or `Authorization` headers) with cross-origin requests. Can only be enabled with the `allow-list` policy | `false` |
+
+The API service will fail to start if the CORS configuration is invalid.
 
 ### Controller
 
@@ -185,7 +223,10 @@ Key: `controller`
 |-----------------|------------------------------------------|---------------|
 | `bind-address`  | The host the controller should bind to   | `0.0.0.0`     |
 | `rpc-port`      | The RPC port for the controller      | `5116`        |
-| `scheduler`     | The scheduler to use; one of `process`, `kubernetes`, `node`, or `embedded`    | `process`     |
+| `scheduler`     | The scheduler to use; one of `process`, `kubernetes`, `node`, `embedded`, or `manual`    | `process`     |
+| `metrics.enabled` | Whether to collect operator metrics for running pipelines, which power the metrics graphs in the Web UI and the operator metrics API | `true` |
+| `leader-poll-interval` | [Worker mode](/architecture#worker-mode) only: how often the controller polls each pipeline's leader for its status | `500ms` |
+| `connect-timeout` | [Worker mode](/architecture#worker-mode) only: timeout for the controller to establish a connection to a pipeline's leader | _none_ |
 
 
 ### Compiler
@@ -214,10 +255,13 @@ Key: `admin`
 |-----------------|--------------------------------------|---------------|
 | `bind-address`  | Address to bind the Admin service    | `0.0.0.0`     |
 | `http-port`     | Port for the Admin HTTP service      | `5114`        |
+| `allow-unauthenticated-metrics` | Serve the Prometheus `/metrics` endpoint without requiring an API key, even when `static-api-key` authentication is enabled; other admin endpoints still require the key | `false` |
 
 #### Authentication
 
 Like the API service, the Admin service supports authentication modes. See the [API Authentication](#authentication) section for details.
+
+The `/status` endpoint never requires an API key, so it can be used for liveness and readiness probes.
 
 
 ### Node
@@ -246,6 +290,7 @@ Key: `worker`
 | `data-port`     | Data port for the worker to listen on; set to 0 to use a random available port         | `0`           |
 | `task-slots`    | Number of task slots for the Worker      | `16`          |
 | `queue-size`    | Size of the queues between nodes in the dataflow graph                 | `8192`        |
+| `checkpoint-details-to-keep` | [Worker mode](/architecture#worker-mode) only: number of recent checkpoints whose details the leader keeps for the Web UI and checkpoints API | `10` |
 
 
 ### Schedulers
@@ -259,6 +304,19 @@ Key: `process-scheduler`
 | Name                | Description                                | Default Value |
 |---------------------|--------------------------------------------|---------------|
 | `slots-per-process` | Number of slots per process in the scheduler | `16`          |
+| `shutdown-with-controller` | Whether worker processes are killed when the controller shuts down. Disabling this can leave orphaned worker processes, and is mostly useful for testing controller recovery | `true` |
+
+#### Manual Scheduler
+
+The manual scheduler does not start workers itself. Instead, when a pipeline is scheduled
+it prints the commands needed to start each worker, which you then run yourself. This is mostly
+useful for testing and debugging scheduling behavior.
+
+Key: `manual-scheduler`
+
+| Name                | Description                                | Default Value |
+|---------------------|--------------------------------------------|---------------|
+| `slots-per-process` | Number of task slots assigned to each worker; the scheduler prints a command for enough workers to cover all of the pipeline's slots | `16`          |
 
 #### Kubernetes Scheduler
 
@@ -311,6 +369,35 @@ Key: `database`
 | `postgres.port`           | Port of the Postgres database              | `5432`                    |
 | `postgres.user`           | User for the Postgres database             | `arroyo`                  |
 | `postgres.password`       | Password for the Postgres database         | `arroyo`                  |
+| `postgres.schema`         | Postgres schema that Arroyo's tables live in. The schema must already exist, and may only contain ASCII letters, numbers, and underscores. Useful for sharing a Postgres database with other services | `public` |
+| `postgres.tls.mode`       | TLS mode for connections to Postgres; one of `no-tls`, `skip-verification`, `system-roots`, or `ca-cert` (see below) | `no-tls` |
+| `postgres.tls.path`       | Path to a PEM-encoded CA certificate; required when `postgres.tls.mode` is `ca-cert` | _none_ |
+
+#### Postgres TLS
+
+By default, Arroyo connects to Postgres without TLS. The `postgres.tls.mode` option supports the following modes:
+
+* `no-tls`: Connect over plaintext
+* `skip-verification`: Encrypt the connection, but do not verify the server's certificate
+* `system-roots`: Encrypt the connection and verify the server's certificate against the system trust store;
+  suitable for managed Postgres providers with publicly-signed certificates
+* `ca-cert`: Encrypt the connection and verify the server's certificate against the system trust store
+  plus the CA certificate at `postgres.tls.path`
+
+For example:
+
+```toml
+[database.postgres]
+host = "my-db.example.com"
+tls = { mode = "ca-cert", path = "/etc/arroyo/postgres-ca.pem" }
+```
+
+or via environment variables:
+
+```
+ARROYO__DATABASE__POSTGRES__TLS__MODE=ca-cert
+ARROYO__DATABASE__POSTGRES__TLS__PATH=/etc/arroyo/postgres-ca.pem
+```
 
 ### Logging
 
@@ -323,3 +410,14 @@ Key: `logging`
 | `buffered-lines-limit` | Number of lines to buffer before dropping logs or exerting backpressure on senders; only valid when `nonblocking` is set to true | `4096` |
 | `enable-file-line` | Whether to record the source file line in the log | `false` |
 | `enable-file-name` | Whether to record the source file name in the log | `false` |
+| `static-fields` | Map of additional fields to include in every log line; only applies to the `json` format | _none_ |
+
+In the `json` format, every log line also includes an `arroyo_service` field with the name of the
+service that emitted it and, for pipeline workers, a `pipeline_id` field. Additional fields can be
+added with `static-fields`:
+
+```toml
+[logging]
+format = "json"
+static-fields = { cluster = "prod-us-east-1", team = "data-platform" }
+```
