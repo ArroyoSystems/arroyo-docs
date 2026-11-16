@@ -45,28 +45,34 @@ while on Ubuntu something like `/etc/postgresql/14/main/postgresql.conf`.
 
 Then restart Postgres to apply the changes:
 
-<Tabs>
-```shell Ubuntu
+<Tabs syncKey="os">
+<TabItem label="Ubuntu">
+```shell
 $ sudo systemctl restart postgresql
 ```
-
-```shell Mac OS
+</TabItem>
+<TabItem label="Mac OS">
+```shell
 $ brew services restart postgresql
 ```
+</TabItem>
 </Tabs>
 
 Next, for the `checkpoints` table, we need to enable the `REPLICA IDENTITY` to `FULL`:
 
-<Tabs>
-```sql Ubuntu
+<Tabs syncKey="os">
+<TabItem label="Ubuntu">
+```shell
 $ sudo -u postgres psql -d arroyo \
   -c "ALTER TABLE checkpoints REPLICA IDENTITY FULL;"
 ```
-
-```sql Mac OS
+</TabItem>
+<TabItem label="Mac OS">
+```shell
 $ psql -d arroyo \
   -c "ALTER TABLE checkpoints REPLICA IDENTITY FULL;"
 ```
+</TabItem>
 </Tabs>
 
 
@@ -78,7 +84,7 @@ but in production it's recommended to create a separate user for Debezium.
 Debezium requires Zookeeper, Kafka and some way to run [Kafka Connect](https://kafka.apache.org/documentation.html#connect).
 There are many ways to do this, but for simplicity we recommend a single docker-compose file:
 
-```yaml docker-compose.yml
+```yaml title="docker-compose.yml"
 version: '2'
 services:
   zookeeper:
@@ -127,7 +133,7 @@ Confirm that the three docker images are running via `docker ps` and tailing the
 We can use `curl` to create a debezium connection using the [Debezium REST API](https://debezium.io/documentation/reference/stable/api.html).
 First, create a file connector-config.json with contents
 
-```json connector-config.json
+```json title="connector-config.json"
 {
     "name": "arroyo-connector",
     "config": {

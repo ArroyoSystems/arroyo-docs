@@ -41,7 +41,7 @@ directly supported by Arroyo will be rendered as a single column of type `TEXT`
 with JSON-serialized data in it.
 
 Unstructured data is treated as a single column named `value` with type `TEXT`, which can be operated on using
-[SQL json functions](/sql/scalar-functions#json-functions) or UDFs.
+[SQL json functions](/sql/scalar-functions/json/) or UDFs.
 
 ## Avro
 
@@ -77,7 +77,7 @@ without additional context. However, this is fairly inefficient as the schema wi
 record.
 
 The `avro.into_unstructured_json` option, if set, will cause the Avro data to be deserialized and re-serialized
-to JSON, which can then be operated on using [SQL json functions](/sql/scalar-functions#json-functions) or [UDFs](/udfs).
+to JSON, which can then be operated on using [SQL json functions](/sql/scalar-functions/json/) or [UDFs](/udfs).
 This can be useful if the Avro schema for the data may change, and offers flexibility in how the data is
 processed.
 
@@ -111,7 +111,7 @@ of well-known Protobuf types. You must also provide the fully-qualified name of 
 that will be used as the table schema.
 
 To support multiple files and imports, you may use
-[the create connection table API](/api-reference/connection_tables/create-a-new-connection-table)
+[the create connection table API](/api/#tag/connection-tables/POST/v1/connection_tables)
 to create a Protobuf source.
 
 For Kafka sources, Arroyo can automatically fetch the schema from the Confluent Schema Registry
@@ -133,7 +133,7 @@ CREATE TABLE logs (
 ```
 
 Raw string data can be operated on using
-[SQL string functions](/sql/scalar-functions#string-functions) or
+[SQL string functions](/sql/scalar-functions/string/) or
 [UDFs](/udfs).
 
 Raw string is supported for both deserialization (from sources) and serialization
