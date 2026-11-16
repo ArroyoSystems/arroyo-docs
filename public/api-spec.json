@@ -400,7 +400,7 @@
           "pipelines"
         ],
         "summary": "Create a new pipeline",
-        "description": "The API will create a single job for the pipeline.",
+        "description": "The API will create a single job for the pipeline. The server generates\na fresh id for the pipeline; if the caller wants to supply its own\nstable id, use `PUT /pipelines/{id}` instead.",
         "operationId": "create_pipeline",
         "requestBody": {
           "content": {
@@ -533,6 +533,57 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Pipeline"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "pipelines"
+        ],
+        "summary": "Create a new pipeline at a caller-supplied id",
+        "description": "The API will create a single job for the pipeline, using the\nsupplied `id`. Useful when an upstream system wants to address\nthe pipeline by an id it already manages.\n\nThe endpoint is currently create-only: PUTing twice with the same id\nreturns a 400 (duplicate-violation) rather than upserting.",
+        "operationId": "put_pipeline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Caller-supplied pipeline id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PipelinePost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created pipeline and job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pipeline"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResp"
                 }
               }
             }
@@ -1118,6 +1169,7 @@
         "required": [
           "epoch",
           "backend",
+          "checkpoint_type",
           "start_time",
           "events"
         ],
@@ -1125,9 +1177,12 @@
           "backend": {
             "type": "string"
           },
+          "checkpoint_type": {
+            "$ref": "#/components/schemas/CheckpointType"
+          },
           "epoch": {
             "type": "integer",
-            "format": "int32",
+            "format": "int64",
             "minimum": 0
           },
           "events": {
@@ -1189,6 +1244,13 @@
             "minimum": 0
           }
         }
+      },
+      "CheckpointType": {
+        "type": "string",
+        "enum": [
+          "scheduled",
+          "stopping"
+        ]
       },
       "ConnectionAutocompleteResp": {
         "type": "object",
@@ -2024,6 +2086,9 @@
           {
             "type": "object",
             "properties": {
+              "compression": {
+                "$ref": "#/components/schemas/JsonCompression"
+              },
               "confluent_schema_registry": {
                 "type": "boolean"
               },
@@ -2233,6 +2298,9 @@
       "Format_Json": {
         "type": "object",
         "properties": {
+          "compression": {
+            "$ref": "#/components/schemas/JsonCompression"
+          },
           "confluent_schema_registry": {
             "type": "boolean"
           },
@@ -2473,16 +2541,22 @@
         "type": "object",
         "required": [
           "id",
+          "pipeline_id",
           "running_desired",
           "state",
           "run_id",
-          "created_at"
+          "created_at",
+          "scheduler_config",
+          "env_vars"
         ],
         "properties": {
           "created_at": {
             "type": "integer",
             "format": "int64",
             "minimum": 0
+          },
+          "env_vars": {
+            "description": "Per-job environment variables forwarded to workers."
           },
           "failure_reason": {
             "$ref": "#/components/schemas/FailureReason",
@@ -2497,6 +2571,10 @@
           "id": {
             "type": "string"
           },
+          "pipeline_id": {
+            "type": "string",
+            "description": "The `pub_id` of the pipeline this job belongs to."
+          },
           "run_id": {
             "type": "integer",
             "format": "int64",
@@ -2504,6 +2582,9 @@
           },
           "running_desired": {
             "type": "boolean"
+          },
+          "scheduler_config": {
+            "description": "Per-job scheduler configuration overlay (see `PipelinePost`).\nAn empty object means \"no overrides, use the controller's\nglobal scheduler config unchanged\"."
           },
           "start_time": {
             "type": "integer",
@@ -2605,9 +2686,19 @@
           }
         }
       },
+      "JsonCompression": {
+        "type": "string",
+        "enum": [
+          "uncompressed",
+          "gzip"
+        ]
+      },
       "JsonFormat": {
         "type": "object",
         "properties": {
+          "compression": {
+            "$ref": "#/components/schemas/JsonCompression"
+          },
           "confluent_schema_registry": {
             "type": "boolean"
           },
@@ -2900,7 +2991,8 @@
           "action_text",
           "action_in_progress",
           "graph",
-          "preview"
+          "preview",
+          "tags"
         ],
         "properties": {
           "action": {
@@ -2938,8 +3030,20 @@
           "query": {
             "type": "string"
           },
+          "state_url": {
+            "type": "string",
+            "description": "Optional URL pointing to the state the pipeline was started from.",
+            "nullable": true
+          },
           "stop": {
             "$ref": "#/components/schemas/StopType"
+          },
+          "tags": {
+            "type": "object",
+            "description": "User-defined key/value tags associated with the pipeline.",
+            "additionalProperties": {
+              "type": "string"
+            }
           },
           "udfs": {
             "type": "array",
@@ -3055,11 +3159,23 @@
             "nullable": true,
             "minimum": 0
           },
+          "env_vars": {
+            "type": "object",
+            "description": "Per-job environment variables forwarded to workers.",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "parallelism": {
             "type": "integer",
             "format": "int64",
             "nullable": true,
             "minimum": 0
+          },
+          "scheduler_config": {
+            "description": "Per-job scheduler configuration overlay. The shape mirrors the\ncontroller's global scheduler config (e.g. the\n`kubernetes-scheduler.*` block) and is merged on top of it at\nscheduling time. An omitted field, `null`, or an empty object\nall mean \"use the controller's global scheduler config\nunchanged\".",
+            "nullable": true
           },
           "stop": {
             "$ref": "#/components/schemas/StopType",
@@ -3081,6 +3197,14 @@
             "nullable": true,
             "minimum": 0
           },
+          "env_vars": {
+            "type": "object",
+            "description": "Per-job environment variables forwarded to workers.",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
@@ -3091,6 +3215,21 @@
           },
           "query": {
             "type": "string"
+          },
+          "scheduler_config": {
+            "description": "Per-job scheduler configuration overlay. The shape mirrors the\ncontroller's global scheduler config (e.g. the\n`kubernetes-scheduler.*` block) and is merged on top of it at\nscheduling time. An omitted field, `null`, or an empty object\nall mean \"use the controller's global scheduler config\nunchanged\".",
+            "nullable": true
+          },
+          "state_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
           },
           "udfs": {
             "type": "array",
@@ -3105,6 +3244,10 @@
         "type": "object",
         "properties": {
           "force": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "ignore_state": {
             "type": "boolean",
             "nullable": true
           }
@@ -3163,7 +3306,7 @@
           "errors": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/SqlDiagnostic"
             }
           },
           "graph": {
@@ -3345,6 +3488,55 @@
             }
           }
         ]
+      },
+      "SqlDiagnostic": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "span": {
+            "$ref": "#/components/schemas/SqlSpan",
+            "nullable": true
+          }
+        }
+      },
+      "SqlLocation": {
+        "type": "object",
+        "required": [
+          "line",
+          "column"
+        ],
+        "properties": {
+          "column": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "line": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "SqlSpan": {
+        "type": "object",
+        "required": [
+          "start",
+          "end"
+        ],
+        "properties": {
+          "end": {
+            "$ref": "#/components/schemas/SqlLocation"
+          },
+          "start": {
+            "$ref": "#/components/schemas/SqlLocation"
+          }
+        }
       },
       "StopType": {
         "type": "string",

@@ -191,6 +191,7 @@ export default defineConfig({
           label: "Releases",
           collapsed: true,
           items: [
+            { label: "v0.16.0", slug: "releases/v0.16.0" },
             { label: "v0.15.0", slug: "releases/v0.15.0" },
             { label: "v0.14.0", slug: "releases/v0.14.0" },
             { label: "v0.13.0", slug: "releases/v0.13.0" },
