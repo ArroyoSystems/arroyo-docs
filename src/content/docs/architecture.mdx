@@ -3,6 +3,8 @@ title: Architecture
 description: "Overview of the Arroyo architecture"
 ---
 
+import { Aside } from '@astrojs/starlight/components';
+
 The Arroyo system architecture is composed of several services, as can be seen in the following diagram:
 
 ![Arroyo Architecture](/images/arroyo_arch.png)
@@ -33,12 +35,13 @@ with the actual state of the system, as determined by monitoring the environment
 controller, (see [here](https://kubernetes.io/docs/concepts/architecture/controller/) for an overview of this pattern).
 
 There is a single controller instance that runs in the system, and high-availability is not yet supported in the open
-source release. If the controller instance fails, the workers will eventually stop and wait for the controller to come
-back online.
+source release. In the default [controller mode](#controller-mode), if the controller instance fails, the workers will
+eventually stop and wait for the controller to come back online. In [worker mode](#worker-mode) (beta), running
+pipelines can continue without the controller.
 
-The controller manages a state machine for each job, which is documented [here](#job-state-machine) and is also responsible
-for initiating checkpoints on the workers. Communication between the controller and workers is done via the gRPC API
-defined in [rpc.proto](https://github.com/ArroyoSystems/arroyo/blob/master/crates/arroyo-rpc/proto/rpc.proto).
+The controller manages a state machine for each job, which is documented [here](#job-state-machine). In controller mode,
+it is also responsible for initiating checkpoints on the workers. Communication between the controller and workers is
+done via the gRPC API defined in [rpc.proto](https://github.com/ArroyoSystems/arroyo/blob/master/crates/arroyo-rpc/proto/rpc.proto).
 
 ## Schedulers
 
@@ -73,8 +76,67 @@ via TCP connections over which dataflow occurs. Each worker is configured with a
 many subtasks it may run. By default, each slot runs a parallel slice of the entire DAG, which generally does a good
 job of balancing the load across workers.
 
-The controller is responsible for scheduling the necessary number of workers to run a pipeline, initiating checkpoints,
-monitoring their health, and recovering from failures.
+The controller is responsible for scheduling the necessary number of workers to run a pipeline, monitoring their health,
+and recovering from failures. Checkpoints are coordinated by the pipeline's job controller, which runs either in the
+controller or on one of the pipeline's workers; see [Job controller modes](#job-controller-modes).
+
+## Job controller modes
+
+Each running pipeline has a _job controller_ that coordinates its workers. The job controller triggers checkpoints and
+tracks their progress, runs the commit phase for transactional sinks, and detects worker and task failures. The
+`job-controller` [config option](/configuration) controls where job controllers run.
+
+### Controller mode
+
+In controller mode (`job-controller = "controller"`, the default), the job controllers for all pipelines run inside the
+Arroyo controller. Workers send heartbeats and checkpoint progress to the controller, and checkpoint metadata is stored
+in the config database.
+
+Because the controller coordinates every checkpoint, pipelines depend on it to make progress. If the controller fails,
+workers will eventually stop, and when it comes back, running pipelines are rescheduled and restored from their latest
+checkpoints.
+
+### Worker mode
+
+<Aside type="caution" title="Beta">
+Worker mode is in beta. It has the known limitations listed below, and its behavior and configuration may change in
+future releases.
+</Aside>
+
+In worker mode (`job-controller = "worker"`), each pipeline's job controller runs on one of that pipeline's own workers,
+called the _leader_. The leader is chosen when the pipeline is scheduled and also runs its share of the pipeline's tasks.
+The other workers send heartbeats and checkpoint progress to the leader, and checkpoint metadata is written to the
+checkpoint object store instead of the config database.
+
+The Arroyo controller still schedules workers and runs each job's [state machine](#job-state-machine), but it monitors
+and controls running pipelines by polling their leaders, every `controller.leader-poll-interval`. If the controller
+doesn't get a response from a leader within `pipeline.worker-heartbeat-timeout`, it treats the job as failed and
+recovers it from its latest checkpoint.
+
+Worker mode has two main benefits:
+
+* **Pipelines survive controller restarts.** Running pipelines don't depend on the controller. If it restarts, for
+  example during an upgrade or after a crash, the pipelines keep running and checkpointing. When it comes back, it
+  reconnects to their leaders instead of rescheduling them. This requires workers that outlive the controller process,
+  as with the [Kubernetes scheduler](#kubernetes-scheduler). The process scheduler stops its workers when the controller
+  exits (unless `process-scheduler.shutdown-with-controller` is disabled), and `arroyo node` processes shut down along
+  with their workers when they lose contact with the controller.
+* **Less load on the controller and database.** Checkpoint coordination is spread across each pipeline's workers, and
+  checkpoints don't write to the config database, which helps clusters running many pipelines.
+
+There are also some differences from controller mode to be aware of:
+
+* **Checkpoint history.** The checkpoint details shown in the Web UI and returned by the checkpoints API are served by
+  the leader, which keeps details for the most recent `worker.checkpoint-details-to-keep` checkpoints. They're only
+  available while the pipeline is running, and the API service must be able to reach the workers' RPC addresses.
+* **Restarting without state.** A pipeline must be stopped or failed before it can be restarted without state. The
+  restart replaces the pipeline's job with a new one that has a new job ID.
+* **No checkpoint compaction.** The `pipeline.compaction` options aren't supported in worker mode yet.
+* **No state migration between modes.** The two modes record checkpoints differently, so a pipeline won't restore from
+  checkpoints taken in the other mode. Choose the mode when setting up a cluster. If you switch an existing cluster,
+  its pipelines will lose the state from checkpoints taken in the previous mode.
+
+See the [configuration reference](/configuration) for the options that tune worker mode.
 
 ## Config Database
 
