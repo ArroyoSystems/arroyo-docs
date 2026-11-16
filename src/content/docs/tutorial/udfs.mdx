@@ -42,7 +42,7 @@ sample data (you can also use your own data via Kafka or one of the other
 
 You can install StreamGen with if you have Cargo installed:
 
-```bash Cargo
+```bash
 $ cargo install streamgen
 ```
 
@@ -144,7 +144,7 @@ Now that we have the data available, we can parse it into a more useful form usi
 Currently, UDFs can only output a single column of a
 [SQL data type](/sql/data-types). However, we'd like to extract multiple fields from the CLF
 record. The easiest way to do this today is to convert the record to JSON, then access it later
-using [SQL JSON functions](/sql/scalar-functions#json-functions).
+using [SQL JSON functions](/sql/scalar-functions/json/).
 
 To do this, we'll write a UDF that takes a string as input, parses it as a CLF record, and
 outputs a JSON object with the parsed fields.

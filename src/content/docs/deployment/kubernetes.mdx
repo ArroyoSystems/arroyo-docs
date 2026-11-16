@@ -72,7 +72,7 @@ and config files. In Kubernetes, either option is available to control the behav
 
 To set an environment variable, override the `env` field in the helm chart:
 
-```yaml values.yaml
+```yaml title="values.yaml"
 env:
   - name: ARROYO__DEFAULT_CHECKPOINT_INTERVAL
     value: 5s
@@ -80,7 +80,7 @@ env:
 
 Configuring Arroyo via a config file is also possible. Create a config map like this:
 
-```yaml configmap.yaml
+```yaml title="configmap.yaml"
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -101,7 +101,7 @@ $ kubectl create -f configmap.yaml
 
 Then configure the Helm chart to use it:
 
-```yaml values.yaml
+```yaml title="values.yaml"
 existingConfigMap: my-arroyo-config
 ```
 
@@ -169,7 +169,7 @@ variables](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-envvars.ht
 
 To embed credentials directly in the config, you can add this to your Helm configuration:
 
-```yaml values.yaml
+```yaml title="values.yaml"
 env:
   - name: AWS_ACCESS_KEY_ID
     value: Z6EZ25YSK97EU5ZQ96MT2
@@ -191,7 +191,7 @@ $ kubectl create secret generic aws-creds \
 
 Then inject it into the configuration:
 
-```yaml values.yaml
+```yaml title="values.yaml"
 env:
   - name: AWS_ACCESS_KEY_ID
     valueFrom:
@@ -213,7 +213,7 @@ does require giving all workloads on the EKS cluster access.
 
 First, we create a policy:
 
-```json policy.json
+```json title="policy.json"
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -271,7 +271,7 @@ for full details.
 Once you've created a policy and attached it to a service account (for example one called `arroyo-pod-sa`)
 we can configure Arroyo to use it with this helm configuration:
 
-```yaml values.yaml
+```yaml title="values.yaml"
 serviceAccount:
   create: false
   name: arroyo-pod-sa

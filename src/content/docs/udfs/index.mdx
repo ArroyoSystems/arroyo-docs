@@ -19,16 +19,18 @@ as part of the SQL API call, or via the Web UI.
 
 Here's an example of a simple UDF that squares an integer:
 
-<Tabs>
-  ```python Python
+<Tabs syncKey="udf-language">
+  <TabItem label="Python">
+  ```python
   from arroyo_udf import udf
 
   @udf
   def my_square(x: int) -> int:
       return x * x
   ```
-
-  ```rust Rust
+  </TabItem>
+  <TabItem label="Rust">
+  ```rust
   use arroyo_udf_plugin::udf;
 
   #[udf]
@@ -36,6 +38,7 @@ Here's an example of a simple UDF that squares an integer:
     x * x
   }
   ```
+  </TabItem>
 </Tabs>
 
 Once registered, this UDF can be used in SQL queries:

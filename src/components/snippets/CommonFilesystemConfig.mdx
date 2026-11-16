@@ -49,10 +49,3 @@ These options allow configuring the behavior of how writes against object storag
 | `multipart.target_part_size` | The target size of each multipart upload. Must be between 5MB and 5GB. | `'32MB'` |
 | `multipart.max_parts` | Maximum number of multipart uploads before a multipart will be completed | `1000` |
 | `multipart.minimum_multipart_size` | (v2 only) Files that are closed before reaching this size are uploaded with a single request instead of a multipart upload. Must be at most 5GB. The default of `0` uses a multipart upload for every file | `0` |
-
-### JSON Options
-
-| Field | Description | Default |
-| ----- | ----------- | -------- |
-| `json.compression` | Compression for JSON files written by the sink: `uncompressed` or `gzip`. Gzip-compressed files use the `json.gz` suffix by default. Only supported by the filesystem connector | `'uncompressed'` |
-
