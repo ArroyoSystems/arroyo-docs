@@ -45,7 +45,7 @@
  * 
  * Usage:
  *   node scripts/transform-openapi.js [input.json] [output.json]
- *   node scripts/transform-openapi.js  # uses api-spec.json -> public/api-spec.json
+ *   node scripts/transform-openapi.js  # uses api-spec.json -> src/api/openapi.json
  */
 
 import fs from 'fs';
@@ -57,7 +57,7 @@ const __dirname = path.dirname(__filename);
 
 // Default paths
 const defaultInput = path.join(__dirname, '..', 'api-spec.json');
-const defaultOutput = path.join(__dirname, '..', 'public', 'api-spec.json');
+const defaultOutput = path.join(__dirname, '..', 'src', 'api', 'openapi.json');
 
 const inputPath = process.argv[2] || defaultInput;
 const outputPath = process.argv[3] || defaultOutput;
@@ -360,7 +360,14 @@ function main() {
   
   console.log('Transforming OpenAPI spec...');
   const transformed = transformSpec(spec);
-  
+
+  // The generated spec's server is relative to wherever the API is served
+  // (`/api/`), which leaves code samples without a host. Point them at a local
+  // Arroyo cluster instead, as the old Scalar page did.
+  transformed.servers = [
+    { url: 'http://localhost:5115/api', description: 'Local Arroyo cluster' },
+  ];
+
   // Ensure output directory exists
   const outputDir = path.dirname(outputPath);
   if (!fs.existsSync(outputDir)) {

@@ -13,3 +13,6 @@
 
 # Introduction page redirect
 /introduction / 301
+
+# The OpenAPI spec moved with the native API reference
+/api-spec.json /api/openapi.json 301

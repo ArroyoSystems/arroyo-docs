@@ -3,11 +3,6 @@ title: File System
 description: "Write Parquet and JSON to S3 and local filesystems"
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-import CommonFilesystemConfig from '../../../components/snippets/CommonFilesystemConfig.mdx';
-import ShuffleByPartition from '../../../components/snippets/ShuffleByPartition.mdx';
-
-
 Arroyo provides the capability to read and write Parquet and JSON files to/from object stores and local filesystems.
 When used as a sink, Arroyo will produce complete files in line with the checkpointing system.
 As such, the file system sinks write all data exactly once.
@@ -89,7 +84,7 @@ gzip-compressed (see [JSON options](#json-options)), and the source can read com
 
 ## Sink Specific Configuration
 
-<CommonFilesystemConfig />
+<Render file="common-filesystem-config" />
 
 For local filesystem paths, the sink always uses a separate local writer, so `sink.version` and the multipart
 upload settings have no effect.
@@ -135,7 +130,7 @@ Example:
 
 #### Shuffle by partition
 
-<ShuffleByPartition />
+<Render file="shuffle-by-partition" />
 
 ## Source Specific Configuration
 When using the file system source, the following options are available
