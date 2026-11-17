@@ -21,9 +21,12 @@ without that prefix (`[Kafka](/connectors/kafka/)`); Nimbus adds it. Images in
 `public/` are the exception and need it: `![Diagram](/docs/images/diagram.png)`.
 `pnpm run lint:docs` catches an image without it.
 
-The REST API reference at `/docs/api` is generated from `api-spec.json`, which
-`scripts/transform-openapi.js` flattens into `src/api/openapi.json` before every
-`dev` and `build`.
+The REST API reference at `/docs/api` is generated from `src/api/openapi.json`,
+Arroyo's OpenAPI spec. To update it, build Arroyo and copy its spec in unchanged:
+
+```bash
+$ cp ../arroyo/target/api-spec.json src/api/openapi.json
+```
 
 Docs require Node 22.23.4 or later (`nvm use` picks up `.nvmrc`), and can be developed locally:
 

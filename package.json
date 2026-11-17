@@ -8,18 +8,17 @@
     "node": ">=22.23.4"
   },
   "scripts": {
-    "dev": "node scripts/transform-openapi.js && astro dev",
-    "start": "node scripts/transform-openapi.js && astro dev",
-    "build": "node scripts/transform-openapi.js && astro build && node scripts/hoist-host-files.js",
-    "build:api": "node scripts/transform-openapi.js",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build && node scripts/hoist-host-files.js",
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check",
     "lint:docs": "nimbus-docs lint",
     "lint:docs:fix": "nimbus-docs lint --fix",
-    "prepreview:cf": "node scripts/transform-openapi.js && astro build && node scripts/hoist-host-files.js",
+    "prepreview:cf": "astro build && node scripts/hoist-host-files.js",
     "preview:cf": "wrangler dev",
-    "predeploy": "node scripts/transform-openapi.js && astro check && astro build && node scripts/hoist-host-files.js",
+    "predeploy": "astro check && astro build && node scripts/hoist-host-files.js",
     "deploy": "wrangler deploy"
   },
   "dependencies": {

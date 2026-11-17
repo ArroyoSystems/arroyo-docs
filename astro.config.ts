@@ -4,6 +4,7 @@ import nimbus, {
   defineConfig as defineNimbusConfig,
 } from "@cloudflare/nimbus-docs";
 import { tableScroll } from "@cloudflare/nimbus-docs/markdown";
+import apiSpec from "./src/api/openapi.json" with { type: "json" };
 
 /** A sidebar link to a docs page, by its slug ("" for the home page). */
 const page = (label: string, slug: string) => ({
@@ -180,14 +181,21 @@ const nimbusConfig = defineNimbusConfig({
     ],
   },
   // The REST API reference, served where its route file is
-  // (src/pages/api/ → /api). The spec is generated from ./api-spec.json by
-  // scripts/transform-openapi.js, which runs before `dev` and `build`.
-  // See https://nimbus-docs.com/api-reference/
+  // (src/pages/api/ → /api). src/api/openapi.json is Arroyo's generated spec,
+  // copied in unchanged. See https://nimbus-docs.com/api-reference/
   api: [
     {
       collection: "api",
       label: "Arroyo REST API",
-      spec: "./src/api/openapi.json",
+      spec: {
+        ...apiSpec,
+        // The spec's server is `/api/`, relative to the Arroyo cluster that
+        // serves it. The docs aren't on that host, so point examples at a
+        // local cluster instead.
+        servers: [
+          { url: "http://localhost:5115/api", description: "Local Arroyo cluster" },
+        ],
+      },
       routes: { convention: "resource-action-v2" },
     },
   ],
