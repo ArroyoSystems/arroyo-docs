@@ -155,7 +155,7 @@ At the "Configure table" stage, enter:
 This will configure the table as a source, reading from the `orders` topic, and
 starting from the latest offset.
 
-<img src="/images/kafka_tutorial_create_source.png" alt="Configuring the Kafka source" />
+<img src="/docs/images/kafka_tutorial_create_source.png" alt="Configuring the Kafka source" />
 
 The other options can be left as default. Click "Next" to continue.
 
@@ -217,7 +217,7 @@ FROM orders
 GROUP BY store_id, hop(interval '2 seconds', interval '10 seconds');
 ```
 
-<img src="/images/kafka_tutorial_previewing.png" alt="Previewing output of the query" />
+<img src="/docs/images/kafka_tutorial_previewing.png" alt="Previewing output of the query" />
 
 ## Inserting into a Kafka sink
 

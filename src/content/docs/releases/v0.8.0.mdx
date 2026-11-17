@@ -58,7 +58,7 @@ For example, you may have a window over 30 days of data. If you start reading to
 days to fully fill the window. But if you have the historical data available on S3, as is common in many modern
 data architectures, you can read from both the FileSystem and Kafka sources in parallel with a SQL `union`.
 
-Full details on the FileSystem source are available in the [docs](https://doc.arroyo.dev/connectors/filesystem).
+Full details on the FileSystem source are available in the [docs](/connectors/filesystem).
 
 Thanks to [@rcjmurillo](http://github.com/rcjmurillo) for this major contribution!
 
@@ -108,7 +108,7 @@ INSERT INTO deltatable
 SELECT * FROM events;
 ```
 
-See the [Delta Lake docs](https://doc.arroyo.dev/connectors/delta) for more details.
+See the [Delta Lake docs](/connectors/delta) for more details.
 
 * Implement Delta Lake Sink by [@jacksonrnewhouse](http://github.com/jacksonrnewhouse) in [#385](https://github.com/ArroyoSystems/arroyo/pull/385)
 
@@ -152,7 +152,7 @@ throughputs of millions of writes per second on a single Redis node.
 
 Both standalone and cluster modes are supported.
 
-See the [Redis connector docs](https://doc.arroyo.dev/connectors/redis) for more
+See the [Redis connector docs](/connectors/redis) for more
 details.
 
 
@@ -198,7 +198,7 @@ insert into output
 select * from source;
 ```
 
-See the [Avro format](https://doc.arroyo.dev/connectors#avro) docs for more details.
+See the [Avro format](/connectors#avro) docs for more details.
 
 * Initial support for Avro formats by [@mwylde](http://github.com/mwylde) in [#386](https://github.com/ArroyoSystems/arroyo/pull/386)
 * Add support for writing Avro data by [@mwylde](http://github.com/mwylde) in [#422](https://github.com/ArroyoSystems/arroyo/pull/422)
@@ -220,7 +220,7 @@ Avro support (see above).
 * We now support using schema registries that require authentication, for example
   Confluent Cloud.
 
-See the [Kafka connector docs](https://doc.arroyo.dev/connectors/kafka) for more
+See the [Kafka connector docs](/connectors/kafka) for more
 details.
 
 * Implement json sink for schema registry, use connection types for sinks, add

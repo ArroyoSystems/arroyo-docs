@@ -5,7 +5,7 @@ description: "Overview of the Arroyo architecture"
 
 The Arroyo system architecture is composed of several services, as can be seen in the following diagram:
 
-![Arroyo Architecture](/images/arroyo_arch.png)
+![Arroyo Architecture](/docs/images/arroyo_arch.png)
 
 These services can be run in a single process for a simple deployment, or separately for a fully scaleable,
 fault-tolerant system.  All components of the system are compiled into a single binary `arroyo`
@@ -156,7 +156,7 @@ Backblaze B2.
 
 Jobs are managed via a state machine that is implemented in the controller:
 
-![Job State Machine](/images/diagrams/state_machine.d2.svg)
+![Job State Machine](/docs/images/diagrams/state_machine.d2.svg)
 
 Jobs are initialized in the `Created` state when they are created via the API. Once the controller loads the job, it
 will begin managing it, and is responsible for moving it to a terminal state (like Running, Stopped, Failed) within a

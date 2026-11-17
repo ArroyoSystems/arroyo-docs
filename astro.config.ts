@@ -55,7 +55,9 @@ const releases = [
 ];
 
 const nimbusConfig = defineNimbusConfig({
-  site: "https://doc.arroyo.dev",
+  // Served at www.arroyo.dev/docs (see `base` below); the rest of the domain
+  // is the main Arroyo site.
+  site: "https://www.arroyo.dev",
   title: "Arroyo Documentation",
   description:
     "Documentation for Arroyo, a distributed stream processing engine written in Rust.",
@@ -64,6 +66,9 @@ const nimbusConfig = defineNimbusConfig({
   editPattern:
     "https://github.com/ArroyoSystems/arroyo-docs/edit/main/{path}",
   socialImageAlt: "Arroyo documentation",
+  // The main site owns the domain root, so don't publish origin-root agent
+  // discovery files (/.well-known/…) from the docs.
+  agents: { discovery: false },
   head: [
     // Google Analytics
     {
@@ -189,6 +194,15 @@ const nimbusConfig = defineNimbusConfig({
 });
 
 export default defineConfig({
+  // The docs live under www.arroyo.dev/docs. Write links without the base
+  // (`/connectors/kafka/`); Nimbus adds it. Images in public/ are the
+  // exception: write `/docs/images/…` (nimbus/image-ref checks this).
+  base: "/docs",
+  // Build into dist/docs so the files sit at the paths the Worker receives
+  // (/docs/…); wrangler.jsonc serves dist/. scripts/hoist-host-files.js then
+  // moves _redirects and _headers up to dist/, the only place Workers reads
+  // them.
+  outDir: "./dist/docs",
   // nimbus:adapter
   output: "static",
   // Tailwind v4 via its Vite plugin (the integration Astro recommends for
@@ -205,12 +219,14 @@ export default defineConfig({
   },
   integrations: [
     nimbus(nimbusConfig, {
-      // Authoring rules are opt-in. These two catch frontmatter that doesn't
-      // match the content schema and broken internal links. See
-      // `nimbus-docs lint --help` for the others.
+      // Authoring rules are opt-in. These catch frontmatter that doesn't
+      // match the content schema, broken internal links, and images in
+      // public/ written without the /docs base. See `nimbus-docs lint --help`
+      // for the others.
       rules: {
         "nimbus/frontmatter-shape": "error",
         "nimbus/internal-link": "error",
+        "nimbus/image-ref": "error",
       },
       markdown: {
         // Wrap wide tables so they scroll instead of overflowing the page

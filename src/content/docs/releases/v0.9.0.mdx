@@ -143,7 +143,7 @@ impl arroyo_types::UdfContext for Context {
 }
 ```
 
-See the [docs](https://doc.arroyo.dev/sql/async-udfs) for full details.
+See the [docs](/sql/async-udfs) for full details.
 
 * Add Async UDFs by [@jbeisen](https://github.com/jbeisen) in
   [#483](https://github.com/ArroyoSystems/arroyo/pull/483)
@@ -212,7 +212,7 @@ fields:
 
 This feature allows you to use double curly braces (`{{ }}`) to reference environment variables, which will
 get substituted in at run time. For example, if you have an environment variable called `WEBHOOK_SECRET`
-you can now include this as a header in a [webhook sink](https://doc.arroyo.dev/connectors/webhook) like
+you can now include this as a header in a [webhook sink](/connectors/webhook) like
 
 ```
 Authentication: Basic {{ WEBHOOK_SECRET }}
@@ -242,13 +242,13 @@ a cloud-native distribution of Kafka and serverless Kafka platform. While Arroyo
 reading and writing from Kafka, with Arroyo 0.9 we're making it even easier to integrate with your
 Confluent Cloud topics with the new Confluent Cloud connector.
 
-See the [complete integration guide](https://doc.arroyo.dev/connectors/confluent) to get started.
+See the [complete integration guide](/connectors/confluent) to get started.
 
 * Add Confluent connector by [@mwylde](https://github.com/mwylde) in [#448](https://github.com/ArroyoSystems/arroyo/pull/448)
 
 ## Connection Profile UI
 
-[Connection Profiles](https://doc.arroyo.dev/connectors#connection-profiles) encapsulate
+[Connection Profiles](/connectors#connection-profiles) encapsulate
 common configuration that is shared across multiple connection tables. For example, a single Kafka
 cluster may have many topics that you would like to consumer or produce to from Arroyo.
 

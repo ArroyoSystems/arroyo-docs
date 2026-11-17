@@ -12,7 +12,7 @@ new connectors. Leveraging that, we've added websocket and fluvio connectors.
 We're also releasing the initial endpoints for our new REST API, which makes it
 easier to build automations around Arroyo.
 
-Read on for more details, and check out our [docs](https://doc.arroyo.dev) for
+Read on for more details, and check out our [docs](/) for
 full details on existing and new features.
 
 Thanks to all our contributors for this release:
@@ -104,7 +104,7 @@ supports this kind of update stream.
 
 Update tables can also be used with Debezium to write to Arroyo from a SQL
 database CDC source. See the new
-[Debezium tutorial](https://doc.arroyo.dev/tutorial/debezium) for more details
+[Debezium tutorial](/tutorial/debezium) for more details
 on how to set this up.
 
 Beyond use with Debezium, update tables can also be very useful for efficiently
@@ -181,7 +181,7 @@ CREATE TABLE orders (
 ## New connectors
 
 Arroyo 0.4 includes a number of new connectors leveraging the connector redesign.
-See the [connector docs](https://doc.arroyo.dev/connectors) the full list of
+See the [connector docs](/connectors) the full list of
 supported connectors.
 
 ### Websocket sources
@@ -263,7 +263,7 @@ curl -XPOST http://localhost:8003/v1/pipelines \
   }'
 ```
 
-See the [REST API docs](https://doc.arroyo.dev/api-reference/overview) for more details.
+See the [REST API docs](/api-reference/overview) for more details.
 
 In future releases we'll continue to expand the REST API to cover all aspects of
 Arroyo, and will eventually deprecate the gRPC API.
@@ -284,7 +284,7 @@ This release adds more date/time functions to the SQL engine, including:
 * `extract`
 * `to_timestamp`
 
-See the [SQL function docs](https://doc.arroyo.dev/sql/scalar-functions) for more details.
+See the [SQL function docs](/sql/scalar-functions/math) for more details.
 
 - Implement date_part, date_trunc and extract by [@edmondop](https://github.com/edmondop) in
   [#181](https://github.com/ArroyoSystems/arroyo/pull/181)

@@ -79,7 +79,7 @@ Click `Start Preview` to run a preview pipeline over the data.
 
 You should see something like this:
 
-<img src="/images/mastodon_firehose.png" />
+<img src="/docs/images/mastodon_firehose.png" />
 
 ## Extracting Hashtags
 
@@ -122,7 +122,7 @@ SELECT tag FROM (
 ```
 
 
-The [`extract_json`](https://doc.arroyo.dev/sql/scalar-functions#extract-json) function takes a string value and
+The [`extract_json`](/sql/scalar-functions/json#extract_json) function takes a string value and
 a [jsonpath](https://goessner.net/articles/JsonPath/) expression and returns all matches in the input for the
 expression. In this case, it returns a list with the name of each tag in the message.
 
@@ -137,7 +137,7 @@ CREATE VIEW tags AS (
 );
 ```
 
-We've also added a call to [`unnest`](https://doc.arroyo.dev/sql/select-statements#unnest-operator), which is a
+We've also added a call to [`unnest`](/sql/select-statements#unnest-operator), which is a
 special operator that is able to "unroll" lists into individual records. This lets us handle all of the tags
 in a single message. Then we've wrapped that in `btrim`, as extract_json returns encoded strings like `"tag"`—
 btrim removes the leading and trailing `"`s so we just get `tag`.

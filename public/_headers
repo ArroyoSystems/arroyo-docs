@@ -1,4 +1,6 @@
 # Hashed build files never change, so browsers keep them for a year without
-# asking again. Hosts that don't read _headers ignore this file.
-/_astro/*
+# asking again. Hosts that don't read _headers ignore this file. The build
+# moves it to the top of dist/ (scripts/hoist-host-files.js), and the docs are
+# served under /docs.
+/docs/_astro/*
   Cache-Control: public, max-age=31536000, immutable
