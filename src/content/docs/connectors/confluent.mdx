@@ -3,8 +3,6 @@ title: Confluent
 description: "Connect Arroyo to a Confluent Kafka topic"
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Arroyo provides sources and sinks to read and write from
 [Confluent Cloud](https://www.confluent.io/confluent-cloud/)-hosted Kafka
 topics, with support for exactly-once semantics.
@@ -26,7 +24,7 @@ Arroyo how to connect and authenticate to your Confluent Cloud account. Either
 select an existing profile, or click "Create new" to create a new profile.
 
 
-![The Create Connection screen in Arroyo](/images/connectors/confluent/create_profile.png)
+![The Create Connection screen in Arroyo](/docs/images/connectors/confluent/create_profile.png)
 
 
 Start by giving the connection profile a name, which will help you identify this
@@ -41,7 +39,7 @@ In another tab, open the [Confluent Cloud console](https://confluent.cloud), and
 navigate to the Cluster Settings page for the cluster you wish to connect:
 
 
-![Confluent Cloud cluster settings page](/images/connectors/confluent/cluster_settings.png)
+![Confluent Cloud cluster settings page](/docs/images/connectors/confluent/cluster_settings.png)
 
 
 Find the Bootstrap server (like `pkc-p11xm.us-east-1.aws.confluent.cloud:9092`)
@@ -62,7 +60,7 @@ connection using `{{ }}` template syntax, like `{{KAFKA_KEY}}`
 </Aside>
 
 
-![Creating an API key in the Confluent Cloud UI](/images/connectors/confluent/create_key.png)
+![Creating an API key in the Confluent Cloud UI](/docs/images/connectors/confluent/create_key.png)
 
 
 Give the new credentials a name, and click “Download and continue.”
@@ -80,7 +78,7 @@ On the right side bar, you will see a panel called "Stream Governance API."
 with an Endpoint URL.
 
 
-![Finding the schema registry endpoint in the Confluent Cloud UI](/images/connectors/confluent/sr_endpoint.png)
+![Finding the schema registry endpoint in the Confluent Cloud UI](/docs/images/connectors/confluent/sr_endpoint.png)
 
 
 Enter that into the Arroyo Connection as the Endpoint, under "Confluent Schema
@@ -93,7 +91,7 @@ That will take you to the credentials page, where you can create a new set of
 credentials.
 
 
-![Creating credentials for the schema registry](/images/connectors/confluent/create_schema_key.png)
+![Creating credentials for the schema registry](/docs/images/connectors/confluent/create_schema_key.png)
 
 
 Enter the Key and Secret as the API Key and API Secret for Confluent Schema Registry,
@@ -122,7 +120,7 @@ once to the sink, but you may experience higher latency waiting for the
 transaction to commit durably.
 
 On the next screen, select the format and schema for your data. See the
-[format docs](https://doc.arroyo.dev/connectors/formats) for more details on the
+[format docs](/connectors/formats) for more details on the
 supported formats. If you are using Confluent Schema Registry, select that in
 the “schema type” drop-down.
 
@@ -176,7 +174,7 @@ two-phase protocol once all data is staged.
 ## Confluent DDL
 
 Kafka connection tables can be defined via
-[SQL DDL](https://doc.arroyo.dev/sql/ddl#create-table-connection) and used as
+[SQL DDL](/sql/ddl#create-table-connection) and used as
 sources and sinks in SQL queries.
 
 For example:

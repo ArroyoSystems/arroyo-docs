@@ -3,8 +3,6 @@ title: UDF Overview
 description: Extending Arroyo with user-defined functions
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
-
 Arroyo SQL can be extended with user-defined functions, written in Rust or
 Python.  The parameters and return type of the UDF are determined by the 
 definition of the function and all types must be valid [SQL data types](/sql/data-types).
@@ -61,7 +59,7 @@ format parsing, see the [UDF tutorial](/tutorial/udfs).
 UDFs are developed and managed in the Web UI, within the Pipeline editor. To create a new UDF,
 navigate to the UDFs tab and click "New."
 
-<img src="/images/creating_udfs.png" alt="The UDF creation interface" />
+![The UDF creation interface](/docs/images/creating_udfs.png)
 
 The name for the UDF is determined automatically from the function name that is
 annotated with `#[udf]` for Rust or `@udf` for Python. You may include helper
@@ -81,7 +79,7 @@ All UDFs begin as local. If you've written a UDF that will benefit from being gl
 make it global by hovering over the tab containing the UDF, and clicking the "Globalize" button in the
 drop down.
 
-<img src="/images/globalize_udf.png" alt="The process of making a global UDF" />
+![The process of making a global UDF](/docs/images/globalize_udf.png)
 
 Global UDFs are available in all pipelines, but will be shadowed by local UDFs with the same name.
 

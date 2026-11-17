@@ -17,8 +17,8 @@ custom event time and watermarks. There have also many substantial improvements
 to the Web UI, including error reporting, backpressure monitoring, and under-the-hood
 infrastructure improvements.
 
-We've also greatly expanded our docs since the last release. Check them out at
-https://doc.arroyo.dev.
+We've also greatly expanded our docs since the last release. Check them out
+[here](/).
 
 ## New contributors
 
@@ -50,7 +50,7 @@ and submit a PR, and let us know what you'd like to see next in Arroyo\!
 
 With this release we are shipping initial support for writing user-defined
 functions (UDFs) in Rust, allowing users to extend SQL with custom business
-logic. See the [udf docs](https://doc.arroyo.dev/sql/udfs) for full details.
+logic. See the [udf docs](/sql/udfs) for full details.
 
 For example, we can register a Rust function:
 
@@ -84,7 +84,7 @@ FROM orders;
 ## SQL DDL statements
 
 It's now possible to define sources and sinks directly in SQL via
-[CREATE TABLE statements](https://doc.arroyo.dev/sql/ddl#create-table-connection):
+[CREATE TABLE statements](/sql/ddl#create-table-connection):
 
 ```sql
 CREATE TABLE orders (
@@ -156,7 +156,7 @@ CREATE TABLE orders (
 ```
 
 For more on the underlying concepts of event times and watermarks, see the
-[concept docs](https://doc.arroyo.dev/concepts#timely-processing).
+[concept docs](/concepts#timely-processing).
 
   - Support virtual fields and overriding timestamp via event_time_field by
     [@jacksonrnewhouse](https://github.com/jacksonrnewhouse) in [#127](https://github.com/ArroyoSystems/arroyo/pull/127)
@@ -183,9 +183,9 @@ We've added a new source which allows reading from
 [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events)
 APIs (also called EventSource). SSE is a simple protocol for streaming data from
 HTTP servers and is a common choice for web applications. See the
-[SSE source documentation](https://doc.arroyo.dev/connectors/server-sent-events)
+[SSE source documentation](/connectors/server-sent-events)
 for more details, and take a look at the new
-[Mastodon trends](https://doc.arroyo.dev/tutorial/mastodon) tutorial that makes
+[Mastodon trends](/tutorial/mastodon) tutorial that makes
 uses of it
 
 - Add event source source operator by [@mwylde](https://github.com/mwylde) in

@@ -1,15 +1,62 @@
-# Redirects for backwards compatibility with old Mintlify URLs
-/sql/async_udfs /udfs/rust/async-udfs 301
-/deployment/ec2 /deployment/vm 301
-/sql/udfs /udfs 301
-/sql/udafs /udfs/rust/udafs 301
-/sql/async-udfs /udfs/rust/async-udfs 301
+# Host-level redirects, read by Workers static assets. The build moves this
+# file to the top of dist/ (scripts/hoist-host-files.js). Rules apply top to
+# bottom, first match wins, and they apply even where a file exists, so
+# static rules come first and nothing below may match a /docs path.
+
+# Redirects within the docs, which are served under /docs
+
+# Old Mintlify URLs
+/docs/sql/async_udfs /docs/udfs/rust/async-udfs 301
+/docs/deployment/ec2 /docs/deployment/vm 301
+/docs/sql/udfs /docs/udfs 301
+/docs/sql/udafs /docs/udfs/rust/udafs 301
+/docs/sql/async-udfs /docs/udfs/rust/async-udfs 301
 
 # Section landing pages: old /overview paths now redirect to clean section URLs
-/connectors/overview /connectors 301
-/deployment/overview /deployment 301
-/udfs/overview /udfs 301
-/api-reference/overview /api 301
+/docs/connectors/overview /docs/connectors 301
+/docs/deployment/overview /docs/deployment 301
+/docs/udfs/overview /docs/udfs 301
+/docs/api-reference/overview /docs/api 301
 
 # Introduction page redirect
-/introduction / 301
+/docs/introduction /docs/ 301
+
+# The OpenAPI spec moved with the native API reference
+/docs/api-spec.json /docs/api/openapi.json 301
+
+# Old doc.arroyo.dev URLs
+#
+# The docs moved from doc.arroyo.dev to www.arroyo.dev/docs. While
+# doc.arroyo.dev still reaches this Worker, send its old paths to their new
+# home. On www.arroyo.dev only /docs* reaches this Worker, so these never
+# match there. A zone Redirect Rule for doc.arroyo.dev makes them redundant.
+
+/ https://www.arroyo.dev/docs/ 301
+/introduction https://www.arroyo.dev/docs/ 301
+/sql/async_udfs https://www.arroyo.dev/docs/udfs/rust/async-udfs 301
+/deployment/ec2 https://www.arroyo.dev/docs/deployment/vm 301
+/sql/udfs https://www.arroyo.dev/docs/udfs 301
+/sql/udafs https://www.arroyo.dev/docs/udfs/rust/udafs 301
+/sql/async-udfs https://www.arroyo.dev/docs/udfs/rust/async-udfs 301
+/connectors/overview https://www.arroyo.dev/docs/connectors 301
+/deployment/overview https://www.arroyo.dev/docs/deployment 301
+/udfs/overview https://www.arroyo.dev/docs/udfs 301
+/api-reference/overview https://www.arroyo.dev/docs/api 301
+/api-spec.json https://www.arroyo.dev/docs/api/openapi.json 301
+/llms.txt https://www.arroyo.dev/docs/llms.txt 301
+/llms-full.txt https://www.arroyo.dev/docs/llms-full.txt 301
+
+# Each top-level section (and images, which other sites embed)
+/api* https://www.arroyo.dev/docs/api:splat 301
+/architecture* https://www.arroyo.dev/docs/architecture:splat 301
+/concepts* https://www.arroyo.dev/docs/concepts:splat 301
+/configuration* https://www.arroyo.dev/docs/configuration:splat 301
+/connectors* https://www.arroyo.dev/docs/connectors:splat 301
+/deployment* https://www.arroyo.dev/docs/deployment:splat 301
+/developing* https://www.arroyo.dev/docs/developing:splat 301
+/getting-started* https://www.arroyo.dev/docs/getting-started:splat 301
+/releases* https://www.arroyo.dev/docs/releases:splat 301
+/sql* https://www.arroyo.dev/docs/sql:splat 301
+/tutorial* https://www.arroyo.dev/docs/tutorial:splat 301
+/udfs* https://www.arroyo.dev/docs/udfs:splat 301
+/images/* https://www.arroyo.dev/docs/images/:splat 301

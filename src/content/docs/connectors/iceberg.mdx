@@ -3,9 +3,6 @@ title: Iceberg Sink
 description: "Write data to Apache Iceberg tables"
 ---
 
-import CommonFilesystemConfig from '../../../components/snippets/CommonFilesystemConfig.mdx';
-import ShuffleByPartition from '../../../components/snippets/ShuffleByPartition.mdx';
-
 Data from Arroyo can be written to an [Apache Iceberg](https://iceberg.apache.org/) table using the `iceberg` sink.
 Iceberg is an open table format designed for huge analytic datasets, providing features like schema evolution,
 hidden partitioning, and time travel. Arroyo currently implements v2 of the Iceberg spec.
@@ -49,7 +46,7 @@ The Iceberg sink requires the following configuration options:
 
 In addition to the Iceberg-specific configurations, there are a number of shared configs with the FileSystemSink:
 
-<CommonFilesystemConfig />
+<Render file="common-filesystem-config" />
 
 ## Supported types
 
@@ -112,7 +109,7 @@ PARTITIONED BY (
 
 ### Shuffle by partition
 
-<ShuffleByPartition />
+<Render file="shuffle-by-partition" />
 
 ## Example
 

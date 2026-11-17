@@ -1,0 +1,11 @@
+---
+/* The site's logo: the full-colour Arroyo wordmark from public/logo/. Its
+   blues read on both the light and dark backgrounds, so one file serves both.
+   The social cards draw the single-colour copy in logo.ts. */
+import { withBase } from "@cloudflare/nimbus-docs/runtime";
+
+interface Props { class?: string }
+const { class: cls = "h-6 w-auto" } = Astro.props;
+const src = withBase("/logo/light.svg", import.meta.env.BASE_URL);
+---
+<img src={src} alt="" width="1072" height="288" class={cls} />

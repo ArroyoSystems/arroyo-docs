@@ -66,14 +66,14 @@ can take a variety of URL forms, like:
 * `gs://my-gcs-bucket`
 
 See the
-[docs](https://doc.arroyo.dev/deployment/kubernetes#example-gke-configuration)
+[docs](/deployment/kubernetes#example-gke-configuration)
 for how to configure Arroyo on GKE.
 
 * Add support for GCS and minio/localstack by @mwylde in [#296](https://github.com/ArroyoSystems/arroyo/pull/296)
 
 ## User-defined aggregate functions
 
-[SQL Aggregate functions](https://doc.arroyo.dev/sql/aggregate-functions) allow
+[SQL Aggregate functions](/sql/aggregate-functions) allow
 you to compute summary statistics over a group of rows, like `SUM`, `AVG`, and
 `COUNT`. Arroyo 0.6 adds initial support for user-defined aggregate functions (UDAFs)
 which allow you to write your own aggregate functions in Rust.
@@ -108,7 +108,7 @@ and Websocket sources.
 
 ### Polling HTTP source
 
-The new [polling http source](https://doc.arroyo.dev/connectors/polling-http)
+The new [polling http source](/connectors/polling-http)
 lets you turn any HTTP API into a streaming source. It periodically polls the endpoint,
 and emits any new data into the stream.
 
@@ -137,7 +137,7 @@ from prs;
 
 ### Webhook sink
 
-On the other end of your application, we now have a [webhook sink](https://doc.arroyo.dev/connectors/webhook)
+On the other end of your application, we now have a [webhook sink](/connectors/webhook)
 that lets you send pipeline results to any HTTP endpoint. This allows you to consume
 outputs without needing to adopt streaming technologies like Kafka.
 
@@ -179,7 +179,7 @@ create connections and fetch all job details including checkpoint information.
 ## Raw string serialization
 
 Arroyo supports a number of different
-[serialization formats](https://doc.arroyo.dev/connectors#connection-formats),
+[serialization formats](/connectors#connection-formats),
 for handling data coming into and out of pipelines, including JSON, Parquet, and
 raw strings. In this release we've added support for serializing arbitrary string data.
 This is particularly powerful when combined with UDFs, which make it easy to construct

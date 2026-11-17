@@ -3,8 +3,6 @@ title: Kafka
 description: "Connect Arroyo to a Kafka topic"
 ---
 
-import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
-
 To consume real data, you can connect Arroyo to a Kafka cluster and create sources from topics. This tutorial will
 cover setting up a local Kafka broker and generating some sample data.
 
@@ -157,7 +155,7 @@ At the "Configure table" stage, enter:
 This will configure the table as a source, reading from the `orders` topic, and
 starting from the latest offset.
 
-<img src="/images/kafka_tutorial_create_source.png" alt="Configuring the Kafka source" />
+![Configuring the Kafka source](/docs/images/kafka_tutorial_create_source.png)
 
 The other options can be left as default. Click "Next" to continue.
 
@@ -219,7 +217,7 @@ FROM orders
 GROUP BY store_id, hop(interval '2 seconds', interval '10 seconds');
 ```
 
-<img src="/images/kafka_tutorial_previewing.png" alt="Previewing output of the query" />
+![Previewing output of the query](/docs/images/kafka_tutorial_previewing.png)
 
 ## Inserting into a Kafka sink
 
